@@ -68,6 +68,16 @@ export default async function AccountPage({
             Update your display name and profile photo.
           </p>
           <AccountStatusBanner profile={profile as Profile} />
+          {!approved && profile.role === "user" && (
+            <div className="mt-4">
+              <Link
+                href="/account/messages"
+                className="inline-flex rounded-lg bg-bp-gold px-4 py-2 text-sm font-medium text-white hover:bg-bp-gold-dim"
+              >
+                Messages
+              </Link>
+            </div>
+          )}
           {approved && (
             <>
               <div className="mt-4 flex flex-wrap gap-3">

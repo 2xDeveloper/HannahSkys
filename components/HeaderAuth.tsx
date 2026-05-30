@@ -111,6 +111,12 @@ export function HeaderAuth() {
         </Link>
       )}
       <Link
+        href="/account/messages"
+        className="hidden text-sm text-bp-yellow hover:text-white sm:inline"
+      >
+        Messages
+      </Link>
+      <Link
         href="/account"
         className="max-w-[140px] truncate text-sm text-bp-yellow hover:text-white"
       >

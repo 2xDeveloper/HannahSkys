@@ -40,6 +40,19 @@ export async function getInboxMessages(userId: string): Promise<Message[]> {
   return data as Message[];
 }
 
+export async function getSentMessages(userId: string): Promise<Message[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("messages")
+    .select("*")
+    .eq("sender_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error || !data) return [];
+  return data as Message[];
+}
+
 export async function getUnreadCount(userId: string): Promise<number> {
   const supabase = await createClient();
 
