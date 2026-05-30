@@ -1,0 +1,31 @@
+{
+  "name": "findomvids",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:reset": "node scripts/dev.mjs --clean",
+    "dev:clean": "node scripts/dev.mjs --clean",
+    "kill-port": "node -e \"require('child_process').spawn('powershell',['-NoProfile','-Command','Get-NetTCPConnection -LocalPort 3000 -State Listen -EA 0 | %% { Stop-Process -Id $_.OwningProcess -Force -EA 0 }'],{stdio:'inherit'})\"",
+    "dev:fresh": "npm run dev:reset",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.106.2",
+    "next": "^15.3.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "stripe": "^22.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.8",
+    "@types/node": "^22.15.21",
+    "@types/react": "^19.1.4",
+    "@types/react-dom": "^19.1.5",
+    "tailwindcss": "^4.1.8",
+    "typescript": "^5.8.3"
+  }
+}

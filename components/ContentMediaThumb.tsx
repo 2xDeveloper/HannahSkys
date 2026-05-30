@@ -1,0 +1,112 @@
+import type { CreatorContent } from "@/lib/types/content";
+import {
+  formatContentPrice,
+  isFreeContent,
+  publicMediaBlurClass,
+  shouldBlurPublicMedia,
+} from "@/lib/types/content";
+import Link from "next/link";
+
+type ContentMediaThumbProps = {
+  item: CreatorContent;
+  displayUrl: string;
+  href?: string;
+  /** When set, shows this badge instead of Paid/Preview (e.g. library) */
+  badge?: string;
+};
+
+export function ContentMediaThumb({
+  item,
+  displayUrl,
+  href,
+  badge,
+}: ContentMediaThumbProps) {
+  const creatorName = item.creator_name ?? "Creator";
+  const priceLabel = formatContentPrice(item.price_cents);
+  const free = isFreeContent(item);
+  const owned = badge === "Owned";
+  const lockedBlur = shouldBlurPublicMedia(item, { owned });
+  const showVideo = item.media_type === "video";
+  const videoControls = (free || owned) && showVideo;
+  const linkHref = href ?? `/gallery/${item.id}`;
+  const blurClass = publicMediaBlurClass(item, { owned });
+
+  return (
+    <article className="group overflow-hidden rounded-lg bg-bp-panel ring-1 ring-bp-border transition-transform hover:scale-[1.02] hover:ring-bp-gold-dim">
+      <Link href={linkHref} className="block">
+        <div className="relative aspect-[3/4] w-full overflow-hidden bg-bp-chip">
+          {showVideo ? (
+            <video
+              src={displayUrl}
+              muted
+              playsInline
+              preload="metadata"
+              controls={videoControls}
+              className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${blurClass}`}
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={displayUrl}
+              alt={item.title}
+              className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${blurClass} ${
+                !free && !owned && !lockedBlur ? "scale-105" : ""
+              }`}
+              loading="lazy"
+            />
+          )}
+          {!free && !owned && (
+            <>
+              <div className={`absolute inset-0 ${lockedBlur ? "bg-black/40" : "bg-black/20"}`} />
+              <span className="absolute left-2 top-2 rounded bg-bp-gold px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
+                Paid
+              </span>
+              <span className="absolute inset-0 flex items-center justify-center">
+                <span className="rounded-full bg-black/60 px-2 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
+                  {lockedBlur ? "Locked" : "Preview"}
+                </span>
+              </span>
+            </>
+          )}
+          <span className="absolute bottom-2 right-2 rounded bg-black/75 px-1.5 py-0.5 text-[10px] font-medium text-white">
+            {showVideo && (free || owned)
+              ? "Video"
+              : showVideo
+                ? "Unlock"
+                : free || owned
+                  ? "Photo"
+                  : "Unlock"}
+          </span>
+          {owned && (
+            <span className="absolute left-2 top-2 rounded bg-emerald-700 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
+              Owned
+            </span>
+          )}
+          {free && !owned && (
+            <span className="absolute left-2 top-2 rounded bg-emerald-700 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
+              Free
+            </span>
+          )}
+        </div>
+      </Link>
+      <div className="px-2 py-2">
+        <Link href={linkHref} className="block">
+          <p className="truncate text-xs font-medium text-white hover:text-bp-yellow">
+            {item.title}
+          </p>
+        </Link>
+        <Link
+          href={`/creator/${item.creator_id}`}
+          className="block truncate text-[10px] text-gray-500 hover:text-bp-yellow"
+        >
+          {creatorName}
+        </Link>
+        <p
+          className={`mt-0.5 text-[10px] font-medium ${free ? "text-emerald-400" : "text-bp-yellow"}`}
+        >
+          {priceLabel}
+        </p>
+      </div>
+    </article>
+  );
+}

@@ -1,0 +1,141 @@
+"use client";
+
+import {
+  creatorApplicationComplete,
+  normalizeInstagram,
+} from "@/lib/creator-application";
+import { submitCreatorApplication } from "@/lib/submit-creator-application";
+import type { Profile } from "@/lib/types/database";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
+
+type CompleteCreatorApplicationProps = {
+  profile: Profile;
+  userId: string;
+};
+
+export function CompleteCreatorApplication({
+  profile,
+  userId,
+}: CompleteCreatorApplicationProps) {
+  const router = useRouter();
+  const avatarRef = useRef<HTMLInputElement>(null);
+  const idRef = useRef<HTMLInputElement>(null);
+
+  const [instagram, setInstagram] = useState(profile.instagram_handle ?? "");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (creatorApplicationComplete(profile)) {
+    return (
+      <div className="rounded-xl border border-emerald-900/40 bg-emerald-950/20 px-4 py-3 text-sm text-emerald-200">
+        Your creator application is complete and pending admin review.
+      </div>
+    );
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+
+    const avatarFile = avatarRef.current?.files?.[0];
+    const idFile = idRef.current?.files?.[0];
+    const ig = normalizeInstagram(instagram);
+
+    if (!ig) {
+      setError("Instagram username is required.");
+      return;
+    }
+    if (!avatarFile) {
+      setError("Profile photo is required.");
+      return;
+    }
+    if (!idFile) {
+      setError("ID photo is required.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await submitCreatorApplication(ig, avatarFile, idFile);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="rounded-2xl border border-amber-900/50 bg-amber-950/20 p-6 space-y-4"
+    >
+      <div>
+        <h2 className="text-lg font-semibold text-amber-100">Complete creator application</h2>
+        <p className="mt-1 text-sm text-gray-400">
+          Upload your profile photo, ID, and Instagram so an admin can review your account.
+        </p>
+      </div>
+
+      <div>
+        <label htmlFor="ig" className="mb-1.5 block text-xs font-medium text-gray-400">
+          Instagram username
+        </label>
+        <div className="flex items-center rounded-lg border border-bp-border bg-bp-main">
+          <span className="pl-3 text-sm text-gray-500">@</span>
+          <input
+            id="ig"
+            required
+            value={instagram}
+            onChange={(e) => setInstagram(e.target.value)}
+            className="w-full bg-transparent px-2 py-2.5 text-sm text-white focus:outline-none"
+            placeholder="yourhandle"
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-gray-400">
+            Profile photo
+          </label>
+          <input
+            ref={avatarRef}
+            type="file"
+            accept="image/*"
+            required={!profile.avatar_url}
+            className="w-full text-xs text-gray-400 file:mr-3 file:rounded-lg file:border-0 file:bg-bp-chip file:px-3 file:py-2 file:text-sm file:text-white"
+          />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-gray-400">
+            Photo of ID (for verification)
+          </label>
+          <input
+            ref={idRef}
+            type="file"
+            accept="image/*"
+            required={!profile.id_document_path}
+            className="w-full text-xs text-gray-400 file:mr-3 file:rounded-lg file:border-0 file:bg-bp-chip file:px-3 file:py-2 file:text-sm file:text-white"
+          />
+        </div>
+      </div>
+
+      <p className="text-[11px] text-gray-600">
+        ID photos are private — only admins can view them for verification.
+      </p>
+
+      {error && <p className="text-sm text-red-400">{error}</p>}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="rounded-xl bg-bp-gold px-6 py-2.5 text-sm font-semibold text-white hover:bg-bp-gold-dim disabled:opacity-60"
+      >
+        {loading ? "Uploading…" : "Submit application"}
+      </button>
+    </form>
+  );
+}

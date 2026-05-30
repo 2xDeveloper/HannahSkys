@@ -1,0 +1,38 @@
+HOW TO START THE SITE (read this first)
+======================================
+
+CORRECT command (copy this line only):
+
+  npm run dev
+
+WRONG — do NOT use these:
+  npx run dev
+  npx dev
+  Then open http://localhost:3000
+
+If port error or white screen:
+
+  npm run dev:reset
+
+Open in browser:
+  http://localhost:3000
+
+Phone (same Wi-Fi): http://YOUR-IP:3000
+(Find IP: run "ipconfig" → IPv4 Address)
+
+Leave the terminal OPEN while working.
+Save files in Cursor = site updates automatically.
+
+STRIPE CHECKOUT (after keys in .env.local)
+==========================================
+1. Run supabase/migration-purchases.sql in Supabase SQL Editor
+2. Add NEXT_PUBLIC_SITE_URL=http://localhost:3000 to .env.local (fixes 0.0.0.0 redirect bug)
+3. Open a paid item → Purchase → test card 4242 4242 4242 4242
+4. My library: http://localhost:3000/library
+
+Home page always shows PREVIEW for paid items (even after purchase).
+Full file unlocks on the item page + Library only.
+
+If checkout already paid but page broke, open localhost URL with ?session_id= from Stripe redirect.
+
+Paid items must be at least $0.50 (Stripe minimum).

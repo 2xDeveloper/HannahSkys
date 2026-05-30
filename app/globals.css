@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@source "../components/**/*.{tsx,ts}";
+@source "./**/*.{tsx,ts}";
+
+@theme {
+  /* Dark base with warm maroon undertone */
+  --color-bp-black: #080808;
+  --color-bp-sidebar: #10080b;
+  --color-bp-main: #141012;
+  --color-bp-panel: #1c1418;
+  /* Brand accents — maroon / crimson */
+  --color-bp-gold: #c41e3a;
+  --color-bp-gold-dim: #8b1530;
+  --color-bp-yellow: #e8a0a8;
+  --color-bp-chip: #261a1e;
+  --color-bp-chip-hover: #352428;
+  --color-bp-border: #3d2830;
+  --font-script: "Great Vibes", cursive;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--color-bp-black);
+  color: #f5f0f0;
+  font-family: var(--font-sans);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4a3038;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b3d4a;
+}
