@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { AgeGate } from "@/components/AgeGate";
 import "./globals.css";
 
 const inter = Inter({
@@ -27,6 +28,7 @@ export default function RootLayout({
       <body
         className={`${inter.className} min-h-screen bg-bp-black text-gray-100 antialiased`}
       >
+        <AgeGate />
         {children}
       </body>
     </html>

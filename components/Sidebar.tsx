@@ -51,6 +51,7 @@ export async function Sidebar() {
       </div>
 
       <div className="space-y-2 border-t border-bp-border p-3">
+        <SidebarAction icon="📄" label="Terms of Service" href="/terms" internal />
         <SidebarAction
           icon="👥"
           label="Community"
@@ -66,13 +67,24 @@ function SidebarAction({
   icon,
   label,
   href,
+  internal = false,
 }: {
   icon: string;
   label: string;
   href?: string;
+  internal?: boolean;
 }) {
   const className =
     "flex w-full items-center gap-2 rounded-lg bg-bp-chip px-3 py-2.5 text-sm text-gray-200 transition-colors hover:bg-bp-chip-hover";
+
+  if (href && internal) {
+    return (
+      <Link href={href} className={className}>
+        <span className="text-base">{icon}</span>
+        <span>{label}</span>
+      </Link>
+    );
+  }
 
   if (href) {
     return (
