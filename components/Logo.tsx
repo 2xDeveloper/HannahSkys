@@ -12,7 +12,7 @@ type LogoProps = {
 
 export function Logo({ size = "lg", className = "", linkToHome = false }: LogoProps) {
   const sizeClass =
-    size === "sm" ? "text-lg leading-tight" : "text-2xl md:text-3xl leading-tight";
+    size === "sm" ? "text-lg leading-tight" : "text-xl leading-tight md:text-3xl";
 
   const label = (
     <span

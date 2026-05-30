@@ -69,7 +69,7 @@ export function HeaderAuth() {
   }
 
   return (
-    <div className="absolute right-4 flex items-center gap-3">
+    <div className="absolute right-2 flex items-center gap-1.5 sm:right-4 sm:gap-3">
       {profile.role === "admin" && (
         <Link
           href="/admin"
@@ -98,7 +98,7 @@ export function HeaderAuth() {
       {profile.role === "user" ? (
         <Link
           href="/library"
-          className="rounded-lg bg-bp-gold px-3 py-1.5 text-sm font-semibold text-white hover:bg-bp-gold-dim"
+          className="rounded-lg bg-bp-gold px-2 py-1.5 text-xs font-semibold text-white hover:bg-bp-gold-dim sm:px-3 sm:text-sm"
         >
           Library
         </Link>
@@ -118,7 +118,7 @@ export function HeaderAuth() {
       </Link>
       <Link
         href="/account"
-        className="max-w-[140px] truncate text-sm text-bp-yellow hover:text-white"
+        className="max-w-[88px] truncate text-xs text-bp-yellow hover:text-white sm:max-w-[140px] sm:text-sm"
       >
         Account
       </Link>

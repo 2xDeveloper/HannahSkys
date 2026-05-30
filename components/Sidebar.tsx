@@ -7,8 +7,8 @@ export async function Sidebar() {
   const creators = await getApprovedCreators();
 
   return (
-    <aside className="flex w-[220px] shrink-0 flex-col border-r border-bp-border bg-bp-sidebar">
-      <div className="border-b border-bp-border px-4 py-4">
+    <aside className="flex h-full w-full flex-col bg-bp-sidebar">
+      <div className="hidden border-b border-bp-border px-4 py-4 md:block">
         <Logo size="sm" linkToHome />
       </div>
 

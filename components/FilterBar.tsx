@@ -33,7 +33,7 @@ export function FilterBar({ itemCount }: { itemCount: number }) {
           />
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible md:pb-0">
           {filterChips.map((chip) => (
             <button
               key={chip.label}
