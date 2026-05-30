@@ -195,7 +195,7 @@ export function GalleryDetail({
               <div className="rounded-2xl border border-bp-gold/30 bg-bp-chip/50 p-5">
                 <PurchaseButton item={item} />
                 <p className="mt-4 text-center text-[11px] text-gray-500">
-                  Secure checkout via Stripe · test card 4242 4242 4242 4242
+                  Secure checkout via Stripe
                 </p>
               </div>
             )}
