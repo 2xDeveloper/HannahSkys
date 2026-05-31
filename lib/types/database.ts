@@ -12,6 +12,9 @@ export type Profile = {
   creator_status: CreatorStatus;
   created_at: string;
   updated_at: string;
+  stripe_connect_account_id?: string | null;
+  stripe_connect_charges_enabled?: boolean;
+  stripe_connect_payouts_enabled?: boolean;
 };
 
 export function isApprovedCreator(profile: Profile): boolean {

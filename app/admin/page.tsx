@@ -1,6 +1,8 @@
 import { AdminPromoteCreator } from "@/components/AdminPromoteCreator";
+import { AdminSalesPanel } from "@/components/AdminSalesPanel";
 import { PendingCreatorCard } from "@/components/PendingCreatorCard";
 import { AppShell } from "@/components/AppShell";
+import { getAdminSales } from "@/lib/sales";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types/database";
 import { creatorStatusLabel } from "@/lib/types/database";
@@ -42,6 +44,8 @@ export default async function AdminPage() {
       p.role === "user" &&
       (p.instagram_handle || p.id_document_path || p.avatar_url),
   );
+
+  const { sales, summary } = await getAdminSales();
 
   return (
     <AppShell>
@@ -85,6 +89,8 @@ export default async function AdminPage() {
               </div>
             </section>
           )}
+
+          <AdminSalesPanel sales={sales} summary={summary} />
 
           <section>
             <h2 className="text-lg font-semibold text-rose-50">

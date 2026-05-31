@@ -2,9 +2,12 @@ import { AccountStatusBanner } from "@/components/AccountStatusBanner";
 import { AccountUploadSection } from "@/components/AccountUploadSection";
 import { AppShell } from "@/components/AppShell";
 import { CompleteCreatorApplication } from "@/components/CompleteCreatorApplication";
+import { CreatorPayouts } from "@/components/CreatorPayouts";
 import { ProfileEditor } from "@/components/ProfileEditor";import { creatorApplicationComplete } from "@/lib/creator-application";
 import { getContentPublicUrl, getMyCreatorContent } from "@/lib/content";
 import { ensureUserProfile } from "@/lib/ensure-profile";
+import { getCreatorSales } from "@/lib/sales";
+import { getCreatorConnectStatus, syncConnectAccountFromStripe } from "@/lib/stripe-connect";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types/database";
 import { isApprovedCreator } from "@/lib/types/database";
@@ -14,9 +17,9 @@ import { redirect } from "next/navigation";
 export default async function AccountPage({
   searchParams,
 }: {
-  searchParams: Promise<{ published?: string }>;
+  searchParams: Promise<{ published?: string; connect?: string }>;
 }) {
-  const { published } = await searchParams;
+  const { published, connect } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -59,6 +62,17 @@ export default async function AccountPage({
     ...item,
     display_url: getContentPublicUrl(supabase, getPublicDisplayPath(item)),
   }));
+
+  let connectStatus = approved
+    ? await getCreatorConnectStatus(user.id)
+    : { accountId: null, chargesEnabled: false, payoutsEnabled: false, ready: false };
+
+  if (approved && connectStatus.accountId && (connect === "complete" || connect === "refresh")) {
+    const synced = await syncConnectAccountFromStripe(user.id, connectStatus.accountId);
+    connectStatus = { accountId: connectStatus.accountId, ...synced };
+  }
+
+  const creatorSales = approved ? await getCreatorSales(user.id) : { sales: [], summary: { totalSalesCents: 0, platformFeesCents: 0, creatorPayoutsCents: 0, saleCount: 0 } };
   return (
     <AppShell>
       <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8">
@@ -101,6 +115,15 @@ export default async function AccountPage({
                   showPublishedMessage={published === "1"}
                 />
               </div>
+              <CreatorPayouts
+                initialReady={connectStatus.ready}
+                initialChargesEnabled={connectStatus.chargesEnabled}
+                initialPayoutsEnabled={connectStatus.payoutsEnabled}
+                hasAccount={Boolean(connectStatus.accountId)}
+                sales={creatorSales.sales}
+                summary={creatorSales.summary}
+                connectQuery={connect ?? null}
+              />
             </>
           )}
           {isCreatorIntent &&

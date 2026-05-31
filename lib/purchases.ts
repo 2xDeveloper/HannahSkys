@@ -12,6 +12,7 @@ export type Purchase = {
   creator_id: string;
   amount_cents: number;
   platform_fee_cents: number;
+  creator_payout_cents: number;
   stripe_checkout_session_id: string;
   status: string;
   created_at: string;
@@ -149,6 +150,7 @@ async function insertPurchaseFromSession(
   }
 
   const platformFeeCents = calcPlatformFeeCents(amountCents);
+  const creatorPayoutCents = amountCents - platformFeeCents;
 
   const { error } = await client.from("purchases").upsert(
     {
@@ -157,6 +159,7 @@ async function insertPurchaseFromSession(
       creator_id: creatorId,
       amount_cents: amountCents,
       platform_fee_cents: platformFeeCents,
+      creator_payout_cents: creatorPayoutCents,
       stripe_checkout_session_id: session.id,
       status: "completed",
     },

@@ -1,7 +1,8 @@
 import { getContentById } from "@/lib/content";
 import { getSiteOrigin } from "@/lib/site-url";
+import { getConnectAccountIdForCreator } from "@/lib/stripe-connect";
 import { createClient } from "@/lib/supabase/server";
-import { getStripe } from "@/lib/stripe";
+import { calcPlatformFeeCents, getStripe } from "@/lib/stripe";
 import { hasPurchased } from "@/lib/purchases";
 import { isFreeContent } from "@/lib/types/content";
 import { NextResponse } from "next/server";
@@ -51,8 +52,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "You already own this content." }, { status: 400 });
   }
 
+  const creatorStripeAccountId = await getConnectAccountIdForCreator(item.creator_id);
+  if (!creatorStripeAccountId) {
+    return NextResponse.json(
+      {
+        error:
+          "This creator has not finished Stripe payout setup yet. Purchases are temporarily unavailable.",
+      },
+      { status: 400 },
+    );
+  }
+
   const origin = getSiteOrigin(request);
   const stripe = getStripe();
+  const platformFeeCents = calcPlatformFeeCents(priceCents);
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -71,6 +84,12 @@ export async function POST(request: Request) {
           },
         },
       ],
+      payment_intent_data: {
+        application_fee_amount: platformFeeCents,
+        transfer_data: {
+          destination: creatorStripeAccountId,
+        },
+      },
       metadata: {
         content_id: contentId,
         buyer_id: user.id,
