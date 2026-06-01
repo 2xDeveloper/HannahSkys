@@ -68,6 +68,7 @@ export async function POST(request: Request) {
       user.id,
       user.email ?? "",
       request,
+      supabase,
     );
     return NextResponse.json({ url });
   } catch (err) {

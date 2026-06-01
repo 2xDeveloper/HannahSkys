@@ -3,15 +3,17 @@ import { AccountUploadSection } from "@/components/AccountUploadSection";
 import { AppShell } from "@/components/AppShell";
 import { CompleteCreatorApplication } from "@/components/CompleteCreatorApplication";
 import { CreatorPayouts } from "@/components/CreatorPayouts";
-import { ProfileEditor } from "@/components/ProfileEditor";import { creatorApplicationComplete } from "@/lib/creator-application";
+import { ProfileEditor } from "@/components/ProfileEditor";
+import { creatorApplicationComplete } from "@/lib/creator-application";
 import { getContentPublicUrl, getMyCreatorContent } from "@/lib/content";
 import { ensureUserProfile } from "@/lib/ensure-profile";
 import { getCreatorSales } from "@/lib/sales";
-import { getCreatorConnectStatus, syncConnectAccountFromStripe } from "@/lib/stripe-connect";
+import { connectStatusFromProfile, syncConnectAccountFromStripe } from "@/lib/stripe-connect";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types/database";
 import { isApprovedCreator } from "@/lib/types/database";
-import { getPublicDisplayPath } from "@/lib/types/content";import Link from "next/link";
+import { getPublicDisplayPath } from "@/lib/types/content";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function AccountPage({
@@ -64,12 +66,20 @@ export default async function AccountPage({
   }));
 
   let connectStatus = approved
-    ? await getCreatorConnectStatus(user.id)
+    ? connectStatusFromProfile(profile as Profile)
     : { accountId: null, chargesEnabled: false, payoutsEnabled: false, ready: false };
 
   if (approved && connectStatus.accountId && (connect === "complete" || connect === "refresh")) {
-    const synced = await syncConnectAccountFromStripe(user.id, connectStatus.accountId);
-    connectStatus = { accountId: connectStatus.accountId, ...synced };
+    try {
+      const synced = await syncConnectAccountFromStripe(
+        user.id,
+        connectStatus.accountId,
+        supabase,
+      );
+      connectStatus = { accountId: connectStatus.accountId, ...synced };
+    } catch (err) {
+      console.error("Stripe connect sync:", err);
+    }
   }
 
   const creatorSales = approved ? await getCreatorSales(user.id) : { sales: [], summary: { totalSalesCents: 0, platformFeesCents: 0, creatorPayoutsCents: 0, saleCount: 0 } };

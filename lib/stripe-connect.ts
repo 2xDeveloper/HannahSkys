@@ -1,6 +1,8 @@
-import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteOrigin } from "@/lib/site-url";
+import { createClient } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/stripe";
+import type { Profile } from "@/lib/types/database";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type ConnectStatus = {
   accountId: string | null;
@@ -9,17 +11,24 @@ export type ConnectStatus = {
   ready: boolean;
 };
 
-export async function getCreatorConnectStatus(userId: string): Promise<ConnectStatus> {
-  const admin = createAdminClient();
-  const { data } = await admin
-    .from("profiles")
-    .select("stripe_connect_account_id, stripe_connect_charges_enabled, stripe_connect_payouts_enabled")
-    .eq("id", userId)
-    .single();
+const emptyConnectStatus: ConnectStatus = {
+  accountId: null,
+  chargesEnabled: false,
+  payoutsEnabled: false,
+  ready: false,
+};
 
-  const accountId = data?.stripe_connect_account_id ?? null;
-  const chargesEnabled = data?.stripe_connect_charges_enabled ?? false;
-  const payoutsEnabled = data?.stripe_connect_payouts_enabled ?? false;
+type ConnectProfileFields = Pick<
+  Profile,
+  | "stripe_connect_account_id"
+  | "stripe_connect_charges_enabled"
+  | "stripe_connect_payouts_enabled"
+>;
+
+export function connectStatusFromProfile(profile: ConnectProfileFields): ConnectStatus {
+  const accountId = profile.stripe_connect_account_id ?? null;
+  const chargesEnabled = profile.stripe_connect_charges_enabled ?? false;
+  const payoutsEnabled = profile.stripe_connect_payouts_enabled ?? false;
 
   return {
     accountId,
@@ -29,23 +38,50 @@ export async function getCreatorConnectStatus(userId: string): Promise<ConnectSt
   };
 }
 
-export async function syncConnectAccountFromStripe(userId: string, accountId: string) {
+export async function getCreatorConnectStatus(creatorId: string): Promise<ConnectStatus> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select(
+      "stripe_connect_account_id, stripe_connect_charges_enabled, stripe_connect_payouts_enabled",
+    )
+    .eq("id", creatorId)
+    .single();
+
+  if (error || !data) {
+    if (error) {
+      console.error("getCreatorConnectStatus:", error.message);
+    }
+    return emptyConnectStatus;
+  }
+
+  return connectStatusFromProfile(data as ConnectProfileFields);
+}
+
+export async function syncConnectAccountFromStripe(
+  userId: string,
+  accountId: string,
+  supabase?: SupabaseClient,
+) {
   const stripe = getStripe();
   const account = await stripe.accounts.retrieve(accountId);
 
-  const admin = createAdminClient();
-  await admin
-    .from("profiles")
-    .update({
-      stripe_connect_charges_enabled: account.charges_enabled ?? false,
-      stripe_connect_payouts_enabled: account.payouts_enabled ?? false,
-    })
-    .eq("id", userId);
+  const updates = {
+    stripe_connect_charges_enabled: account.charges_enabled ?? false,
+    stripe_connect_payouts_enabled: account.payouts_enabled ?? false,
+  };
+
+  const client = supabase ?? (await createClient());
+  const { error } = await client.from("profiles").update(updates).eq("id", userId);
+
+  if (error) {
+    console.error("syncConnectAccountFromStripe:", error.message);
+  }
 
   return {
-    chargesEnabled: account.charges_enabled ?? false,
-    payoutsEnabled: account.payouts_enabled ?? false,
-    ready: Boolean(account.charges_enabled && account.payouts_enabled),
+    chargesEnabled: updates.stripe_connect_charges_enabled,
+    payoutsEnabled: updates.stripe_connect_payouts_enabled,
+    ready: Boolean(updates.stripe_connect_charges_enabled && updates.stripe_connect_payouts_enabled),
   };
 }
 
@@ -53,12 +89,12 @@ export async function createConnectOnboardingLink(
   userId: string,
   email: string,
   request: Request,
+  supabase: SupabaseClient,
 ): Promise<string> {
   const stripe = getStripe();
-  const admin = createAdminClient();
   const origin = getSiteOrigin(request);
 
-  const { data: profile } = await admin
+  const { data: profile } = await supabase
     .from("profiles")
     .select("stripe_connect_account_id")
     .eq("id", userId)
@@ -81,10 +117,14 @@ export async function createConnectOnboardingLink(
     });
     accountId = account.id;
 
-    await admin
+    const { error } = await supabase
       .from("profiles")
       .update({ stripe_connect_account_id: accountId })
       .eq("id", userId);
+
+    if (error) {
+      throw new Error(`Could not save Stripe account: ${error.message}`);
+    }
   }
 
   const link = await stripe.accountLinks.create({
