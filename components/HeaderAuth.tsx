@@ -4,65 +4,42 @@ import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import { isApprovedCreator } from "@/lib/types/database";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-export function HeaderAuth() {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+function GuestLinks() {
+  return (
+    <div className="absolute right-4 flex items-center gap-2">
+      <Link
+        href="/login"
+        className="rounded-lg px-3 py-1.5 text-sm text-gray-300 hover:bg-bp-chip hover:text-white"
+      >
+        Log in
+      </Link>
+      <Link
+        href="/signup"
+        className="rounded-lg bg-bp-gold px-3 py-1.5 text-sm font-medium text-white hover:bg-bp-gold-dim"
+      >
+        Sign up
+      </Link>
+    </div>
+  );
+}
 
-  useEffect(() => {
-    const supabase = createClient();
-
-    async function load() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        setProfile(null);
-        setLoading(false);
-        return;
-      }
-
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      setProfile(data as Profile | null);
-      setLoading(false);
-    }
-
-    load();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
-      load();
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (loading) {
-    return <div className="absolute right-4 h-8 w-20 animate-pulse rounded-lg bg-bp-chip" />;
-  }
-
+function SignedInLinks({ profile }: { profile: Profile | null }) {
   if (!profile) {
     return (
-      <div className="absolute right-4 flex items-center gap-2">
+      <div className="absolute right-2 flex items-center gap-2 sm:right-4">
         <Link
-          href="/login"
-          className="rounded-lg px-3 py-1.5 text-sm text-gray-300 hover:bg-bp-chip hover:text-white"
+          href="/library"
+          className="rounded-lg bg-bp-gold px-2 py-1.5 text-xs font-semibold text-white hover:bg-bp-gold-dim sm:px-3 sm:text-sm"
         >
-          Log in
+          Library
         </Link>
         <Link
-          href="/signup"
-          className="rounded-lg bg-bp-gold px-3 py-1.5 text-sm font-medium text-white hover:bg-bp-gold-dim"
+          href="/account"
+          className="text-xs text-bp-yellow hover:text-white sm:text-sm"
         >
-          Sign up
+          Account
         </Link>
       </div>
     );
@@ -124,4 +101,76 @@ export function HeaderAuth() {
       </Link>
     </div>
   );
+}
+
+export function HeaderAuth() {
+  const [signedIn, setSignedIn] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  const loadProfile = useCallback(async (userId: string) => {
+    const supabase = createClient();
+    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
+    setProfile((data as Profile | null) ?? null);
+  }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+    let cancelled = false;
+
+    async function syncFromSession() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (cancelled) return;
+
+      if (!session?.user) {
+        setSignedIn(false);
+        setProfile(null);
+        return;
+      }
+
+      setSignedIn(true);
+      void loadProfile(session.user.id);
+    }
+
+    void syncFromSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (cancelled) return;
+
+      if (!session?.user) {
+        setSignedIn(false);
+        setProfile(null);
+        return;
+      }
+
+      setSignedIn(true);
+      void loadProfile(session.user.id);
+    });
+
+    const validateTimer = window.setTimeout(() => {
+      void supabase.auth.getUser().then(({ data: { user } }) => {
+        if (cancelled) return;
+        if (!user) {
+          setSignedIn(false);
+          setProfile(null);
+        }
+      });
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(validateTimer);
+      subscription.unsubscribe();
+    };
+  }, [loadProfile]);
+
+  if (!signedIn) {
+    return <GuestLinks />;
+  }
+
+  return <SignedInLinks profile={profile} />;
 }
