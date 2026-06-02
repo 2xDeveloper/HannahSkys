@@ -46,7 +46,7 @@ export default async function AdminPage() {
       (p.instagram_handle || p.id_document_path || p.avatar_url),
   );
 
-  const { sales, summary } = await getAdminSales();
+  const { sales, summary, creatorBalances } = await getAdminSales();
 
   if (error) {
     logDevIssue("Admin panel could not load profiles", error.message);
@@ -95,7 +95,7 @@ export default async function AdminPage() {
             </section>
           )}
 
-          <AdminSalesPanel sales={sales} summary={summary} />
+          <AdminSalesPanel sales={sales} summary={summary} creatorBalances={creatorBalances} />
 
           <section>
             <h2 className="text-lg font-semibold text-rose-50">

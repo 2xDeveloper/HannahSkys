@@ -2,14 +2,13 @@ import { AccountStatusBanner } from "@/components/AccountStatusBanner";
 import { AccountUploadSection } from "@/components/AccountUploadSection";
 import { AppShell } from "@/components/AppShell";
 import { CompleteCreatorApplication } from "@/components/CompleteCreatorApplication";
-import { CreatorPayouts } from "@/components/CreatorPayouts";
+import { CreatorEarnings } from "@/components/CreatorEarnings";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { creatorApplicationComplete } from "@/lib/creator-application";
 import { getContentPublicUrl, getMyCreatorContent } from "@/lib/content";
 import { logDevIssue } from "@/lib/dev-log";
 import { ensureUserProfile } from "@/lib/ensure-profile";
 import { getCreatorSales } from "@/lib/sales";
-import { connectStatusFromProfile, syncConnectAccountFromStripe } from "@/lib/stripe-connect";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types/database";
 import { isApprovedCreator } from "@/lib/types/database";
@@ -20,9 +19,9 @@ import { redirect } from "next/navigation";
 export default async function AccountPage({
   searchParams,
 }: {
-  searchParams: Promise<{ published?: string; connect?: string }>;
+  searchParams: Promise<{ published?: string }>;
 }) {
-  const { published, connect } = await searchParams;
+  const { published } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -75,24 +74,18 @@ export default async function AccountPage({
     display_url: getContentPublicUrl(supabase, getPublicDisplayPath(item)),
   }));
 
-  let connectStatus = approved
-    ? connectStatusFromProfile(profile as Profile)
-    : { accountId: null, chargesEnabled: false, payoutsEnabled: false, ready: false };
+  const creatorSales = approved
+    ? await getCreatorSales(user.id)
+    : {
+        sales: [],
+        summary: {
+          totalSalesCents: 0,
+          platformFeesCents: 0,
+          creatorPayoutsCents: 0,
+          saleCount: 0,
+        },
+      };
 
-  if (approved && connectStatus.accountId && (connect === "complete" || connect === "refresh")) {
-    try {
-      const synced = await syncConnectAccountFromStripe(
-        user.id,
-        connectStatus.accountId,
-        supabase,
-      );
-      connectStatus = { accountId: connectStatus.accountId, ...synced };
-    } catch (err) {
-      console.error("Stripe connect sync:", err);
-    }
-  }
-
-  const creatorSales = approved ? await getCreatorSales(user.id) : { sales: [], summary: { totalSalesCents: 0, platformFeesCents: 0, creatorPayoutsCents: 0, saleCount: 0 } };
   return (
     <AppShell>
       <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8">
@@ -135,15 +128,7 @@ export default async function AccountPage({
                   showPublishedMessage={published === "1"}
                 />
               </div>
-              <CreatorPayouts
-                initialReady={connectStatus.ready}
-                initialChargesEnabled={connectStatus.chargesEnabled}
-                initialPayoutsEnabled={connectStatus.payoutsEnabled}
-                hasAccount={Boolean(connectStatus.accountId)}
-                sales={creatorSales.sales}
-                summary={creatorSales.summary}
-                connectQuery={connect ?? null}
-              />
+              <CreatorEarnings sales={creatorSales.sales} summary={creatorSales.summary} />
             </>
           )}
           {isCreatorIntent &&
