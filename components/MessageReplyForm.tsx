@@ -1,5 +1,6 @@
 "use client";
 
+import { logDevIssue } from "@/lib/dev-log";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -53,11 +54,12 @@ export function MessageReplyForm({
     setLoading(false);
 
     if (insertError) {
-      setError(
-        insertError.message.includes("policy")
-          ? "Could not send reply. Run supabase/migration-message-replies.sql in Supabase."
-          : insertError.message,
-      );
+      if (insertError.message.includes("policy")) {
+        logDevIssue("Message reply blocked by policy", insertError.message);
+        setError("Could not send reply. Please try again later.");
+      } else {
+        setError(insertError.message);
+      }
       return;
     }
 

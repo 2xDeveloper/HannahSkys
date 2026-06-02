@@ -2,6 +2,7 @@ import { AdminPromoteCreator } from "@/components/AdminPromoteCreator";
 import { AdminSalesPanel } from "@/components/AdminSalesPanel";
 import { PendingCreatorCard } from "@/components/PendingCreatorCard";
 import { AppShell } from "@/components/AppShell";
+import { logDevIssue } from "@/lib/dev-log";
 import { getAdminSales } from "@/lib/sales";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types/database";
@@ -47,6 +48,10 @@ export default async function AdminPage() {
 
   const { sales, summary } = await getAdminSales();
 
+  if (error) {
+    logDevIssue("Admin panel could not load profiles", error.message);
+  }
+
   return (
     <AppShell>
       <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8">
@@ -58,7 +63,7 @@ export default async function AdminPage() {
 
           {error && (
             <p className="rounded-lg border border-red-900/50 bg-red-950/40 px-4 py-3 text-sm text-red-300">
-              Could not load users: {error.message}. Run the SQL migrations in Supabase.
+              Could not load users. Try refreshing the page.
             </p>
           )}
 
@@ -72,7 +77,7 @@ export default async function AdminPage() {
               </h2>
               <p className="mt-1 text-sm text-gray-500">
                 Signed up as creators but saved as regular users. Click &quot;Move to pending
-                creators&quot; to review them, or run migration-finalize-creator.sql in Supabase.
+                creators&quot; to review them.
               </p>
               <div className="mt-4 space-y-4">
                 {misclassified.map((p) => (

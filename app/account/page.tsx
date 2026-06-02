@@ -6,6 +6,7 @@ import { CreatorPayouts } from "@/components/CreatorPayouts";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { creatorApplicationComplete } from "@/lib/creator-application";
 import { getContentPublicUrl, getMyCreatorContent } from "@/lib/content";
+import { logDevIssue } from "@/lib/dev-log";
 import { ensureUserProfile } from "@/lib/ensure-profile";
 import { getCreatorSales } from "@/lib/sales";
 import { connectStatusFromProfile, syncConnectAccountFromStripe } from "@/lib/stripe-connect";
@@ -40,16 +41,25 @@ export default async function AccountPage({
     .single();
 
   if (!profile) {
+    logDevIssue("Profile not found on account page", { userId: user.id });
     return (
       <AppShell>
         <div className="p-8 text-center text-gray-400">
-          <p>Profile not found. Run supabase/schema.sql in your Supabase SQL Editor.</p>
+          <p>We couldn&apos;t load your profile. Please try again in a moment.</p>
           <Link href="/" className="mt-4 inline-block text-bp-yellow hover:text-white">
             ← Home
           </Link>
         </div>
       </AppShell>
     );
+  }
+
+  if (!isApprovedCreator(profile as Profile) && profile.creator_status === "approved" && profile.role !== "creator") {
+    logDevIssue("Profile role mismatch (approved but not creator role)", {
+      userId: user.id,
+      role: profile.role,
+      creator_status: profile.creator_status,
+    });
   }
 
   const accountType = (user.user_metadata?.account_type as string) ?? "user";
@@ -144,14 +154,6 @@ export default async function AccountPage({
                   profile={profile as Profile}
                   userId={user.id}
                 />
-              </div>
-            )}
-          {!approved &&
-            profile.creator_status === "approved" &&
-            profile.role !== "creator" && (
-              <div className="mt-4 rounded-xl border border-amber-900/50 bg-amber-950/20 px-4 py-3 text-sm text-amber-200">
-                Your account is marked approved but role is not &quot;creator&quot;. Ask admin to
-                fix your profile, or run migration-finalize-creator.sql in Supabase.
               </div>
             )}
           <div className="mt-4 rounded-2xl border border-bp-border bg-bp-panel p-6 md:p-8">

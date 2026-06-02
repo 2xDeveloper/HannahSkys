@@ -1,6 +1,7 @@
 "use client";
 
 import { deleteCreatorContent, uploadCreatorContent } from "@/lib/content-client";
+import { logDevIssue } from "@/lib/dev-log";
 import { createClient } from "@/lib/supabase/client";
 import type { CreatorContent } from "@/lib/types/content";
 import {
@@ -198,9 +199,8 @@ export function CreatorUploadForm({
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Upload failed.";
       if (msg.includes("creator_content") || msg.includes("preview_storage")) {
-        setError(
-          `${msg} — Run supabase/migration-content-preview.sql in Supabase SQL Editor.`,
-        );
+        logDevIssue("Content upload schema issue", msg);
+        setError("Upload failed. Please try again later.");
       } else {
         setError(msg);
       }

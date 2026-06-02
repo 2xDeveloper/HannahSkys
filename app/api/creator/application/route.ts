@@ -1,7 +1,5 @@
-import {
-  normalizeInstagram,
-  uploadCreatorApplicationFiles,
-} from "@/lib/creator-application";
+import { normalizeInstagram, uploadCreatorApplicationFiles } from "@/lib/creator-application";
+import { logDevIssue } from "@/lib/dev-log";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
@@ -32,10 +30,9 @@ export async function POST(request: Request) {
   });
 
   if (finalizeError) {
+    logDevIssue("finalize_creator_signup failed", finalizeError.message);
     return NextResponse.json(
-      {
-        error: `Could not save application. Run supabase/migration-finalize-creator.sql in Supabase. (${finalizeError.message})`,
-      },
+      { error: "Could not save application. Please try again." },
       { status: 500 },
     );
   }

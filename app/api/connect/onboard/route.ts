@@ -1,3 +1,4 @@
+import { logDevIssue } from "@/lib/dev-log";
 import {
   createConnectOnboardingLink,
   getCreatorConnectStatus,
@@ -72,11 +73,10 @@ export async function POST(request: Request) {
     );
     return NextResponse.json({ url });
   } catch (err) {
-    console.error("connect onboard:", err);
-    const message =
-      err instanceof Error && err.message.includes("Connect")
-        ? "Enable Stripe Connect in your Stripe Dashboard first (Settings → Connect)."
-        : "Could not start Stripe setup. Try again.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    logDevIssue("Stripe Connect onboarding failed", err);
+    return NextResponse.json(
+      { error: "Could not start Stripe setup. Please try again later." },
+      { status: 500 },
+    );
   }
 }

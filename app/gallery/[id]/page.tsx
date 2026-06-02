@@ -1,6 +1,7 @@
 import { AppShell } from "@/components/AppShell";
 import { GalleryDetail } from "@/components/GalleryDetail";
 import { getContentById, getContentPublicUrl } from "@/lib/content";
+import { logDevIssue } from "@/lib/dev-log";
 import { fulfillCheckoutSession, hasPurchased } from "@/lib/purchases";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicDisplayPath, isFreeContent } from "@/lib/types/content";
@@ -39,8 +40,8 @@ export default async function GalleryDetailPage({ params, searchParams }: PagePr
     if (fulfilled) {
       redirect(`/gallery/${id}?purchased=1`);
     } else if (!checkoutError) {
-      checkoutError =
-        "Payment went through but unlock failed. Re-run supabase/migration-purchases.sql in Supabase, then refresh this page.";
+      logDevIssue("Purchase unlock failed after checkout", { sessionId: query.session_id, userId: user.id });
+      checkoutError = "Payment received but content could not be unlocked. Refresh this page or contact support.";
     }
   } else if (query.session_id && !user) {
     checkoutError = "Log in to unlock your purchase.";

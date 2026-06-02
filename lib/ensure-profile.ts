@@ -1,3 +1,4 @@
+import { logDevIssue } from "@/lib/dev-log";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { User } from "@supabase/supabase-js";
 import { normalizeInstagram } from "@/lib/creator-application";
@@ -40,11 +41,10 @@ export async function ensureUserProfile(supabase: SupabaseClient, user: User) {
     if (finalizeError) {
       const { error: syncError } = await supabase.rpc("sync_creator_application");
       if (syncError) {
-        console.error(
-          "Creator profile sync failed. Run supabase/migration-finalize-creator.sql:",
-          finalizeError.message,
-          syncError.message,
-        );
+        logDevIssue("Creator profile sync failed", {
+          finalize: finalizeError.message,
+          sync: syncError.message,
+        });
       }
     }
   }

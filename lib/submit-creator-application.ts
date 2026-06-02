@@ -1,3 +1,4 @@
+import { logDevIssue } from "@/lib/dev-log";
 import { normalizeInstagram, uploadCreatorApplicationFiles } from "@/lib/creator-application";
 import { createClient } from "@/lib/supabase/client";
 import type { Session } from "@supabase/supabase-js";
@@ -54,9 +55,11 @@ export async function submitCreatorApplication(
   if (finalizeError) {
     const { error: syncError } = await supabase.rpc("sync_creator_application");
     if (syncError) {
-      throw new Error(
-        `Could not save application. Run supabase/migration-finalize-creator.sql in Supabase. (${finalizeError.message})`,
-      );
+      logDevIssue("Creator application save failed", {
+        finalize: finalizeError.message,
+        sync: syncError.message,
+      });
+      throw new Error("Could not save application. Please try again.");
     }
   }
 
