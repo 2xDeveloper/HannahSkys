@@ -2,6 +2,12 @@
 
 import { deleteCreatorContent, uploadCreatorContent } from "@/lib/content-client";
 import { logDevIssue } from "@/lib/dev-log";
+import {
+  formatFileSize,
+  isOverUploadLimit,
+  mapUploadErrorMessage,
+  maxUploadLabel,
+} from "@/lib/upload-limits";
 import { createClient } from "@/lib/supabase/client";
 import type { CreatorContent } from "@/lib/types/content";
 import {
@@ -70,12 +76,22 @@ function FileDropZone({
         />
         {preview ? (
           <div className="relative flex min-h-[140px] items-center justify-center p-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={preview.url}
-              alt=""
-              className="max-h-40 rounded-lg object-contain"
-            />
+            {preview.label === "Video" ? (
+              <video
+                src={preview.url}
+                className="max-h-40 max-w-full rounded-lg"
+                muted
+                playsInline
+                preload="metadata"
+              />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={preview.url}
+                alt=""
+                className="max-h-40 rounded-lg object-contain"
+              />
+            )}
             <span className="absolute bottom-2 right-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] text-white">
               {preview.label}
             </span>
@@ -127,6 +143,12 @@ export function CreatorUploadForm({
     }
     setError(null);
     fullFileRef.current = file;
+    if (isOverUploadLimit(file.size)) {
+      setError(
+        `File is ${formatFileSize(file.size)} — max ${maxUploadLabel()}. Compress the video or use a shorter clip.`,
+      );
+      return;
+    }
     setFullPreview({
       url: URL.createObjectURL(file),
       label: mediaType === "video" ? "Video" : "Photo",
@@ -156,6 +178,12 @@ export function CreatorUploadForm({
     const fullFile = fullFileRef.current;
     if (!fullFile) {
       setError(isFree ? "Add a photo or video." : "Add the full paid file.");
+      return;
+    }
+    if (isOverUploadLimit(fullFile.size)) {
+      setError(
+        `File is ${formatFileSize(fullFile.size)} — max ${maxUploadLabel()}. Compress the video or use a shorter clip.`,
+      );
       return;
     }
     if (!title.trim()) {
@@ -198,12 +226,8 @@ export function CreatorUploadForm({
       window.location.assign("/account?published=1#upload");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Upload failed.";
-      if (msg.includes("creator_content") || msg.includes("preview_storage")) {
-        logDevIssue("Content upload schema issue", msg);
-        setError("Upload failed. Please try again later.");
-      } else {
-        setError(msg);
-      }
+      logDevIssue("Creator content upload failed", msg);
+      setError(mapUploadErrorMessage(msg));
     } finally {
       setLoading(false);
     }
@@ -245,7 +269,8 @@ export function CreatorUploadForm({
               <p className="mt-1 max-w-lg text-sm text-gray-400">
                 {isFree
                   ? "Free posts show the full file on the gallery."
-                  : "Paid posts show only your preview on the gallery — the full file stays locked until purchase."}
+                  : "Paid posts show only your preview on the gallery — the full file stays locked until purchase."}{" "}
+                Max file size {maxUploadLabel()}.
               </p>
             </div>
             <Link
