@@ -42,6 +42,14 @@ export function mapUploadErrorMessage(raw: string): string {
     return "Upload timed out. Try a smaller file or a stronger connection.";
   }
 
+  if (
+    lower.includes("schema cache") ||
+    lower.includes("preview_storage_path") ||
+    lower.includes("creator_content")
+  ) {
+    return "Upload is temporarily unavailable. Please try again later.";
+  }
+
   if (raw.startsWith("Upload failed:")) {
     return mapUploadErrorMessage(raw.slice("Upload failed:".length).trim());
   }
