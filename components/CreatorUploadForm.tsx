@@ -12,8 +12,8 @@ import { createClient } from "@/lib/supabase/client";
 import type { CreatorContent } from "@/lib/types/content";
 import {
   formatContentPrice,
+  getPublicDisplayMediaType,
   isFreeContent,
-  isImageFile,
   mediaTypeFromFile,
   priceToCents,
 } from "@/lib/types/content";
@@ -162,13 +162,23 @@ export function CreatorUploadForm({
       setTeaserPreview(null);
       return;
     }
-    if (!isImageFile(file)) {
-      setError("Preview must be an image (what fans see before buying).");
+    const mediaType = mediaTypeFromFile(file);
+    if (!mediaType) {
+      setError("Preview must be a photo or video.");
+      return;
+    }
+    if (isOverUploadLimit(file.size)) {
+      setError(
+        `Preview is ${formatFileSize(file.size)} — max ${maxUploadLabel()}.`,
+      );
       return;
     }
     setError(null);
     previewTeaserRef.current = file;
-    setTeaserPreview({ url: URL.createObjectURL(file), label: "Preview" });
+    setTeaserPreview({
+      url: URL.createObjectURL(file),
+      label: mediaType === "video" ? "Video" : "Preview",
+    });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -205,7 +215,7 @@ export function CreatorUploadForm({
         return;
       }
       if (!previewTeaserRef.current) {
-        setError("Paid posts need a preview image fans can see on the gallery.");
+        setError("Paid posts need a preview photo or video for the gallery.");
         return;
       }
     }
@@ -367,9 +377,9 @@ export function CreatorUploadForm({
             <div className="grid gap-4 sm:grid-cols-2">
               <FileDropZone
                 id="preview-teaser"
-                label="Preview image (public)"
-                hint="What fans see on home & profile — e.g. blurred teaser, cover shot"
-                accept="image/*"
+                label="Preview (public)"
+                hint="Photo or video fans see on home & profile — not the locked full file"
+                accept="image/*,video/*"
                 preview={teaserPreview}
                 onPick={setTeaserFile}
                 dragOver={dragTeaser}
@@ -438,18 +448,29 @@ export function CreatorUploadForm({
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {existingContent.map((item) => {
               const paid = !isFreeContent(item);
+              const thumbIsVideo = getPublicDisplayMediaType(item) === "video";
               return (
                 <li
                   key={item.id}
                   className="group flex gap-3 rounded-xl border border-bp-border bg-bp-main/60 p-3"
                 >
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-bp-chip ring-1 ring-bp-border">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.display_url}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
+                    {thumbIsVideo ? (
+                      <video
+                        src={item.display_url}
+                        className="h-full w-full object-cover"
+                        muted
+                        playsInline
+                        preload="metadata"
+                      />
+                    ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={item.display_url}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    )}
                     {paid && (
                       <span className="absolute bottom-0 left-0 right-0 bg-bp-gold/90 py-0.5 text-center text-[8px] font-bold text-white">
                         PREVIEW

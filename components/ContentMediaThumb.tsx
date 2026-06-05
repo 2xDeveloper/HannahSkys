@@ -1,6 +1,7 @@
 import type { CreatorContent } from "@/lib/types/content";
 import {
   formatContentPrice,
+  getPublicDisplayMediaType,
   isFreeContent,
   publicMediaBlurClass,
   shouldBlurPublicMedia,
@@ -26,8 +27,11 @@ export function ContentMediaThumb({
   const free = isFreeContent(item);
   const owned = badge === "Owned";
   const lockedBlur = shouldBlurPublicMedia(item, { owned });
-  const showVideo = item.media_type === "video";
-  const videoControls = (free || owned) && showVideo;
+  const publicMediaType = getPublicDisplayMediaType(item);
+  const fullMediaType = item.media_type;
+  const showAsVideo =
+    (free || owned ? fullMediaType : publicMediaType) === "video";
+  const videoControls = (free || owned) && showAsVideo;
   const linkHref = href ?? `/gallery/${item.id}`;
   const blurClass = publicMediaBlurClass(item, { owned });
 
@@ -35,7 +39,7 @@ export function ContentMediaThumb({
     <article className="group overflow-hidden rounded-lg bg-bp-panel ring-1 ring-bp-border transition-transform hover:scale-[1.02] hover:ring-bp-gold-dim">
       <Link href={linkHref} className="block">
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-bp-chip">
-          {showVideo ? (
+          {showAsVideo ? (
             <video
               src={displayUrl}
               muted
@@ -69,13 +73,15 @@ export function ContentMediaThumb({
             </>
           )}
           <span className="absolute bottom-2 right-2 rounded bg-black/75 px-1.5 py-0.5 text-[10px] font-medium text-white">
-            {showVideo && (free || owned)
+            {showAsVideo && (free || owned)
               ? "Video"
-              : showVideo
-                ? "Unlock"
+              : showAsVideo
+                ? "Preview"
                 : free || owned
                   ? "Photo"
-                  : "Unlock"}
+                  : lockedBlur
+                    ? "Unlock"
+                    : "Preview"}
           </span>
           {owned && (
             <span className="absolute left-2 top-2 rounded bg-emerald-700 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">

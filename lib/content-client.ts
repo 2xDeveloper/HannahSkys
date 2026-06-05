@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CreatorContent, MediaType } from "@/lib/types/content";
-import { isImageFile } from "@/lib/types/content";
+import { mediaTypeFromFile } from "@/lib/types/content";
 
 const BUCKET = "creator-media";
 
@@ -21,8 +21,8 @@ export async function uploadCreatorContent(
   const isPaid = priceCents != null && priceCents > 0;
 
   if (isPaid) {
-    if (!previewFile || !isImageFile(previewFile)) {
-      throw new Error("Paid content requires a preview image (what buyers see before purchase).");
+    if (!previewFile || !mediaTypeFromFile(previewFile)) {
+      throw new Error("Paid content requires a preview photo or video for the gallery.");
     }
   }
 
@@ -36,7 +36,8 @@ export async function uploadCreatorContent(
 
   let previewPath: string | null = null;
   if (isPaid && previewFile) {
-    const previewExt = extFromFile(previewFile, "jpg");
+    const previewKind = mediaTypeFromFile(previewFile);
+    const previewExt = extFromFile(previewFile, previewKind === "video" ? "mp4" : "jpg");
     previewPath = `${userId}/${contentId}/preview.${previewExt}`;
     pathsToUpload.unshift({ path: previewPath, file: previewFile });
   }

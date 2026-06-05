@@ -2,6 +2,7 @@ import { PurchaseButton } from "@/components/PurchaseButton";
 import type { CreatorContent } from "@/lib/types/content";
 import {
   formatContentPrice,
+  getPublicDisplayMediaType,
   isFreeContent,
   publicMediaBlurClass,
   shouldBlurPublicMedia,
@@ -32,9 +33,8 @@ export function GalleryDetail({
   const unlocked = free || owned;
   const creatorName = item.creator_name ?? "Creator";
   const viewUrl = unlocked && fullUrl ? fullUrl : previewUrl;
-  const isVideo = item.media_type === "video";
-  const showVideo = unlocked && isVideo;
-  const showLockedVideo = !unlocked && isVideo;
+  const displayMediaType = unlocked ? item.media_type : getPublicDisplayMediaType(item);
+  const isVideoDisplay = displayMediaType === "video";
   const lockedBlur = !unlocked && shouldBlurPublicMedia(item);
   const blurClass = !unlocked ? publicMediaBlurClass(item) : "";
 
@@ -69,20 +69,14 @@ export function GalleryDetail({
           <div className="mx-auto w-full max-w-[340px] lg:mx-0">
             <div className="overflow-hidden rounded-2xl border border-bp-border bg-bp-panel shadow-xl shadow-black/40">
               <div className="relative aspect-[3/4] w-full max-h-[460px] bg-bp-chip">
-                {showVideo ? (
+                {isVideoDisplay ? (
                   <video
                     src={viewUrl}
-                    controls
-                    playsInline
-                    className="h-full w-full object-cover"
-                  />
-                ) : showLockedVideo ? (
-                  <video
-                    src={viewUrl}
-                    muted
+                    controls={unlocked}
+                    muted={!unlocked}
                     playsInline
                     preload="metadata"
-                    className={`h-full w-full object-cover ${blurClass}`}
+                    className={`h-full w-full object-cover ${unlocked ? "" : blurClass}`}
                   />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -115,7 +109,7 @@ export function GalleryDetail({
                     Purchased
                   </span>
                 )}
-                {showVideo && unlocked && (
+                {isVideoDisplay && unlocked && (
                   <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                     <span className="flex h-14 w-14 items-center justify-center rounded-full bg-bp-gold/95 text-xl text-white shadow-lg ring-4 ring-black/30">
                       ▶

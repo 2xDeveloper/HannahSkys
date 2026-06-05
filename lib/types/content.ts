@@ -43,6 +43,25 @@ export function getPublicDisplayPath(item: CreatorContent): string {
   return item.preview_storage_path ?? item.storage_path;
 }
 
+const VIDEO_EXTENSIONS = new Set(["mp4", "webm", "mov", "m4v", "ogg", "ogv"]);
+
+/** Infer photo vs video from a storage path extension */
+export function mediaTypeFromStoragePath(path: string): MediaType {
+  const ext = path.split(".").pop()?.toLowerCase() ?? "";
+  return VIDEO_EXTENSIONS.has(ext) ? "video" : "photo";
+}
+
+/** What to render on gallery/profile before purchase */
+export function getPublicDisplayMediaType(item: CreatorContent): MediaType {
+  if (isFreeContent(item)) {
+    return item.media_type;
+  }
+  if (hasDedicatedPreview(item) && item.preview_storage_path) {
+    return mediaTypeFromStoragePath(item.preview_storage_path);
+  }
+  return item.media_type;
+}
+
 /** Tailwind classes to hide paid full media on public surfaces */
 export function publicMediaBlurClass(
   item: Pick<CreatorContent, "price_cents" | "preview_storage_path">,
