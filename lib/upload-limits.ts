@@ -1,15 +1,18 @@
-/** Match supabase/migration-bucket-video-limit.sql (200MB). Default Supabase is 50MB until that migration runs. */
-export const MAX_UPLOAD_BYTES = 200 * 1024 * 1024;
+/** Match supabase/migration-bucket-video-limit.sql (2GB for long iPhone videos). */
+export const MAX_UPLOAD_BYTES = 2 * 1024 * 1024 * 1024;
 
 export function maxUploadLabel(): string {
-  return "200 MB";
+  return "2 GB";
 }
 
 export function formatFileSize(bytes: number): string {
   if (bytes < 1024 * 1024) {
     return `${(bytes / 1024).toFixed(1)} KB`;
   }
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes < 1024 * 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
 
 export function isOverUploadLimit(bytes: number): boolean {

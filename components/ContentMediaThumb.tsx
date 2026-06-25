@@ -1,3 +1,4 @@
+import { HoverPreviewVideo } from "@/components/HoverPreviewVideo";
 import type { CreatorContent } from "@/lib/types/content";
 import {
   formatContentPrice,
@@ -31,6 +32,7 @@ export function ContentMediaThumb({
   const fullMediaType = item.media_type;
   const showAsVideo =
     (free || owned ? fullMediaType : publicMediaType) === "video";
+  const isPreviewVideo = showAsVideo && !free && !owned && !lockedBlur;
   const videoControls = (free || owned) && showAsVideo;
   const linkHref = href ?? `/gallery/${item.id}`;
   const blurClass = publicMediaBlurClass(item, { owned });
@@ -39,7 +41,9 @@ export function ContentMediaThumb({
     <article className="group overflow-hidden rounded-lg bg-bp-panel ring-1 ring-bp-border transition-transform hover:scale-[1.02] hover:ring-bp-gold-dim">
       <Link href={linkHref} className="block">
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-bp-chip">
-          {showAsVideo ? (
+          {isPreviewVideo ? (
+            <HoverPreviewVideo src={displayUrl} blurClass={blurClass} />
+          ) : showAsVideo ? (
             <video
               src={displayUrl}
               muted
@@ -61,35 +65,37 @@ export function ContentMediaThumb({
           )}
           {!free && !owned && (
             <>
-              <div className={`absolute inset-0 ${lockedBlur ? "bg-black/40" : "bg-black/20"}`} />
-              <span className="absolute left-2 top-2 rounded bg-bp-gold px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
+              <div className={`absolute inset-0 pointer-events-none ${lockedBlur ? "bg-black/40" : "bg-black/20"}`} />
+              <span className="pointer-events-none absolute left-2 top-2 rounded bg-bp-gold px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
                 Paid
               </span>
-              <span className="absolute inset-0 flex items-center justify-center">
-                <span className="rounded-full bg-black/60 px-2 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
-                  {lockedBlur ? "Locked" : "Preview"}
+              {!isPreviewVideo && (
+                <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <span className="rounded-full bg-black/60 px-2 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
+                    {lockedBlur ? "Locked" : publicMediaType === "video" ? "Video preview" : "Preview"}
+                  </span>
                 </span>
-              </span>
+              )}
             </>
           )}
-          <span className="absolute bottom-2 right-2 rounded bg-black/75 px-1.5 py-0.5 text-[10px] font-medium text-white">
+          <span className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/75 px-1.5 py-0.5 text-[10px] font-medium text-white">
             {showAsVideo && (free || owned)
               ? "Video"
               : showAsVideo
-                ? "Preview"
+                ? "Video"
                 : free || owned
                   ? "Photo"
                   : lockedBlur
                     ? "Unlock"
-                    : "Preview"}
+                    : "Photo"}
           </span>
           {owned && (
-            <span className="absolute left-2 top-2 rounded bg-emerald-700 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
+            <span className="pointer-events-none absolute left-2 top-2 rounded bg-emerald-700 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
               Owned
             </span>
           )}
           {free && !owned && (
-            <span className="absolute left-2 top-2 rounded bg-emerald-700 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
+            <span className="pointer-events-none absolute left-2 top-2 rounded bg-emerald-700 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
               Free
             </span>
           )}

@@ -40,16 +40,13 @@ export async function submitCreatorApplication(
   }
 
   const ig = normalizeInstagram(instagram);
-  if (!ig) {
-    throw new Error("Instagram username is required.");
-  }
 
   if (!avatarFile?.size || !idFile?.size) {
     throw new Error("Profile photo and ID photo are both required.");
   }
 
   const { error: finalizeError } = await supabase.rpc("finalize_creator_signup", {
-    p_instagram: ig,
+    p_instagram: ig || "",
   });
 
   if (finalizeError) {

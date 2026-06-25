@@ -117,24 +117,36 @@ export function HeaderAuth() {
     const supabase = createClient();
     let cancelled = false;
 
-    async function syncFromSession() {
+    async function syncAuth() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
       if (cancelled) return;
 
-      if (!session?.user) {
-        setSignedIn(false);
-        setProfile(null);
+      if (session?.user) {
+        setSignedIn(true);
+        void loadProfile(session.user.id);
         return;
       }
 
-      setSignedIn(true);
-      void loadProfile(session.user.id);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (cancelled) return;
+
+      if (user) {
+        setSignedIn(true);
+        void loadProfile(user.id);
+        return;
+      }
+
+      setSignedIn(false);
+      setProfile(null);
     }
 
-    void syncFromSession();
+    void syncAuth();
 
     const {
       data: { subscription },
@@ -151,20 +163,15 @@ export function HeaderAuth() {
       void loadProfile(session.user.id);
     });
 
-    const validateTimer = window.setTimeout(() => {
-      void supabase.auth.getUser().then(({ data: { user } }) => {
-        if (cancelled) return;
-        if (!user) {
-          setSignedIn(false);
-          setProfile(null);
-        }
-      });
-    }, 0);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void syncAuth();
+    };
+    document.addEventListener("visibilitychange", onVisible);
 
     return () => {
       cancelled = true;
-      window.clearTimeout(validateTimer);
       subscription.unsubscribe();
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [loadProfile]);
 

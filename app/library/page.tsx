@@ -24,7 +24,7 @@ export default async function LibraryPage() {
         <div className="border-b border-bp-border px-4 py-6 md:px-8">
           <h1 className="text-2xl font-bold text-rose-50">My library</h1>
           <p className="mt-1 text-sm text-gray-400">
-            Content you purchased — full files unlocked here and on each item page.
+            Everything you purchased — full photos and videos unlocked here. Tap any item to watch or download.
           </p>
         </div>
 

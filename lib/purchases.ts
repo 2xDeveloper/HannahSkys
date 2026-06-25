@@ -65,6 +65,7 @@ export async function getUserLibrary(userId: string): Promise<LibraryItem[]> {
         title,
         media_type,
         storage_path,
+        preview_storage_path,
         price_cents,
         created_at,
         updated_at
@@ -152,19 +153,27 @@ async function insertPurchaseFromSession(
   const platformFeeCents = calcPlatformFeeCents(amountCents);
   const creatorPayoutCents = amountCents - platformFeeCents;
 
-  const { error } = await client.from("purchases").upsert(
-    {
-      buyer_id: buyerId,
-      content_id: contentId,
-      creator_id: creatorId,
-      amount_cents: amountCents,
-      platform_fee_cents: platformFeeCents,
-      creator_payout_cents: creatorPayoutCents,
-      stripe_checkout_session_id: session.id,
-      status: "completed",
-    },
+  const baseRow = {
+    buyer_id: buyerId,
+    content_id: contentId,
+    creator_id: creatorId,
+    amount_cents: amountCents,
+    platform_fee_cents: platformFeeCents,
+    stripe_checkout_session_id: session.id,
+    status: "completed" as const,
+  };
+
+  let { error } = await client.from("purchases").upsert(
+    { ...baseRow, creator_payout_cents: creatorPayoutCents },
     { onConflict: "stripe_checkout_session_id", ignoreDuplicates: true },
   );
+
+  if (error?.message?.includes("creator_payout_cents")) {
+    ({ error } = await client.from("purchases").upsert(baseRow, {
+      onConflict: "stripe_checkout_session_id",
+      ignoreDuplicates: true,
+    }));
+  }
 
   if (error) {
     console.error("insertPurchaseFromSession:", error.message);
@@ -187,7 +196,16 @@ export async function fulfillCheckoutSession(
   }
 
   const supabase = await createClient();
-  const result = await insertPurchaseFromSession(session, supabase);
+  let result = await insertPurchaseFromSession(session, supabase);
+
+  if (!result.ok) {
+    try {
+      result = await insertPurchaseFromSession(session, createAdminClient());
+    } catch (err) {
+      console.error("fulfillCheckoutSession admin fallback:", err);
+    }
+  }
+
   return result.ok;
 }
 

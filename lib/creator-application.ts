@@ -41,7 +41,7 @@ export async function uploadCreatorApplicationFiles(
     .update({
       avatar_url: avatarUrl,
       id_document_path: idPath,
-      instagram_handle: normalizeInstagram(instagramHandle),
+      instagram_handle: normalizeInstagram(instagramHandle) || null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", userId);

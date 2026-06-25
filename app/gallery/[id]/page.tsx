@@ -44,7 +44,7 @@ export default async function GalleryDetailPage({ params, searchParams }: PagePr
       checkoutError = "Payment received but content could not be unlocked. Refresh this page or contact support.";
     }
   } else if (query.session_id && !user) {
-    checkoutError = "Log in to unlock your purchase.";
+    redirect(`/login?next=${encodeURIComponent(`/gallery/${id}?session_id=${query.session_id}`)}`);
   }
 
   const owned = user ? await hasPurchased(user.id, id) : false;

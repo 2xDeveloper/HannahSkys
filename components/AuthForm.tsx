@@ -2,7 +2,6 @@
 
 import type { AccountType } from "@/lib/types/database";
 import { formatAuthError } from "@/lib/auth-errors";
-import { normalizeInstagram } from "@/lib/creator-application";
 import { submitCreatorApplication } from "@/lib/submit-creator-application";
 import { ensureUserProfile } from "@/lib/ensure-profile";
 import { createClient } from "@/lib/supabase/client";
@@ -29,7 +28,6 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [instagram, setInstagram] = useState("");
   const [accountType, setAccountType] = useState<AccountType>("user");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -45,16 +43,10 @@ export function AuthForm({ mode }: AuthFormProps) {
     const normalizedEmail = normalizeEmail(email);
 
     if (mode === "signup") {
-      const ig = normalizeInstagram(instagram);
       const avatarFile = avatarRef.current?.files?.[0];
       const idFile = idRef.current?.files?.[0];
 
       if (accountType === "creator") {
-        if (!ig) {
-          setLoading(false);
-          setError("Instagram username is required for creators.");
-          return;
-        }
         if (!avatarFile) {
           setLoading(false);
           setError("Profile photo is required for creators.");
@@ -75,7 +67,6 @@ export function AuthForm({ mode }: AuthFormProps) {
           data: {
             display_name: displayName.trim() || normalizedEmail.split("@")[0],
             account_type: accountType,
-            instagram_handle: accountType === "creator" ? ig : null,
           },
         },
       });
@@ -103,7 +94,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
         if (session) {
           try {
-            await submitCreatorApplication(ig, avatarFile, idFile, {
+            await submitCreatorApplication("", avatarFile, idFile, {
               userId: data.user.id,
               session,
             });
@@ -221,23 +212,6 @@ export function AuthForm({ mode }: AuthFormProps) {
 
           {isCreatorSignup && (
             <>
-              <div>
-                <label htmlFor="instagram" className="mb-1.5 block text-xs font-medium text-gray-400">
-                  Instagram username
-                </label>
-                <div className="flex items-center rounded-lg border border-bp-border bg-bp-panel">
-                  <span className="pl-3 text-sm text-gray-500">@</span>
-                  <input
-                    id="instagram"
-                    required
-                    value={instagram}
-                    onChange={(e) => setInstagram(e.target.value)}
-                    className="w-full bg-transparent px-2 py-2.5 text-sm text-white focus:outline-none"
-                    placeholder="yourhandle"
-                  />
-                </div>
-              </div>
-
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-gray-400">

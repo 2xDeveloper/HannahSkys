@@ -1,3 +1,4 @@
+import { HoverPreviewVideo } from "@/components/HoverPreviewVideo";
 import { PurchaseButton } from "@/components/PurchaseButton";
 import type { CreatorContent } from "@/lib/types/content";
 import {
@@ -60,7 +61,10 @@ export function GalleryDetail({
 
       {justPurchased && (
         <div className="border-b border-emerald-900/50 bg-emerald-950/40 px-4 py-3 text-center text-sm text-emerald-200 md:px-6">
-          Purchase complete — full {item.media_type} unlocked below.
+          Purchase complete — full {item.media_type} unlocked.{" "}
+          <Link href="/library" className="font-semibold text-white underline hover:text-emerald-100">
+            Open your library →
+          </Link>
         </div>
       )}
 
@@ -69,7 +73,9 @@ export function GalleryDetail({
           <div className="mx-auto w-full max-w-[340px] lg:mx-0">
             <div className="overflow-hidden rounded-2xl border border-bp-border bg-bp-panel shadow-xl shadow-black/40">
               <div className="relative aspect-[3/4] w-full max-h-[460px] bg-bp-chip">
-                {isVideoDisplay ? (
+                {isVideoDisplay && !unlocked && !lockedBlur ? (
+                  <HoverPreviewVideo src={viewUrl} blurClass={blurClass} />
+                ) : isVideoDisplay ? (
                   <video
                     src={viewUrl}
                     controls={unlocked}

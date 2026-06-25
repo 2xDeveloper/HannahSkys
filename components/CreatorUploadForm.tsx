@@ -18,6 +18,7 @@ import {
   priceToCents,
 } from "@/lib/types/content";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 type ContentWithUrl = CreatorContent & { display_url: string };
@@ -124,6 +125,7 @@ export function CreatorUploadForm({
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   function revoke(url: string | undefined) {
     if (url) URL.revokeObjectURL(url);
@@ -233,7 +235,8 @@ export function CreatorUploadForm({
         priceCents,
         isFree ? null : previewTeaserRef.current,
       );
-      window.location.assign("/account?published=1#upload");
+      router.push("/account?published=1#upload");
+      router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Upload failed.";
       logDevIssue("Creator content upload failed", msg);
@@ -255,7 +258,7 @@ export function CreatorUploadForm({
         item.storage_path,
         item.preview_storage_path,
       );
-      window.location.assign("/account#upload");
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Delete failed.");
     } finally {
@@ -282,6 +285,13 @@ export function CreatorUploadForm({
                   : "Paid posts show only your preview on the gallery — the full file stays locked until purchase."}{" "}
                 Max file size {maxUploadLabel()}.
               </p>
+              {!isFree && (
+                <ul className="mt-3 max-w-lg space-y-1 text-xs leading-relaxed text-gray-500">
+                  <li>• Previews are limited to a <strong className="text-gray-400">10-second clip</strong> (trim before upload).</li>
+                  <li>• Full videos can be up to <strong className="text-gray-400">10 minutes</strong>. Large files are supported — most uploads come from iPhone.</li>
+                  <li>• Preview can be a <strong className="text-gray-400">photo or video</strong> — fans see exactly what you upload as the preview.</li>
+                </ul>
+              )}
             </div>
             <Link
               href={`/creator/${userId}`}
