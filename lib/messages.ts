@@ -65,3 +65,48 @@ export async function getUnreadCount(userId: string): Promise<number> {
   if (error) return 0;
   return count ?? 0;
 }
+
+/** All messages the user sent or received — for threaded chat UI */
+export async function getAllMessagesForUser(userId: string): Promise<Message[]> {
+  const supabase = await createClient();
+
+  const [inboxRes, sentRes] = await Promise.all([
+    supabase
+      .from("messages")
+      .select("*")
+      .eq("recipient_id", userId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("messages")
+      .select("*")
+      .eq("sender_id", userId)
+      .order("created_at", { ascending: true }),
+  ]);
+
+  const byId = new Map<string, Message>();
+  for (const row of [...(inboxRes.data ?? []), ...(sentRes.data ?? [])]) {
+    byId.set(row.id, row as Message);
+  }
+
+  return [...byId.values()].sort(
+    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+  );
+}
+
+export async function getPartnerProfiles(
+  userIds: string[],
+): Promise<Record<string, { display_name: string | null; avatar_url: string | null }>> {
+  if (userIds.length === 0) return {};
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("id, display_name, avatar_url")
+    .in("id", userIds);
+
+  const map: Record<string, { display_name: string | null; avatar_url: string | null }> = {};
+  for (const row of data ?? []) {
+    map[row.id] = { display_name: row.display_name, avatar_url: row.avatar_url };
+  }
+  return map;
+}

@@ -65,7 +65,7 @@ function SignedInLinks({ profile }: { profile: Profile | null }) {
             Upload
           </Link>
           <Link
-            href="/account/messages"
+            href="/messages"
             className="hidden text-sm text-bp-yellow hover:text-white sm:inline"
           >
             Messages
@@ -88,7 +88,7 @@ function SignedInLinks({ profile }: { profile: Profile | null }) {
         </Link>
       )}
       <Link
-        href="/account/messages"
+        href="/messages"
         className="hidden text-sm text-bp-yellow hover:text-white sm:inline"
       >
         Messages

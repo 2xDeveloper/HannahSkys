@@ -74,7 +74,7 @@ export default async function CreatorProfilePage({ params }: PageProps) {
                   Upload content
                 </Link>
                 {" · "}
-                <Link href="/account/messages" className="underline hover:text-white">
+                <Link href="/messages" className="underline hover:text-white">
                   Inbox
                 </Link>
               </p>

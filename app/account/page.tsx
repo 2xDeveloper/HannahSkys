@@ -98,7 +98,7 @@ export default async function AccountPage({
           {!approved && profile.role === "user" && (
             <div className="mt-4">
               <Link
-                href="/account/messages"
+                href="/messages"
                 className="inline-flex rounded-lg bg-bp-gold px-4 py-2 text-sm font-medium text-white hover:bg-bp-gold-dim"
               >
                 Messages
@@ -115,7 +115,7 @@ export default async function AccountPage({
                   View public profile
                 </Link>
                 <Link
-                  href="/account/messages"
+                  href="/messages"
                   className="rounded-lg bg-bp-gold px-4 py-2 text-sm font-medium text-white hover:bg-bp-gold-dim"
                 >
                   Messages inbox
