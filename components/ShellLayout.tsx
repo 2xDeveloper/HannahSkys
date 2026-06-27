@@ -2,6 +2,7 @@
 
 import { HeaderAuth } from "@/components/HeaderAuth";
 import { Logo } from "@/components/Logo";
+import type { HeaderAuthState } from "@/lib/auth/header-user";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -9,9 +10,10 @@ type ShellLayoutProps = {
   sidebar: React.ReactNode;
   children: React.ReactNode;
   mainClassName?: string;
+  headerAuth?: HeaderAuthState | null;
 };
 
-export function ShellLayout({ sidebar, children, mainClassName }: ShellLayoutProps) {
+export function ShellLayout({ sidebar, children, mainClassName, headerAuth = null }: ShellLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
 
@@ -45,7 +47,7 @@ export function ShellLayout({ sidebar, children, mainClassName }: ShellLayoutPro
           <span className="text-xl leading-none">{sidebarOpen ? "✕" : "☰"}</span>
         </button>
         <Logo linkToHome className="max-w-[calc(100%-8rem)] truncate text-center" />
-        <HeaderAuth />
+        <HeaderAuth initialAuth={headerAuth} />
       </header>
 
       <div className="relative flex min-h-0 flex-1">

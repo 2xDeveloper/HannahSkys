@@ -12,6 +12,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import type { CreatorContent } from "@/lib/types/content";
 import {
+  COLLECT_LABEL,
   formatContentPrice,
   getPublicDisplayMediaType,
   isFreeContent,
@@ -217,7 +218,7 @@ export function CreatorUploadForm({
     if (!isFree) {
       priceCents = priceToCents(price);
       if (priceCents == null || priceCents <= 0) {
-        setError("Enter a price or choose Free.");
+        setError("Enter a price or choose Collect.");
         return;
       }
       if (!previewTeaserRef.current) {
@@ -285,7 +286,7 @@ export function CreatorUploadForm({
               <h2 className="mt-1 text-xl font-bold text-rose-50">Upload photos & videos</h2>
               <p className="mt-1 max-w-lg text-sm text-gray-400">
                 {isFree
-                  ? "Free posts show the full file on the gallery."
+                  ? "Collect posts show the full file on the gallery."
                   : "Paid posts show only your preview on the gallery — the full file stays locked until purchase."}{" "}
                 Max file size {maxUploadLabel()}.
               </p>
@@ -336,7 +337,7 @@ export function CreatorUploadForm({
                     : "text-gray-400 hover:text-white"
                 }`}
               >
-                Free
+                {COLLECT_LABEL}
               </button>
               <button
                 type="button"
@@ -500,8 +501,8 @@ export function CreatorUploadForm({
                       {paid
                         ? `${item.media_type === "video" ? "Video" : "Photo"} · full locked`
                         : item.media_type === "video"
-                          ? "Video · free"
-                          : "Photo · free"}
+                          ? `Video · ${COLLECT_LABEL.toLowerCase()}`
+                          : `Photo · ${COLLECT_LABEL.toLowerCase()}`}
                     </p>
                     <p
                       className={`mt-1 text-xs font-semibold ${

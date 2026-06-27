@@ -2,6 +2,7 @@ import { HoverPreviewVideo } from "@/components/HoverPreviewVideo";
 import { VideoWatermark } from "@/components/VideoWatermark";
 import type { CreatorContent } from "@/lib/types/content";
 import {
+  COLLECT_LABEL,
   formatContentPrice,
   getPublicDisplayMediaType,
   isFreeContent,
@@ -100,7 +101,7 @@ export function ContentMediaThumb({
           )}
           {free && !owned && (
             <span className="pointer-events-none absolute left-2 top-2 rounded bg-emerald-700 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
-              Free
+              {COLLECT_LABEL}
             </span>
           )}
         </div>

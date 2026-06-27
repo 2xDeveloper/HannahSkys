@@ -3,6 +3,7 @@ import { VideoWatermark } from "@/components/VideoWatermark";
 import { PurchaseButton } from "@/components/PurchaseButton";
 import type { CreatorContent } from "@/lib/types/content";
 import {
+  COLLECT_LABEL,
   formatContentPrice,
   getPublicDisplayMediaType,
   isFreeContent,
@@ -111,7 +112,7 @@ export function GalleryDetail({
                 )}
                 {free && (
                   <span className="absolute left-3 top-3 rounded-md bg-emerald-800 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
-                    Free
+                    {COLLECT_LABEL}
                   </span>
                 )}
                 {owned && !free && (
@@ -130,7 +131,7 @@ export function GalleryDetail({
               <p className="border-t border-bp-border px-4 py-3 text-center text-xs leading-relaxed text-gray-400">
                 {unlocked
                   ? free
-                    ? "This content is free to view in full."
+                    ? "Collect this content — full file shown on the gallery."
                     : "You own this content — full file shown above."
                   : "This is the public preview buyers see before paying. The full file stays locked until purchase."}
               </p>
@@ -145,7 +146,7 @@ export function GalleryDetail({
                 </span>
                 {free ? (
                   <span className="rounded-full bg-emerald-800 px-3 py-1 text-xs font-bold text-white">
-                    Free
+                    {COLLECT_LABEL}
                   </span>
                 ) : owned ? (
                   <span className="rounded-full bg-emerald-800 px-3 py-1 text-xs font-bold text-white">

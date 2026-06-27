@@ -109,7 +109,7 @@ export function CreatorPayouts({
 
         {!ready && (
           <p className="mt-4 text-xs leading-relaxed text-gray-600">
-            Fans cannot purchase your paid content until Stripe is connected. Free content is
+            Fans cannot purchase your paid content until Stripe is connected. Collect content is
             unaffected.
           </p>
         )}

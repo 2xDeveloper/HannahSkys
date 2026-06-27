@@ -52,9 +52,10 @@ export default async function MessagesPage({ searchParams }: PageProps) {
   const partnerProfiles = await getPartnerProfiles(partnerIds);
 
   const isCreator = isApprovedCreator(profile as Profile);
+  const headerAuth = { userId: user.id, profile: profile as Profile };
 
   return (
-    <MessagesShell>
+    <MessagesShell headerAuth={headerAuth}>
       <MessagesApp
         userId={user.id}
         userName={profile.display_name ?? user.email?.split("@")[0] ?? "You"}

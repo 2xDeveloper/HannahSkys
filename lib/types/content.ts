@@ -17,6 +17,9 @@ export function isFreeContent(item: Pick<CreatorContent, "price_cents">): boolea
   return item.price_cents == null || item.price_cents === 0;
 }
 
+/** User-facing label for zero-price gallery content (replaces "Free"). */
+export const COLLECT_LABEL = "Collect";
+
 /** Creator uploaded a separate public teaser for paid content */
 export function hasDedicatedPreview(
   item: Pick<CreatorContent, "price_cents" | "preview_storage_path">,
@@ -78,7 +81,7 @@ export function isImageFile(file: File): boolean {
 
 export function formatContentPrice(priceCents: number | null): string {
   if (isFreeContent({ price_cents: priceCents })) {
-    return "Free";
+    return COLLECT_LABEL;
   }
   return `$${(priceCents! / 100).toFixed(2)}`;
 }

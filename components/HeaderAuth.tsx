@@ -1,11 +1,16 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import type { HeaderAuthState } from "@/lib/auth/header-user";
 import type { Profile } from "@/lib/types/database";
 import { isApprovedCreator } from "@/lib/types/database";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+
+type HeaderAuthProps = {
+  initialAuth?: HeaderAuthState | null;
+};
 
 function GuestLinks() {
   return (
@@ -27,28 +32,13 @@ function GuestLinks() {
 }
 
 function SignedInLinks({ profile }: { profile: Profile | null }) {
-  if (!profile) {
-    return (
-      <div className="absolute right-2 flex items-center gap-2 sm:right-4">
-        <Link
-          href="/library"
-          className="rounded-lg bg-bp-gold px-2 py-1.5 text-xs font-semibold text-white hover:bg-bp-gold-dim sm:px-3 sm:text-sm"
-        >
-          Library
-        </Link>
-        <Link
-          href="/account"
-          className="text-xs text-bp-yellow hover:text-white sm:text-sm"
-        >
-          Account
-        </Link>
-      </div>
-    );
-  }
+  const accountLabel = profile?.display_name?.trim() || "Account";
+  const approved = profile ? isApprovedCreator(profile) : false;
+  const isAdmin = profile?.role === "admin";
 
   return (
-    <div className="absolute right-2 flex items-center gap-1.5 sm:right-4 sm:gap-3">
-      {profile.role === "admin" && (
+    <div className="absolute right-2 flex max-w-[min(100%,14rem)] items-center gap-1.5 sm:right-4 sm:max-w-none sm:gap-3">
+      {isAdmin && (
         <Link
           href="/admin"
           className="hidden text-sm text-bp-yellow hover:text-white sm:inline"
@@ -56,7 +46,7 @@ function SignedInLinks({ profile }: { profile: Profile | null }) {
           Admin panel
         </Link>
       )}
-      {isApprovedCreator(profile) && (
+      {approved && (
         <>
           <Link
             href="/account#upload"
@@ -73,41 +63,35 @@ function SignedInLinks({ profile }: { profile: Profile | null }) {
           </Link>
         </>
       )}
-      {profile.role === "user" ? (
+      <Link
+        href="/library"
+        className="rounded-lg bg-bp-gold px-2 py-1.5 text-xs font-semibold text-white hover:bg-bp-gold-dim sm:px-3 sm:text-sm"
+      >
+        Library
+      </Link>
+      {!approved && (
         <Link
-          href="/library"
-          className="rounded-lg bg-bp-gold px-2 py-1.5 text-xs font-semibold text-white hover:bg-bp-gold-dim sm:px-3 sm:text-sm"
-        >
-          Library
-        </Link>
-      ) : (
-        <Link
-          href="/library"
+          href="/messages"
           className="hidden text-sm text-bp-yellow hover:text-white sm:inline"
         >
-          Library
+          Messages
         </Link>
       )}
       <Link
-        href="/messages"
-        className="hidden text-sm text-bp-yellow hover:text-white sm:inline"
-      >
-        Messages
-      </Link>
-      <Link
         href="/account"
-        className="max-w-[88px] truncate text-xs text-bp-yellow hover:text-white sm:max-w-[140px] sm:text-sm"
+        className="max-w-[96px] truncate text-xs font-medium text-bp-yellow hover:text-white sm:max-w-[160px] sm:text-sm"
+        title={accountLabel}
       >
-        Account
+        {accountLabel}
       </Link>
     </div>
   );
 }
 
-export function HeaderAuth() {
+export function HeaderAuth({ initialAuth = null }: HeaderAuthProps) {
   const pathname = usePathname();
-  const [signedIn, setSignedIn] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [signedIn, setSignedIn] = useState(() => Boolean(initialAuth?.userId));
+  const [profile, setProfile] = useState<Profile | null>(() => initialAuth?.profile ?? null);
 
   const loadProfile = useCallback(async (userId: string) => {
     const supabase = createClient();
@@ -122,28 +106,49 @@ export function HeaderAuth() {
     async function syncAuth() {
       const {
         data: { user },
-        error,
       } = await supabase.auth.getUser();
 
       if (cancelled) return;
 
-      if (error || !user) {
-        setSignedIn(false);
-        setProfile(null);
+      if (user) {
+        setSignedIn(true);
+        void loadProfile(user.id);
         return;
       }
 
-      setSignedIn(true);
-      void loadProfile(user.id);
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (cancelled) return;
+
+      if (session?.user) {
+        setSignedIn(true);
+        void loadProfile(session.user.id);
+        return;
+      }
+
+      setSignedIn(false);
+      setProfile(null);
     }
 
     void syncAuth();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (cancelled) return;
-      void syncAuth();
+
+      if (event === "SIGNED_OUT") {
+        setSignedIn(false);
+        setProfile(null);
+        return;
+      }
+
+      if (session?.user) {
+        setSignedIn(true);
+        void loadProfile(session.user.id);
+      }
     });
 
     const onVisible = () => {
