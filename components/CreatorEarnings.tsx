@@ -1,5 +1,6 @@
 import type { SaleRow, SalesSummary } from "@/lib/sales";
 import { formatUsd } from "@/lib/format-money";
+import { getCreatorSharePercent } from "@/lib/stripe";
 
 type CreatorEarningsProps = {
   sales: SaleRow[];
@@ -7,6 +8,8 @@ type CreatorEarningsProps = {
 };
 
 export function CreatorEarnings({ sales, summary }: CreatorEarningsProps) {
+  const creatorShare = getCreatorSharePercent();
+
   return (
     <section className="mt-6 rounded-2xl border border-bp-border bg-bp-panel p-5 md:p-6">
       <h2 className="text-lg font-semibold text-rose-50">Your earnings</h2>
@@ -16,7 +19,7 @@ export function CreatorEarnings({ sales, summary }: CreatorEarningsProps) {
 
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Stat label="Total sales" value={formatUsd(summary.totalSalesCents)} />
-        <Stat label="Your share (90%)" value={formatUsd(summary.creatorPayoutsCents)} highlight />
+        <Stat label={`Your share (${creatorShare}%)`} value={formatUsd(summary.creatorPayoutsCents)} highlight />
         <Stat label="Platform fee" value={formatUsd(summary.platformFeesCents)} />
       </div>
       <p className="mt-2 text-xs text-gray-600">{summary.saleCount} sale(s)</p>

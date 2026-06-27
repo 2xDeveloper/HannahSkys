@@ -9,6 +9,20 @@ export function normalizeInstagram(handle: string) {
   return handle.trim().replace(/^@+/, "").replace(/\s/g, "");
 }
 
+/** Same storage as instagram_handle — creators enter their wun.app username. */
+export const normalizeWunUsername = normalizeInstagram;
+
+export function formatWunUsername(handle: string | null | undefined): string | null {
+  if (!handle) return null;
+  const cleaned = handle.trim().replace(/^@+/, "");
+  return cleaned || null;
+}
+
+export function wunAppProfileUrl(handle: string | null | undefined): string | null {
+  const username = formatWunUsername(handle);
+  return username ? `https://wun.app/${username}` : null;
+}
+
 export async function uploadCreatorApplicationFiles(
   supabase: SupabaseClient,
   userId: string,

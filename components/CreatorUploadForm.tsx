@@ -1,5 +1,6 @@
 "use client";
 
+import { VideoWatermark } from "@/components/VideoWatermark";
 import { deleteCreatorContent, uploadCreatorContent } from "@/lib/content-client";
 import { logDevIssue } from "@/lib/dev-log";
 import {
@@ -78,13 +79,16 @@ function FileDropZone({
         {preview ? (
           <div className="relative flex min-h-[140px] items-center justify-center p-3">
             {preview.label === "Video" ? (
-              <video
-                src={preview.url}
-                className="max-h-40 max-w-full rounded-lg"
-                muted
-                playsInline
-                preload="metadata"
-              />
+              <>
+                <video
+                  src={preview.url}
+                  className="max-h-40 max-w-full rounded-lg"
+                  muted
+                  playsInline
+                  preload="metadata"
+                />
+                <VideoWatermark compact />
+              </>
             ) : (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
@@ -466,13 +470,16 @@ export function CreatorUploadForm({
                 >
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-bp-chip ring-1 ring-bp-border">
                     {thumbIsVideo ? (
-                      <video
-                        src={item.display_url}
-                        className="h-full w-full object-cover"
-                        muted
-                        playsInline
-                        preload="metadata"
-                      />
+                      <>
+                        <video
+                          src={item.display_url}
+                          className="h-full w-full object-cover"
+                          muted
+                          playsInline
+                          preload="metadata"
+                        />
+                        <VideoWatermark compact />
+                      </>
                     ) : (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img

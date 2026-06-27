@@ -1,5 +1,6 @@
 import { CreatorAvatar } from "@/components/CreatorAvatar";
 import { AdminCreatorActions } from "@/components/AdminCreatorActions";
+import { formatWunUsername, wunAppProfileUrl } from "@/lib/creator-application";
 import type { Profile } from "@/lib/types/database";
 import Link from "next/link";
 
@@ -9,8 +10,8 @@ type PendingCreatorCardProps = {
 };
 
 export function PendingCreatorCard({ profile, hideAdminActions }: PendingCreatorCardProps) {
-  const ig = profile.instagram_handle?.replace(/^@/, "");
-  const instagramUrl = ig ? `https://instagram.com/${ig}` : null;
+  const username = formatWunUsername(profile.instagram_handle);
+  const profileUrl = wunAppProfileUrl(profile.instagram_handle);
   const hasId = Boolean(profile.id_document_path);
   const hasPhoto = Boolean(profile.avatar_url);
 
@@ -34,16 +35,16 @@ export function PendingCreatorCard({ profile, hideAdminActions }: PendingCreator
 
           <dl className="grid gap-2 text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-xs text-gray-500">Instagram</dt>
+              <dt className="text-xs text-gray-500">Wun.app username</dt>
               <dd className="text-bp-yellow">
-                {instagramUrl ? (
+                {username && profileUrl ? (
                   <a
-                    href={instagramUrl}
+                    href={profileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-white"
                   >
-                    @{ig}
+                    wun.app/{username}
                   </a>
                 ) : (
                   <span className="text-red-400">Not provided</span>

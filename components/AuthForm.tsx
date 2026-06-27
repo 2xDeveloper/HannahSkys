@@ -121,8 +121,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       } = await supabase.auth.getSession();
 
       if (activeSession) {
-        router.push("/account");
-        router.refresh();
+        window.location.assign("/account");
         return;
       }
 
@@ -150,8 +149,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       await ensureUserProfile(supabase, signInData.user);
     }
 
-    router.push(next);
-    router.refresh();
+    window.location.assign(next);
   }
 
   const isCreatorSignup = mode === "signup" && accountType === "creator";

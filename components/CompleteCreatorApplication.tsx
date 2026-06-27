@@ -2,7 +2,7 @@
 
 import {
   creatorApplicationComplete,
-  normalizeInstagram,
+  normalizeWunUsername,
 } from "@/lib/creator-application";
 import { submitCreatorApplication } from "@/lib/submit-creator-application";
 import type { Profile } from "@/lib/types/database";
@@ -22,7 +22,7 @@ export function CompleteCreatorApplication({
   const avatarRef = useRef<HTMLInputElement>(null);
   const idRef = useRef<HTMLInputElement>(null);
 
-  const [instagram, setInstagram] = useState(profile.instagram_handle ?? "");
+  const [wunUsername, setWunUsername] = useState(profile.instagram_handle ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,10 +40,10 @@ export function CompleteCreatorApplication({
 
     const avatarFile = avatarRef.current?.files?.[0];
     const idFile = idRef.current?.files?.[0];
-    const ig = normalizeInstagram(instagram);
+    const username = normalizeWunUsername(wunUsername);
 
-    if (!ig) {
-      setError("Instagram username is required.");
+    if (!username) {
+      setError("Wun.app username is required.");
       return;
     }
     if (!avatarFile) {
@@ -58,7 +58,7 @@ export function CompleteCreatorApplication({
     setLoading(true);
 
     try {
-      await submitCreatorApplication(ig, avatarFile, idFile);
+      await submitCreatorApplication(username, avatarFile, idFile);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed.");
@@ -75,23 +75,23 @@ export function CompleteCreatorApplication({
       <div>
         <h2 className="text-lg font-semibold text-amber-100">Complete creator application</h2>
         <p className="mt-1 text-sm text-gray-400">
-          Upload your profile photo, ID, and Instagram so an admin can review your account.
+          Upload your profile photo, ID, and Wun.app username so an admin can review your account.
         </p>
       </div>
 
       <div>
-        <label htmlFor="ig" className="mb-1.5 block text-xs font-medium text-gray-400">
-          Instagram username
+        <label htmlFor="wun-username" className="mb-1.5 block text-xs font-medium text-gray-400">
+          Wun.app username
         </label>
         <div className="flex items-center rounded-lg border border-bp-border bg-bp-main">
-          <span className="pl-3 text-sm text-gray-500">@</span>
+          <span className="pl-3 text-sm text-gray-500">wun.app/</span>
           <input
-            id="ig"
+            id="wun-username"
             required
-            value={instagram}
-            onChange={(e) => setInstagram(e.target.value)}
+            value={wunUsername}
+            onChange={(e) => setWunUsername(e.target.value)}
             className="w-full bg-transparent px-2 py-2.5 text-sm text-white focus:outline-none"
-            placeholder="yourhandle"
+            placeholder="yourname"
           />
         </div>
       </div>

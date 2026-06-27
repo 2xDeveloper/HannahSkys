@@ -1,7 +1,8 @@
+import { AppShell } from "@/components/AppShell";
 import { AdminPromoteCreator } from "@/components/AdminPromoteCreator";
 import { AdminSalesPanel } from "@/components/AdminSalesPanel";
 import { PendingCreatorCard } from "@/components/PendingCreatorCard";
-import { AppShell } from "@/components/AppShell";
+import { formatWunUsername, wunAppProfileUrl } from "@/lib/creator-application";
 import { logDevIssue } from "@/lib/dev-log";
 import { getAdminSales } from "@/lib/sales";
 import { createClient } from "@/lib/supabase/server";
@@ -130,7 +131,7 @@ export default async function AdminPage() {
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">Type</th>
                     <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3">Instagram</th>
+                    <th className="px-4 py-3">Wun.app</th>
                     <th className="px-4 py-3">Joined</th>
                   </tr>
                 </thead>
@@ -147,7 +148,21 @@ export default async function AdminPage() {
                             : "Active"}
                       </td>
                       <td className="px-4 py-3 text-gray-500">
-                        {p.instagram_handle ? `@${p.instagram_handle.replace(/^@/, "")}` : "—"}
+                        {(() => {
+                          const username = formatWunUsername(p.instagram_handle);
+                          const profileUrl = wunAppProfileUrl(p.instagram_handle);
+                          if (!username || !profileUrl) return "—";
+                          return (
+                            <a
+                              href={profileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-bp-yellow hover:text-white"
+                            >
+                              wun.app/{username}
+                            </a>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-3 text-gray-500">
                         {new Date(p.created_at).toLocaleDateString()}

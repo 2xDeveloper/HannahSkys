@@ -1,5 +1,6 @@
 "use client";
 
+import { VideoWatermark } from "@/components/VideoWatermark";
 import { useRef, useState } from "react";
 
 type HoverPreviewVideoProps = {
@@ -49,6 +50,7 @@ export function HoverPreviewVideo({ src, className = "", blurClass = "" }: Hover
           if (el && !hovering) el.currentTime = 0.1;
         }}
       />
+      <VideoWatermark />
       {(!hovering || !playing) && (
         <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/25">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/70 text-sm text-white shadow-lg ring-2 ring-white/30">

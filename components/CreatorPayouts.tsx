@@ -2,6 +2,7 @@
 
 import type { SaleRow, SalesSummary } from "@/lib/sales";
 import { formatUsd } from "@/lib/format-money";
+import { getPlatformFeePercent } from "@/lib/stripe";
 import { useState } from "react";
 
 type CreatorPayoutsProps = {
@@ -51,7 +52,7 @@ export function CreatorPayouts({
         <h2 className="text-lg font-semibold text-rose-50">Payouts (Stripe)</h2>
         <p className="mt-1 text-sm text-gray-500">
           Connect Stripe to receive your share when fans purchase your content. The platform keeps
-          a 10% fee; the rest goes to your Stripe account automatically.
+          a {getPlatformFeePercent()}% fee; the rest goes to your Stripe account automatically.
         </p>
 
         {connectQuery === "complete" && ready && (

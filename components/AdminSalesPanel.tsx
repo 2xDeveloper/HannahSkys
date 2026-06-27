@@ -1,5 +1,7 @@
 import type { CreatorBalance, SaleRow, SalesSummary } from "@/lib/sales";
 import { formatUsd } from "@/lib/format-money";
+import { formatWunUsername, wunAppProfileUrl } from "@/lib/creator-application";
+import { getCreatorSharePercent, getPlatformFeePercent } from "@/lib/stripe";
 import Link from "next/link";
 
 type AdminSalesPanelProps = {
@@ -10,6 +12,8 @@ type AdminSalesPanelProps = {
 
 export function AdminSalesPanel({ sales, summary, creatorBalances }: AdminSalesPanelProps) {
   const creatorsWithBalance = creatorBalances.filter((c) => c.owed_cents > 0);
+  const platformFee = getPlatformFeePercent();
+  const creatorShare = getCreatorSharePercent();
 
   return (
     <section className="space-y-8">
@@ -21,7 +25,7 @@ export function AdminSalesPanel({ sales, summary, creatorBalances }: AdminSalesP
           </span>
         </h2>
         <p className="mt-1 text-sm text-gray-500">
-          All payments go to your main Stripe account. Send each creator their share (90% of sales)
+          All payments go to your main Stripe account. Send each creator their share ({creatorShare}% of sales)
           yourself — Venmo, bank transfer, etc.
         </p>
 
@@ -35,10 +39,10 @@ export function AdminSalesPanel({ sales, summary, creatorBalances }: AdminSalesP
               <thead className="bg-emerald-950/40 text-xs uppercase text-emerald-200/80">
                 <tr>
                   <th className="px-4 py-3">Creator</th>
-                  <th className="px-4 py-3">Instagram</th>
+                  <th className="px-4 py-3">Wun.app</th>
                   <th className="px-4 py-3 text-right">Sales</th>
-                  <th className="px-4 py-3 text-right">You keep (10%)</th>
-                  <th className="px-4 py-3 text-right">Send creator (90%)</th>
+                  <th className="px-4 py-3 text-right">You keep ({platformFee}%)</th>
+                  <th className="px-4 py-3 text-right">Send creator ({creatorShare}%)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-bp-border bg-bp-panel">
@@ -53,9 +57,21 @@ export function AdminSalesPanel({ sales, summary, creatorBalances }: AdminSalesP
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-gray-500">
-                      {creator.instagram_handle
-                        ? `@${creator.instagram_handle.replace(/^@/, "")}`
-                        : "—"}
+                      {(() => {
+                        const username = formatWunUsername(creator.instagram_handle);
+                        const profileUrl = wunAppProfileUrl(creator.instagram_handle);
+                        if (!username || !profileUrl) return "—";
+                        return (
+                          <a
+                            href={profileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-bp-yellow hover:text-white"
+                          >
+                            wun.app/{username}
+                          </a>
+                        );
+                      })()}
                     </td>
                     <td className="px-4 py-3 text-right text-gray-400">
                       {creator.sale_count} · {formatUsd(creator.total_sales_cents)}
@@ -97,7 +113,7 @@ export function AdminSalesPanel({ sales, summary, creatorBalances }: AdminSalesP
 
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <SummaryCard label="Gross volume" value={formatUsd(summary.totalSalesCents)} />
-          <SummaryCard label="Your cut (10%)" value={formatUsd(summary.platformFeesCents)} highlight />
+          <SummaryCard label={`Your cut (${platformFee}%)`} value={formatUsd(summary.platformFeesCents)} highlight />
           <SummaryCard label="Owed to creators" value={formatUsd(summary.creatorPayoutsCents)} />
         </div>
 

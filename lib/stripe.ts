@@ -15,14 +15,18 @@ export function getStripe(): Stripe {
   return stripe;
 }
 
-/** Platform commission on each sale (default 10%). */
+/** Platform commission on each sale (default 20%). */
 export function getPlatformFeePercent(): number {
-  const raw = process.env.STRIPE_PLATFORM_FEE_PERCENT ?? "10";
+  const raw = process.env.STRIPE_PLATFORM_FEE_PERCENT ?? "20";
   const value = parseFloat(raw);
   if (Number.isNaN(value) || value < 0 || value > 100) {
-    return 10;
+    return 20;
   }
   return value;
+}
+
+export function getCreatorSharePercent(): number {
+  return 100 - getPlatformFeePercent();
 }
 
 export function calcPlatformFeeCents(amountCents: number): number {

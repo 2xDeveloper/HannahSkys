@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import { isApprovedCreator } from "@/lib/types/database";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 function GuestLinks() {
@@ -104,6 +105,7 @@ function SignedInLinks({ profile }: { profile: Profile | null }) {
 }
 
 export function HeaderAuth() {
+  const pathname = usePathname();
   const [signedIn, setSignedIn] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
 
@@ -119,48 +121,29 @@ export function HeaderAuth() {
 
     async function syncAuth() {
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (cancelled) return;
-
-      if (session?.user) {
-        setSignedIn(true);
-        void loadProfile(session.user.id);
-        return;
-      }
-
-      const {
         data: { user },
+        error,
       } = await supabase.auth.getUser();
 
       if (cancelled) return;
 
-      if (user) {
-        setSignedIn(true);
-        void loadProfile(user.id);
-        return;
-      }
-
-      setSignedIn(false);
-      setProfile(null);
-    }
-
-    void syncAuth();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (cancelled) return;
-
-      if (!session?.user) {
+      if (error || !user) {
         setSignedIn(false);
         setProfile(null);
         return;
       }
 
       setSignedIn(true);
-      void loadProfile(session.user.id);
+      void loadProfile(user.id);
+    }
+
+    void syncAuth();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
+      if (cancelled) return;
+      void syncAuth();
     });
 
     const onVisible = () => {
@@ -173,7 +156,7 @@ export function HeaderAuth() {
       subscription.unsubscribe();
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [loadProfile]);
+  }, [loadProfile, pathname]);
 
   if (!signedIn) {
     return <GuestLinks />;

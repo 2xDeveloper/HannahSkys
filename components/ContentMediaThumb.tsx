@@ -1,4 +1,5 @@
 import { HoverPreviewVideo } from "@/components/HoverPreviewVideo";
+import { VideoWatermark } from "@/components/VideoWatermark";
 import type { CreatorContent } from "@/lib/types/content";
 import {
   formatContentPrice,
@@ -44,14 +45,17 @@ export function ContentMediaThumb({
           {isPreviewVideo ? (
             <HoverPreviewVideo src={displayUrl} blurClass={blurClass} />
           ) : showAsVideo ? (
-            <video
-              src={displayUrl}
-              muted
-              playsInline
-              preload="metadata"
-              controls={videoControls}
-              className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${blurClass}`}
-            />
+            <>
+              <video
+                src={displayUrl}
+                muted
+                playsInline
+                preload="metadata"
+                controls={videoControls}
+                className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${blurClass}`}
+              />
+              <VideoWatermark compact />
+            </>
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
             <img

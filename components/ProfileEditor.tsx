@@ -1,5 +1,6 @@
 "use client";
 
+import { signOutAndRedirect } from "@/lib/auth/sign-out";
 import type { Profile } from "@/lib/types/database";
 import { creatorStatusLabel } from "@/lib/types/database";
 import { createClient } from "@/lib/supabase/client";
@@ -19,6 +20,7 @@ export function ProfileEditor({ profile, email }: ProfileEditorProps) {
   const [displayName, setDisplayName] = useState(profile.display_name ?? "");
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
   const [saving, setSaving] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -90,10 +92,14 @@ export function ProfileEditor({ profile, email }: ProfileEditorProps) {
   }
 
   async function handleSignOut() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
+    setSigningOut(true);
+    setError(null);
+    try {
+      await signOutAndRedirect("/");
+    } catch {
+      setSigningOut(false);
+      setError("Could not log out. Please try again.");
+    }
   }
 
   return (
@@ -166,9 +172,10 @@ export function ProfileEditor({ profile, email }: ProfileEditorProps) {
           <button
             type="button"
             onClick={handleSignOut}
-            className="rounded-xl border border-bp-border px-6 py-2.5 text-sm text-gray-300 hover:bg-bp-chip"
+            disabled={signingOut}
+            className="rounded-xl border border-bp-border px-6 py-2.5 text-sm text-gray-300 hover:bg-bp-chip disabled:opacity-60"
           >
-            Log out
+            {signingOut ? "Logging out…" : "Log out"}
           </button>
         </div>
       </form>

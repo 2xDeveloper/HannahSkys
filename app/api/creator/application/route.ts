@@ -14,19 +14,19 @@ export async function POST(request: Request) {
   }
 
   const formData = await request.formData();
-  const instagramRaw = formData.get("instagram");
+  const usernameRaw = formData.get("wunUsername") ?? formData.get("instagram");
   const avatar = formData.get("avatar");
   const idDoc = formData.get("id");
 
-  const instagram =
-    typeof instagramRaw === "string" ? normalizeInstagram(instagramRaw) : "";
+  const username =
+    typeof usernameRaw === "string" ? normalizeInstagram(usernameRaw) : "";
 
-  if (!instagram) {
-    return NextResponse.json({ error: "Instagram username is required." }, { status: 400 });
+  if (!username) {
+    return NextResponse.json({ error: "Wun.app username is required." }, { status: 400 });
   }
 
   const { error: finalizeError } = await supabase.rpc("finalize_creator_signup", {
-    p_instagram: instagram,
+    p_instagram: username,
   });
 
   if (finalizeError) {
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await uploadCreatorApplicationFiles(supabase, user.id, avatar, idDoc, instagram);
+    await uploadCreatorApplicationFiles(supabase, user.id, avatar, idDoc, username);
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Upload failed." },
