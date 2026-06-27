@@ -1,5 +1,6 @@
 "use client";
 
+import { safeAuthRedirect } from "@/lib/auth/redirect";
 import type { AccountType } from "@/lib/types/database";
 import { formatAuthError } from "@/lib/auth-errors";
 import { submitCreatorApplication } from "@/lib/submit-creator-application";
@@ -20,7 +21,7 @@ type AuthFormProps = {
 export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/account";
+  const next = safeAuthRedirect(searchParams.get("next"));
 
   const avatarRef = useRef<HTMLInputElement>(null);
   const idRef = useRef<HTMLInputElement>(null);
@@ -133,23 +134,29 @@ export function AuthForm({ mode }: AuthFormProps) {
       return;
     }
 
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: normalizedEmail,
-      password,
-    });
+    try {
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password,
+      });
 
-    setLoading(false);
+      if (signInError) {
+        setError(formatAuthError(signInError.message));
+        return;
+      }
 
-    if (signInError) {
-      setError(formatAuthError(signInError.message));
-      return;
+      if (!signInData.session) {
+        setError("Login failed. Please try again.");
+        return;
+      }
+
+      window.location.assign(next);
+    } catch {
+      setError("Could not reach the login server. Check your connection and try again.");
+    } finally {
+      setLoading(false);
     }
-
-    if (signInData.user) {
-      await ensureUserProfile(supabase, signInData.user);
-    }
-
-    window.location.assign(next);
+    return;
   }
 
   const isCreatorSignup = mode === "signup" && accountType === "creator";
