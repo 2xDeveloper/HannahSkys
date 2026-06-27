@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { logDevIssue } from "@/lib/dev-log";
 import { calcPlatformFeeCents, getStripe } from "@/lib/stripe";
 import type { CreatorContent } from "@/lib/types/content";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -23,6 +24,10 @@ export type LibraryItem = CreatorContent & {
   amount_cents: number;
 };
 
+function isPaidCheckoutSession(session: Stripe.Checkout.Session): boolean {
+  return session.status === "complete" || session.payment_status === "paid";
+}
+
 export async function hasPurchased(userId: string, contentId: string): Promise<boolean> {
   const supabase = await createClient();
 
@@ -35,63 +40,130 @@ export async function hasPurchased(userId: string, contentId: string): Promise<b
     .maybeSingle();
 
   if (error) {
-    console.error("hasPurchased:", error.message);
+    logDevIssue("hasPurchased query failed", error.message);
     return false;
   }
 
   return Boolean(data);
 }
 
-function contentFromJoin(row: unknown): CreatorContent | null {
-  const joined = (row as { creator_content?: CreatorContent | CreatorContent[] | null })
-    .creator_content;
-  if (!joined) return null;
-  if (Array.isArray(joined)) return joined[0] ?? null;
-  return joined;
+async function insertPurchaseRow(
+  client: SupabaseClient,
+  row: Record<string, unknown>,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  const { error } = await client.from("purchases").insert(row);
+
+  if (!error) {
+    return { ok: true };
+  }
+
+  if (error.code === "23505") {
+    return { ok: true };
+  }
+
+  if (error.message.includes("creator_payout_cents")) {
+    const { creator_payout_cents: _removed, ...withoutPayout } = row;
+    return insertPurchaseRow(client, withoutPayout);
+  }
+
+  return { ok: false, reason: error.message };
+}
+
+async function insertPurchaseFromSession(
+  session: Stripe.Checkout.Session,
+  preferredClient?: SupabaseClient,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  const buyerId = session.metadata?.buyer_id;
+  const contentId = session.metadata?.content_id;
+  const creatorId = session.metadata?.creator_id;
+  const amountCents = session.amount_total;
+
+  if (!buyerId || !contentId || !creatorId || amountCents == null) {
+    return { ok: false, reason: "invalid_session_metadata" };
+  }
+
+  if (!isPaidCheckoutSession(session)) {
+    return { ok: false, reason: "payment_not_complete" };
+  }
+
+  const platformFeeCents = calcPlatformFeeCents(amountCents);
+  const creatorPayoutCents = amountCents - platformFeeCents;
+
+  const row = {
+    buyer_id: buyerId,
+    content_id: contentId,
+    creator_id: creatorId,
+    amount_cents: amountCents,
+    platform_fee_cents: platformFeeCents,
+    creator_payout_cents: creatorPayoutCents,
+    stripe_checkout_session_id: session.id,
+    status: "completed" as const,
+  };
+
+  const clients: SupabaseClient[] = [];
+
+  try {
+    clients.push(createAdminClient());
+  } catch (err) {
+    logDevIssue("Admin Supabase client unavailable for purchase insert", err);
+  }
+
+  if (preferredClient) {
+    clients.push(preferredClient);
+  }
+
+  if (clients.length === 0) {
+    return { ok: false, reason: "missing_service_role" };
+  }
+
+  for (const client of clients) {
+    const result = await insertPurchaseRow(client, row);
+    if (result.ok) {
+      return result;
+    }
+    logDevIssue("Purchase insert failed", result.reason);
+  }
+
+  return { ok: false, reason: "insert_failed" };
 }
 
 export async function getUserLibrary(userId: string): Promise<LibraryItem[]> {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  const { data: purchaseRows, error: purchaseError } = await supabase
     .from("purchases")
-    .select(
-      `
-      amount_cents,
-      created_at,
-      creator_content (
-        id,
-        creator_id,
-        title,
-        media_type,
-        storage_path,
-        preview_storage_path,
-        price_cents,
-        created_at,
-        updated_at
-      )
-    `,
-    )
+    .select("content_id, amount_cents, created_at")
     .eq("buyer_id", userId)
     .eq("status", "completed")
     .order("created_at", { ascending: false });
 
-  if (error || !data) {
-    if (error) {
-      console.error("getUserLibrary:", error.message);
+  if (purchaseError || !purchaseRows?.length) {
+    if (purchaseError) {
+      logDevIssue("getUserLibrary purchases query failed", purchaseError.message);
     }
     return [];
   }
 
-  const creatorIds = [
-    ...new Set(
-      data
-        .map((row) => contentFromJoin(row)?.creator_id)
-        .filter(Boolean) as string[],
-    ),
-  ];
+  const contentIds = purchaseRows.map((row) => row.content_id);
+  const purchaseByContent = new Map(
+    purchaseRows.map((row) => [row.content_id, row] as const),
+  );
 
+  const { data: contents, error: contentError } = await supabase
+    .from("creator_content")
+    .select("*")
+    .in("id", contentIds);
+
+  if (contentError || !contents?.length) {
+    if (contentError) {
+      logDevIssue("getUserLibrary content query failed", contentError.message);
+    }
+    return [];
+  }
+
+  const creatorIds = [...new Set(contents.map((row) => row.creator_id))];
   const nameMap = new Map<string, string | null>();
+
   if (creatorIds.length > 0) {
     const { data: profiles } = await supabase
       .from("profiles")
@@ -103,110 +175,52 @@ export async function getUserLibrary(userId: string): Promise<LibraryItem[]> {
     }
   }
 
+  const contentById = new Map(contents.map((row) => [row.id, row as CreatorContent]));
+
   const items: LibraryItem[] = [];
 
-  for (const row of data) {
-    const content = contentFromJoin(row);
-    if (!content) continue;
+  for (const contentId of contentIds) {
+    const content = contentById.get(contentId);
+    const purchase = purchaseByContent.get(contentId);
+    if (!content || !purchase) continue;
 
     items.push({
       ...content,
       preview_storage_path: content.preview_storage_path ?? null,
       creator_name: nameMap.get(content.creator_id) ?? null,
-      purchased_at: row.created_at,
-      amount_cents: row.amount_cents,
+      purchased_at: purchase.created_at,
+      amount_cents: purchase.amount_cents,
     });
   }
 
   return items;
 }
 
-async function insertPurchaseFromSession(
-  session: Stripe.Checkout.Session,
-  supabase?: SupabaseClient,
-) {
-  const buyerId = session.metadata?.buyer_id;
-  const contentId = session.metadata?.content_id;
-  const creatorId = session.metadata?.creator_id;
-  const amountCents = session.amount_total;
-
-  if (
-    !buyerId ||
-    !contentId ||
-    !creatorId ||
-    amountCents == null ||
-    session.payment_status !== "paid"
-  ) {
-    return { ok: false as const, reason: "invalid_session" };
-  }
-
-  let client = supabase;
-  if (!client) {
-    try {
-      client = createAdminClient();
-    } catch (err) {
-      console.error("insertPurchaseFromSession:", err);
-      return { ok: false as const, reason: "missing_service_role" };
-    }
-  }
-
-  const platformFeeCents = calcPlatformFeeCents(amountCents);
-  const creatorPayoutCents = amountCents - platformFeeCents;
-
-  const baseRow = {
-    buyer_id: buyerId,
-    content_id: contentId,
-    creator_id: creatorId,
-    amount_cents: amountCents,
-    platform_fee_cents: platformFeeCents,
-    stripe_checkout_session_id: session.id,
-    status: "completed" as const,
-  };
-
-  let { error } = await client.from("purchases").upsert(
-    { ...baseRow, creator_payout_cents: creatorPayoutCents },
-    { onConflict: "stripe_checkout_session_id", ignoreDuplicates: true },
-  );
-
-  if (error?.message?.includes("creator_payout_cents")) {
-    ({ error } = await client.from("purchases").upsert(baseRow, {
-      onConflict: "stripe_checkout_session_id",
-      ignoreDuplicates: true,
-    }));
-  }
-
-  if (error) {
-    console.error("insertPurchaseFromSession:", error.message);
-    return { ok: false as const, reason: error.message };
-  }
-
-  return { ok: true as const };
-}
-
-/** Fulfill after redirect — works locally without Stripe CLI webhook. */
+/** Fulfill after Stripe redirect — also used by webhook handler. */
 export async function fulfillCheckoutSession(
   sessionId: string,
   expectedBuyerId: string,
-): Promise<boolean> {
+): Promise<{ ok: boolean; reason?: string }> {
   const stripe = getStripe();
   const session = await stripe.checkout.sessions.retrieve(sessionId);
 
   if (session.metadata?.buyer_id !== expectedBuyerId) {
-    return false;
+    return { ok: false, reason: "buyer_mismatch" };
   }
 
   const supabase = await createClient();
-  let result = await insertPurchaseFromSession(session, supabase);
+  const result = await insertPurchaseFromSession(session, supabase);
 
   if (!result.ok) {
-    try {
-      result = await insertPurchaseFromSession(session, createAdminClient());
-    } catch (err) {
-      console.error("fulfillCheckoutSession admin fallback:", err);
-    }
+    logDevIssue("fulfillCheckoutSession failed", {
+      sessionId,
+      buyerId: expectedBuyerId,
+      reason: result.reason,
+    });
+    return { ok: false, reason: result.reason };
   }
 
-  return result.ok;
+  return { ok: true };
 }
 
 export async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {

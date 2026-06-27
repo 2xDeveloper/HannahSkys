@@ -30,8 +30,11 @@ export default async function GalleryDetailPage({ params, searchParams }: PagePr
 
   if (query.session_id && user) {
     let fulfilled = false;
+    let fulfillReason: string | undefined;
     try {
-      fulfilled = await fulfillCheckoutSession(query.session_id, user.id);
+      const result = await fulfillCheckoutSession(query.session_id, user.id);
+      fulfilled = result.ok;
+      fulfillReason = result.reason;
     } catch (err) {
       console.error("fulfillCheckoutSession:", err);
       checkoutError = "Could not confirm purchase. Refresh this page or contact support.";
@@ -40,8 +43,15 @@ export default async function GalleryDetailPage({ params, searchParams }: PagePr
     if (fulfilled) {
       redirect(`/gallery/${id}?purchased=1`);
     } else if (!checkoutError) {
-      logDevIssue("Purchase unlock failed after checkout", { sessionId: query.session_id, userId: user.id });
-      checkoutError = "Payment received but content could not be unlocked. Refresh this page or contact support.";
+      logDevIssue("Purchase unlock failed after checkout", {
+        sessionId: query.session_id,
+        userId: user.id,
+        reason: fulfillReason,
+      });
+      checkoutError =
+        fulfillReason === "missing_service_role"
+          ? "Payment received but the site could not unlock your purchase. Admin needs SUPABASE_SERVICE_ROLE_KEY set in Vercel."
+          : "Payment received but content could not be unlocked. Refresh this page or contact support.";
     }
   } else if (query.session_id && !user) {
     redirect(`/login?next=${encodeURIComponent(`/gallery/${id}?session_id=${query.session_id}`)}`);
