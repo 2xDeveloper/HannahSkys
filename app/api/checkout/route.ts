@@ -76,7 +76,7 @@ export async function POST(request: Request) {
         buyer_id: user.id,
         creator_id: item.creator_id,
       },
-      success_url: `${origin}/gallery/${contentId}?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/auth/checkout-return?session_id={CHECKOUT_SESSION_ID}&content_id=${contentId}`,
       cancel_url: `${origin}/gallery/${contentId}`,
     });
 

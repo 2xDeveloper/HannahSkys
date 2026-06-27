@@ -22,6 +22,7 @@ export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = safeAuthRedirect(searchParams.get("next"));
+  const purchaseComplete = searchParams.get("purchase") === "1";
 
   const avatarRef = useRef<HTMLInputElement>(null);
   const idRef = useRef<HTMLInputElement>(null);
@@ -284,6 +285,11 @@ export function AuthForm({ mode }: AuthFormProps) {
         />
       </div>
 
+      {purchaseComplete && !error && (
+        <p className="rounded-lg border border-emerald-900/50 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-300">
+          Payment complete — log in to view your purchase in your library.
+        </p>
+      )}
       {error && (
         <p className="rounded-lg border border-red-900/50 bg-red-950/40 px-3 py-2 text-sm text-red-300">
           {error}

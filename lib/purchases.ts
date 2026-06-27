@@ -196,7 +196,38 @@ export async function getUserLibrary(userId: string): Promise<LibraryItem[]> {
   return items;
 }
 
-/** Fulfill after Stripe redirect — also used by webhook handler. */
+/** Fulfill a Stripe checkout session using metadata (no logged-in cookie required). */
+export async function fulfillCheckoutSessionFromStripe(sessionId: string): Promise<{
+  ok: boolean;
+  reason?: string;
+  buyerId?: string;
+  contentId?: string;
+}> {
+  const stripe = getStripe();
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  const buyerId = session.metadata?.buyer_id;
+  const contentId = session.metadata?.content_id;
+
+  if (!buyerId || !contentId) {
+    return { ok: false, reason: "invalid_session_metadata" };
+  }
+
+  const result = await insertPurchaseFromSession(session);
+
+  if (!result.ok) {
+    logDevIssue("fulfillCheckoutSessionFromStripe failed", {
+      sessionId,
+      buyerId,
+      contentId,
+      reason: result.reason,
+    });
+    return { ok: false, reason: result.reason, buyerId, contentId };
+  }
+
+  return { ok: true, buyerId, contentId };
+}
+
+/** Fulfill after Stripe redirect when the buyer is already logged in. */
 export async function fulfillCheckoutSession(
   sessionId: string,
   expectedBuyerId: string,

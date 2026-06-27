@@ -9,7 +9,7 @@ import { notFound, redirect } from "next/navigation";
 
 type PageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ session_id?: string; purchased?: string }>;
+  searchParams: Promise<{ session_id?: string; purchased?: string; checkout_error?: string }>;
 };
 
 export default async function GalleryDetailPage({ params, searchParams }: PageProps) {
@@ -54,7 +54,13 @@ export default async function GalleryDetailPage({ params, searchParams }: PagePr
           : "Payment received but content could not be unlocked. Refresh this page or contact support.";
     }
   } else if (query.session_id && !user) {
-    redirect(`/login?next=${encodeURIComponent(`/gallery/${id}?session_id=${query.session_id}`)}`);
+    redirect(
+      `/auth/checkout-return?session_id=${encodeURIComponent(query.session_id)}&content_id=${encodeURIComponent(id)}`,
+    );
+  }
+
+  if (query.checkout_error === "1") {
+    checkoutError = "Payment received but content could not be unlocked. Contact support.";
   }
 
   const owned = user ? await hasPurchased(user.id, id) : false;
