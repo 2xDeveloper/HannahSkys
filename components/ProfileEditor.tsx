@@ -91,15 +91,9 @@ export function ProfileEditor({ profile, email }: ProfileEditorProps) {
     router.refresh();
   }
 
-  async function handleSignOut() {
+  function handleSignOut() {
     setSigningOut(true);
-    setError(null);
-    try {
-      await signOutAndRedirect("/");
-    } catch {
-      setSigningOut(false);
-      setError("Could not log out. Please try again.");
-    }
+    signOutAndRedirect("/");
   }
 
   return (
