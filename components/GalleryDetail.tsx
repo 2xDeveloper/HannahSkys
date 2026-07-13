@@ -1,5 +1,4 @@
 import { HoverPreviewVideo } from "@/components/HoverPreviewVideo";
-import { VideoWatermark } from "@/components/VideoWatermark";
 import { PurchaseButton } from "@/components/PurchaseButton";
 import type { CreatorContent } from "@/lib/types/content";
 import {
@@ -78,17 +77,14 @@ export function GalleryDetail({
                 {isVideoDisplay && !unlocked && !lockedBlur ? (
                   <HoverPreviewVideo src={viewUrl} blurClass={blurClass} />
                 ) : isVideoDisplay ? (
-                  <>
-                    <video
-                      src={viewUrl}
-                      controls={unlocked}
-                      muted={!unlocked}
-                      playsInline
-                      preload="metadata"
-                      className={`h-full w-full object-cover ${unlocked ? "" : blurClass}`}
-                    />
-                    <VideoWatermark />
-                  </>
+                  <video
+                    src={viewUrl}
+                    controls={unlocked}
+                    muted={!unlocked}
+                    playsInline
+                    preload="metadata"
+                    className={`h-full w-full object-cover ${unlocked ? "" : blurClass}`}
+                  />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img

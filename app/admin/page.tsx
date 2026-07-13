@@ -2,7 +2,11 @@ import { AppShell } from "@/components/AppShell";
 import { AdminPromoteCreator } from "@/components/AdminPromoteCreator";
 import { AdminSalesPanel } from "@/components/AdminSalesPanel";
 import { PendingCreatorCard } from "@/components/PendingCreatorCard";
-import { formatWunUsername, wunAppProfileUrl } from "@/lib/creator-application";
+import {
+  creatorApplicationComplete,
+  formatWunUsername,
+  wunAppProfileUrl,
+} from "@/lib/creator-application";
 import { logDevIssue } from "@/lib/dev-log";
 import { getAdminSales } from "@/lib/sales";
 import { createClient } from "@/lib/supabase/server";
@@ -46,6 +50,9 @@ export default async function AdminPage() {
       p.role === "user" &&
       (p.instagram_handle || p.id_document_path || p.avatar_url),
   );
+  const rejectedCreators = all.filter(
+    (p) => p.creator_status === "rejected" && creatorApplicationComplete(p),
+  );
 
   const { sales, summary, creatorBalances } = await getAdminSales();
 
@@ -66,6 +73,34 @@ export default async function AdminPage() {
             <p className="rounded-lg border border-red-900/50 bg-red-950/40 px-4 py-3 text-sm text-red-300">
               Could not load users. Try refreshing the page.
             </p>
+          )}
+
+          {rejectedCreators.length > 0 && (
+            <section>
+              <h2 className="text-lg font-semibold text-red-200">
+                Rejected — can re-review
+                <span className="ml-2 rounded-full bg-red-900/60 px-2 py-0.5 text-xs font-bold text-red-100">
+                  {rejectedCreators.length}
+                </span>
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">
+                Previously rejected but still have application files on file. Move back to pending
+                to approve.
+              </p>
+              <div className="mt-4 space-y-4">
+                {rejectedCreators.map((p) => (
+                  <article
+                    key={p.id}
+                    className="rounded-xl border border-red-900/50 bg-red-950/20 p-5"
+                  >
+                    <PendingCreatorCard profile={p} hideAdminActions />
+                    <div className="mt-2 border-t border-red-900/40 pt-3">
+                      <AdminPromoteCreator profile={p} />
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
           )}
 
           {misclassified.length > 0 && (

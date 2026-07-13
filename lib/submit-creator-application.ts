@@ -61,4 +61,17 @@ export async function submitCreatorApplication(
   }
 
   await uploadCreatorApplicationFiles(supabase, userId, avatarFile, idFile, ig);
+
+  const { error: reapplyError } = await supabase.rpc("reapply_creator_review");
+  if (reapplyError) {
+    const { error: finalizeAgain } = await supabase.rpc("finalize_creator_signup", {
+      p_instagram: ig || "",
+    });
+    if (finalizeAgain) {
+      logDevIssue("Creator reapply after upload failed", {
+        reapply: reapplyError.message,
+        finalize: finalizeAgain.message,
+      });
+    }
+  }
 }

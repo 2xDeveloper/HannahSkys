@@ -95,8 +95,18 @@ export function priceToCents(dollars: string): number | null {
   return Math.round(value * 100);
 }
 
+const VIDEO_EXT = /\.(mp4|mov|webm|m4v|avi|mkv|quicktime)$/i;
+const IMAGE_EXT = /\.(jpe?g|png|gif|webp|heic|heif)$/i;
+
 export function mediaTypeFromFile(file: File): MediaType | null {
   if (file.type.startsWith("image/")) return "photo";
   if (file.type.startsWith("video/")) return "video";
+  const name = file.name.toLowerCase();
+  if (VIDEO_EXT.test(name)) return "video";
+  if (IMAGE_EXT.test(name)) return "photo";
   return null;
+}
+
+export function isVideoFile(file: File): boolean {
+  return mediaTypeFromFile(file) === "video";
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { VideoWatermark } from "@/components/VideoWatermark";
+import { VideoUploadInfo } from "@/components/VideoUploadInfo";
 import { deleteCreatorContent, uploadCreatorContent } from "@/lib/content-client";
 import { logDevIssue } from "@/lib/dev-log";
 import {
@@ -16,16 +16,46 @@ import {
   formatContentPrice,
   getPublicDisplayMediaType,
   isFreeContent,
+  isVideoFile,
   mediaTypeFromFile,
   priceToCents,
 } from "@/lib/types/content";
+import {
+  formatDuration,
+  getVideoMetadata,
+  optimizeVideoForUpload,
+  type VideoMetadata,
+  videoNeedsOptimization,
+} from "@/lib/video-optimize";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 type ContentWithUrl = CreatorContent & { display_url: string };
 
-type FilePreview = { url: string; label: string };
+type FilePreview = { url: string; label: string; size: number; isVideo: boolean };
+
+type UploadSlotState = {
+  autoOptimize: boolean;
+  metadata: VideoMetadata | null;
+  metadataLoading: boolean;
+  optimizing: boolean;
+  optimizeProgress: number;
+  optimizeMessage: string;
+  wasOptimized: boolean;
+};
+
+function defaultUploadSlot(): UploadSlotState {
+  return {
+    autoOptimize: true,
+    metadata: null,
+    metadataLoading: false,
+    optimizing: false,
+    optimizeProgress: 0,
+    optimizeMessage: "",
+    wasOptimized: false,
+  };
+}
 
 type CreatorUploadFormProps = {
   userId: string;
@@ -38,6 +68,7 @@ function FileDropZone({
   hint,
   accept,
   preview,
+  fileInfo,
   onPick,
   dragOver,
   onDragOver,
@@ -49,6 +80,7 @@ function FileDropZone({
   hint: string;
   accept: string;
   preview: FilePreview | null;
+  fileInfo?: React.ReactNode;
   onPick: (file: File | undefined) => void;
   dragOver: boolean;
   onDragOver: (e: React.DragEvent) => void;
@@ -80,16 +112,13 @@ function FileDropZone({
         {preview ? (
           <div className="relative flex min-h-[140px] items-center justify-center p-3">
             {preview.label === "Video" ? (
-              <>
-                <video
-                  src={preview.url}
-                  className="max-h-40 max-w-full rounded-lg"
-                  muted
-                  playsInline
-                  preload="metadata"
-                />
-                <VideoWatermark compact />
-              </>
+              <video
+                src={preview.url}
+                className="max-h-40 max-w-full rounded-lg"
+                muted
+                playsInline
+                preload="metadata"
+              />
             ) : (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
@@ -101,6 +130,9 @@ function FileDropZone({
             <span className="absolute bottom-2 right-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] text-white">
               {preview.label}
             </span>
+            <span className="absolute bottom-2 left-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] text-white">
+              {formatFileSize(preview.size)}
+            </span>
           </div>
         ) : (
           <div className="flex min-h-[120px] flex-col items-center justify-center gap-2 px-4 py-6 text-center">
@@ -109,6 +141,7 @@ function FileDropZone({
           </div>
         )}
       </div>
+      {fileInfo}
     </div>
   );
 }
@@ -125,6 +158,8 @@ export function CreatorUploadForm({
   const [isFree, setIsFree] = useState(true);
   const [fullPreview, setFullPreview] = useState<FilePreview | null>(null);
   const [teaserPreview, setTeaserPreview] = useState<FilePreview | null>(null);
+  const [fullSlot, setFullSlot] = useState<UploadSlotState>(defaultUploadSlot);
+  const [teaserSlot, setTeaserSlot] = useState<UploadSlotState>(defaultUploadSlot);
   const [dragFull, setDragFull] = useState(false);
   const [dragTeaser, setDragTeaser] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -136,11 +171,31 @@ export function CreatorUploadForm({
     if (url) URL.revokeObjectURL(url);
   }
 
-  function setFullFile(file: File | undefined) {
+  async function loadVideoMeta(
+    file: File,
+    kind: "full" | "preview",
+    setSlot: React.Dispatch<React.SetStateAction<UploadSlotState>>,
+  ) {
+    setSlot((s) => ({ ...s, metadataLoading: true, metadata: null }));
+    try {
+      const metadata = await getVideoMetadata(file);
+      setSlot((s) => ({
+        ...s,
+        metadata,
+        metadataLoading: false,
+        autoOptimize: videoNeedsOptimization(file, metadata.durationSeconds, kind),
+      }));
+    } catch {
+      setSlot((s) => ({ ...s, metadataLoading: false }));
+    }
+  }
+
+  function setFullFile(file: File | undefined, wasOptimized = false) {
     revoke(fullPreview?.url);
     if (!file) {
       fullFileRef.current = null;
       setFullPreview(null);
+      setFullSlot(defaultUploadSlot());
       return;
     }
     const mediaType = mediaTypeFromFile(file);
@@ -150,23 +205,33 @@ export function CreatorUploadForm({
     }
     setError(null);
     fullFileRef.current = file;
-    if (isOverUploadLimit(file.size)) {
+    if (isOverUploadLimit(file.size) && !wasOptimized) {
       setError(
-        `File is ${formatFileSize(file.size)} — max ${maxUploadLabel()}. Compress the video or use a shorter clip.`,
+        `File is ${formatFileSize(file.size)} — max ${maxUploadLabel()}. Turn on optimize or compress the video.`,
       );
-      return;
     }
     setFullPreview({
       url: URL.createObjectURL(file),
       label: mediaType === "video" ? "Video" : "Photo",
+      size: file.size,
+      isVideo: mediaType === "video",
     });
+    setFullSlot({
+      ...defaultUploadSlot(),
+      wasOptimized,
+      autoOptimize: mediaType === "video",
+    });
+    if (mediaType === "video") {
+      void loadVideoMeta(file, "full", setFullSlot);
+    }
   }
 
-  function setTeaserFile(file: File | undefined) {
+  function setTeaserFile(file: File | undefined, wasOptimized = false) {
     revoke(teaserPreview?.url);
     if (!file) {
       previewTeaserRef.current = null;
       setTeaserPreview(null);
+      setTeaserSlot(defaultUploadSlot());
       return;
     }
     const mediaType = mediaTypeFromFile(file);
@@ -174,9 +239,9 @@ export function CreatorUploadForm({
       setError("Preview must be a photo or video.");
       return;
     }
-    if (isOverUploadLimit(file.size)) {
+    if (isOverUploadLimit(file.size) && !wasOptimized) {
       setError(
-        `Preview is ${formatFileSize(file.size)} — max ${maxUploadLabel()}.`,
+        `Preview is ${formatFileSize(file.size)} — max ${maxUploadLabel()}. Turn on optimize or use a smaller clip.`,
       );
       return;
     }
@@ -185,7 +250,84 @@ export function CreatorUploadForm({
     setTeaserPreview({
       url: URL.createObjectURL(file),
       label: mediaType === "video" ? "Video" : "Preview",
+      size: file.size,
+      isVideo: mediaType === "video",
     });
+    setTeaserSlot({
+      ...defaultUploadSlot(),
+      wasOptimized,
+      autoOptimize: mediaType === "video",
+    });
+    if (mediaType === "video") {
+      void loadVideoMeta(file, "preview", setTeaserSlot);
+    }
+  }
+
+  async function optimizeSlot(slot: "full" | "teaser") {
+    const file = slot === "full" ? fullFileRef.current : previewTeaserRef.current;
+    if (!file || !isVideoFile(file)) return;
+
+    const kind = slot === "full" ? "full" : "preview";
+    const setSlot = slot === "full" ? setFullSlot : setTeaserSlot;
+    const applyFile = slot === "full" ? setFullFile : setTeaserFile;
+
+    setSlot((s) => ({
+      ...s,
+      optimizing: true,
+      optimizeProgress: 0,
+      optimizeMessage: "Starting…",
+    }));
+    setError(null);
+
+    try {
+      const optimized = await optimizeVideoForUpload(file, kind, (p) => {
+        setSlot((s) => ({
+          ...s,
+          optimizeProgress: p.percent,
+          optimizeMessage: p.message,
+        }));
+      });
+      applyFile(optimized, true);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Video optimization failed.";
+      logDevIssue("Video optimize failed", msg);
+      setError(
+        `${msg} Try a shorter clip, or upload without optimize if the file is under ${maxUploadLabel()}.`,
+      );
+    } finally {
+      setSlot((s) => ({ ...s, optimizing: false }));
+    }
+  }
+
+  async function maybeOptimizeFile(
+    file: File,
+    kind: "full" | "preview",
+    autoOptimize: boolean,
+    metadata: VideoMetadata | null,
+    wasOptimized: boolean,
+    onProgress: (percent: number, message: string) => void,
+  ): Promise<File> {
+    if (wasOptimized || !isVideoFile(file)) {
+      return file;
+    }
+
+    const mustShorten =
+      isOverUploadLimit(file.size) ||
+      videoNeedsOptimization(file, metadata?.durationSeconds, kind);
+
+    if (!autoOptimize && !mustShorten) {
+      return file;
+    }
+
+    if (!autoOptimize && mustShorten) {
+      throw new Error(
+        `Video is ${formatFileSize(file.size)}${
+          metadata ? ` / ${formatDuration(metadata.durationSeconds)}` : ""
+        }. Turn on Shorten & compress or click the button before publishing.`,
+      );
+    }
+
+    return optimizeVideoForUpload(file, kind, (p) => onProgress(p.percent, p.message));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -197,12 +339,6 @@ export function CreatorUploadForm({
       setError(isFree ? "Add a photo or video." : "Add the full paid file.");
       return;
     }
-    if (isOverUploadLimit(fullFile.size)) {
-      setError(
-        `File is ${formatFileSize(fullFile.size)} — max ${maxUploadLabel()}. Compress the video or use a shorter clip.`,
-      );
-      return;
-    }
     if (!title.trim()) {
       setError("Add a title.");
       return;
@@ -211,6 +347,13 @@ export function CreatorUploadForm({
     const mediaType = mediaTypeFromFile(fullFile);
     if (!mediaType) {
       setError("Full file must be an image or video.");
+      return;
+    }
+
+    if (!isVideoFile(fullFile) && isOverUploadLimit(fullFile.size)) {
+      setError(
+        `File is ${formatFileSize(fullFile.size)} — max ${maxUploadLabel()}. Use a smaller image.`,
+      );
       return;
     }
 
@@ -231,14 +374,62 @@ export function CreatorUploadForm({
     const supabase = createClient();
 
     try {
+      let uploadFull = fullFile;
+      let uploadPreview = previewTeaserRef.current;
+
+      if (isVideoFile(uploadFull)) {
+        uploadFull = await maybeOptimizeFile(
+          uploadFull,
+          "full",
+          fullSlot.autoOptimize,
+          fullSlot.metadata,
+          fullSlot.wasOptimized,
+          (percent, message) => {
+            setFullSlot((s) => ({
+              ...s,
+              optimizing: true,
+              optimizeProgress: percent,
+              optimizeMessage: message,
+            }));
+          },
+        );
+        fullFileRef.current = uploadFull;
+      }
+
+      if (!isFree && uploadPreview && isVideoFile(uploadPreview)) {
+        uploadPreview = await maybeOptimizeFile(
+          uploadPreview,
+          "preview",
+          teaserSlot.autoOptimize,
+          teaserSlot.metadata,
+          teaserSlot.wasOptimized,
+          (percent, message) => {
+            setTeaserSlot((s) => ({
+              ...s,
+              optimizing: true,
+              optimizeProgress: percent,
+              optimizeMessage: message,
+            }));
+          },
+        );
+        previewTeaserRef.current = uploadPreview;
+      }
+
+      if (isOverUploadLimit(uploadFull.size)) {
+        setError(
+          `File is still ${formatFileSize(uploadFull.size)} after optimize — max ${maxUploadLabel()}.`,
+        );
+        return;
+      }
+
       await uploadCreatorContent(
         supabase,
         userId,
         title.trim(),
-        fullFile,
+        uploadFull,
         mediaType,
         priceCents,
-        isFree ? null : previewTeaserRef.current,
+        isFree ? null : uploadPreview,
       );
       router.push("/account?published=1#upload");
       router.refresh();
@@ -248,6 +439,8 @@ export function CreatorUploadForm({
       setError(mapUploadErrorMessage(msg));
     } finally {
       setLoading(false);
+      setFullSlot((s) => ({ ...s, optimizing: false }));
+      setTeaserSlot((s) => ({ ...s, optimizing: false }));
     }
   }
 
@@ -292,9 +485,18 @@ export function CreatorUploadForm({
               </p>
               {!isFree && (
                 <ul className="mt-3 max-w-lg space-y-1 text-xs leading-relaxed text-gray-500">
-                  <li>• Previews are limited to a <strong className="text-gray-400">10-second clip</strong> (trim before upload).</li>
-                  <li>• Full videos can be up to <strong className="text-gray-400">10 minutes</strong>. Large files are supported — most uploads come from iPhone.</li>
-                  <li>• Preview can be a <strong className="text-gray-400">photo or video</strong> — fans see exactly what you upload as the preview.</li>
+                  <li>
+                    • After you pick a video, the site shows <strong className="text-gray-400">size &amp; length</strong>{" "}
+                    so you don&apos;t have to guess.
+                  </li>
+                  <li>
+                    • Previews: max <strong className="text-gray-400">10 seconds</strong>. Full videos: max{" "}
+                    <strong className="text-gray-400">10 minutes</strong> — use{" "}
+                    <strong className="text-gray-400">Shorten &amp; compress</strong> to auto-trim.
+                  </li>
+                  <li>
+                    • Large files? One click compresses to 720p (still good quality) and a smaller upload.
+                  </li>
                 </ul>
               )}
             </div>
@@ -369,50 +571,11 @@ export function CreatorUploadForm({
           </div>
 
           {isFree ? (
-            <FileDropZone
-              id="free-file"
-              label="Photo or video"
-              hint="Drag & drop or click — shown in full on the gallery"
-              accept="image/*,video/*"
-              preview={fullPreview}
-              onPick={setFullFile}
-              dragOver={dragFull}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDragFull(true);
-              }}
-              onDragLeave={() => setDragFull(false)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setDragFull(false);
-                setFullFile(e.dataTransfer.files?.[0]);
-              }}
-            />
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div>
               <FileDropZone
-                id="preview-teaser"
-                label="Preview (public)"
-                hint="Photo or video fans see on home & profile — not the locked full file"
-                accept="image/*,video/*"
-                preview={teaserPreview}
-                onPick={setTeaserFile}
-                dragOver={dragTeaser}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDragTeaser(true);
-                }}
-                onDragLeave={() => setDragTeaser(false)}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setDragTeaser(false);
-                  setTeaserFile(e.dataTransfer.files?.[0]);
-                }}
-              />
-              <FileDropZone
-                id="paid-full"
-                label="Full file (locked)"
-                hint="Photo or video buyers get after purchase — never shown on gallery"
+                id="free-file"
+                label="Photo or video"
+                hint="Drag & drop or click — shown in full on the gallery"
                 accept="image/*,video/*"
                 preview={fullPreview}
                 onPick={setFullFile}
@@ -428,6 +591,119 @@ export function CreatorUploadForm({
                   setFullFile(e.dataTransfer.files?.[0]);
                 }}
               />
+              {fullPreview?.isVideo && fullFileRef.current && (
+                <VideoUploadInfo
+                  file={fullFileRef.current}
+                  kind="full"
+                  metadata={fullSlot.metadata}
+                  metadataLoading={fullSlot.metadataLoading}
+                  autoOptimize={fullSlot.autoOptimize}
+                  onAutoOptimizeChange={(v) =>
+                    setFullSlot((s) => ({ ...s, autoOptimize: v }))
+                  }
+                  optimizing={fullSlot.optimizing}
+                  optimizeProgress={fullSlot.optimizeProgress}
+                  optimizeMessage={fullSlot.optimizeMessage}
+                  wasOptimized={fullSlot.wasOptimized}
+                  onShortenNow={() => optimizeSlot("full")}
+                />
+              )}
+              {fullPreview && !fullPreview.isVideo && (
+                <p className="mt-2 text-xs text-gray-400">
+                  Size: <strong className="text-gray-200">{formatFileSize(fullPreview.size)}</strong>
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <FileDropZone
+                  id="preview-teaser"
+                  label="Preview (public)"
+                  hint="Photo or video fans see on home & profile — not the locked full file"
+                  accept="image/*,video/*"
+                  preview={teaserPreview}
+                  onPick={setTeaserFile}
+                  dragOver={dragTeaser}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragTeaser(true);
+                  }}
+                  onDragLeave={() => setDragTeaser(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragTeaser(false);
+                    setTeaserFile(e.dataTransfer.files?.[0]);
+                  }}
+                />
+                {teaserPreview?.isVideo && previewTeaserRef.current && (
+                  <VideoUploadInfo
+                    file={previewTeaserRef.current}
+                    kind="preview"
+                    metadata={teaserSlot.metadata}
+                    metadataLoading={teaserSlot.metadataLoading}
+                    autoOptimize={teaserSlot.autoOptimize}
+                    onAutoOptimizeChange={(v) =>
+                      setTeaserSlot((s) => ({ ...s, autoOptimize: v }))
+                    }
+                    optimizing={teaserSlot.optimizing}
+                    optimizeProgress={teaserSlot.optimizeProgress}
+                    optimizeMessage={teaserSlot.optimizeMessage}
+                    wasOptimized={teaserSlot.wasOptimized}
+                    onShortenNow={() => optimizeSlot("teaser")}
+                  />
+                )}
+                {teaserPreview && !teaserPreview.isVideo && (
+                  <p className="mt-2 text-xs text-gray-400">
+                    Size:{" "}
+                    <strong className="text-gray-200">{formatFileSize(teaserPreview.size)}</strong>
+                  </p>
+                )}
+              </div>
+              <div>
+                <FileDropZone
+                  id="paid-full"
+                  label="Full file (locked)"
+                  hint="Photo or video buyers get after purchase — never shown on gallery"
+                  accept="image/*,video/*"
+                  preview={fullPreview}
+                  onPick={setFullFile}
+                  dragOver={dragFull}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragFull(true);
+                  }}
+                  onDragLeave={() => setDragFull(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragFull(false);
+                    setFullFile(e.dataTransfer.files?.[0]);
+                  }}
+                />
+                {fullPreview?.isVideo && fullFileRef.current && (
+                  <VideoUploadInfo
+                    file={fullFileRef.current}
+                    kind="full"
+                    metadata={fullSlot.metadata}
+                    metadataLoading={fullSlot.metadataLoading}
+                    autoOptimize={fullSlot.autoOptimize}
+                    onAutoOptimizeChange={(v) =>
+                      setFullSlot((s) => ({ ...s, autoOptimize: v }))
+                    }
+                    optimizing={fullSlot.optimizing}
+                    optimizeProgress={fullSlot.optimizeProgress}
+                    optimizeMessage={fullSlot.optimizeMessage}
+                    wasOptimized={fullSlot.wasOptimized}
+                    onShortenNow={() => optimizeSlot("full")}
+                  />
+                )}
+                {fullPreview && !fullPreview.isVideo && (
+                  <p className="mt-2 text-xs text-gray-400">
+                    Size:{" "}
+                    <strong className="text-gray-200">{formatFileSize(fullPreview.size)}</strong>
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
@@ -439,10 +715,16 @@ export function CreatorUploadForm({
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={
+              loading || fullSlot.optimizing || teaserSlot.optimizing
+            }
             className="w-full rounded-xl bg-bp-gold py-3.5 text-sm font-semibold text-white shadow-[0_4px_24px_rgba(196,30,58,0.45)] transition-all hover:bg-bp-gold-dim disabled:opacity-60 sm:w-auto sm:px-10"
           >
-            {loading ? "Publishing…" : "Publish to gallery"}
+            {fullSlot.optimizing || teaserSlot.optimizing
+              ? "Shortening video…"
+              : loading
+                ? "Publishing…"
+                : "Publish to gallery"}
           </button>
         </div>
       </form>
@@ -471,16 +753,13 @@ export function CreatorUploadForm({
                 >
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-bp-chip ring-1 ring-bp-border">
                     {thumbIsVideo ? (
-                      <>
-                        <video
-                          src={item.display_url}
-                          className="h-full w-full object-cover"
-                          muted
-                          playsInline
-                          preload="metadata"
-                        />
-                        <VideoWatermark compact />
-                      </>
+                      <video
+                        src={item.display_url}
+                        className="h-full w-full object-cover"
+                        muted
+                        playsInline
+                        preload="metadata"
+                      />
                     ) : (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img

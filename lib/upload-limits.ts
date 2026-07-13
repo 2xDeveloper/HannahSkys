@@ -30,7 +30,7 @@ export function mapUploadErrorMessage(raw: string): string {
     lower.includes("entity too large") ||
     lower.includes("exceeded")
   ) {
-    return `File is too large (max ${maxUploadLabel()}). Compress the video or upload a shorter clip.`;
+    return `Upload blocked — file too large for storage. Use Shorten & compress on your video first, or check Supabase Storage → Settings (global limit should be 2 GB+). Site max: ${maxUploadLabel()}.`;
   }
 
   if (lower.includes("row-level security") || lower.includes("policy")) {

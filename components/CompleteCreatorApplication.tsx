@@ -4,6 +4,7 @@ import {
   creatorApplicationComplete,
   normalizeWunUsername,
 } from "@/lib/creator-application";
+import { ReapplyCreatorReview } from "@/components/ReapplyCreatorReview";
 import { submitCreatorApplication } from "@/lib/submit-creator-application";
 import type { Profile } from "@/lib/types/database";
 import { useRouter } from "next/navigation";
@@ -27,6 +28,10 @@ export function CompleteCreatorApplication({
   const [error, setError] = useState<string | null>(null);
 
   if (creatorApplicationComplete(profile)) {
+    if (profile.creator_status === "rejected") {
+      return <ReapplyCreatorReview />;
+    }
+
     return (
       <div className="rounded-xl border border-emerald-900/40 bg-emerald-950/20 px-4 py-3 text-sm text-emerald-200">
         Your creator application is complete and pending admin review.

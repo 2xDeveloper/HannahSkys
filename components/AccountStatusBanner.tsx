@@ -26,8 +26,8 @@ export function AccountStatusBanner({ profile }: AccountStatusBannerProps) {
   if (profile.creator_status === "rejected") {
     return (
       <div className="mb-6 rounded-xl border border-red-900/50 bg-red-950/30 px-4 py-3 text-sm text-red-200">
-        Your creator application was not approved. You can still browse and purchase as a regular
-        user.
+        Your creator application was not approved. You can submit again for review below — your
+        photos and Wun.app username may still be on file.
       </div>
     );
   }

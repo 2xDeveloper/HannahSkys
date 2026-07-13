@@ -1,9 +1,21 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+
+async function setCreatorStatus(userId: string, status: "pending") {
+  const res = await fetch("/api/admin/creator-status", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, status }),
+  });
+
+  const data = (await res.json().catch(() => ({}))) as { error?: string };
+  if (!res.ok) {
+    throw new Error(data.error ?? "Could not update creator status.");
+  }
+}
 
 type AdminPromoteCreatorProps = {
   profile: Profile;
@@ -18,37 +30,27 @@ export function AdminPromoteCreator({ profile }: AdminPromoteCreatorProps) {
     setLoading(true);
     setError(null);
 
-    const supabase = createClient();
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({
-        role: "creator",
-        creator_status: "pending",
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", profile.id);
-
-    setLoading(false);
-
-    if (updateError) {
-      setError(updateError.message);
-      return;
+    try {
+      await setCreatorStatus(profile.id, "pending");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Update failed.");
+    } finally {
+      setLoading(false);
     }
-
-    router.refresh();
   }
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-2">
       <button
         type="button"
         disabled={loading}
         onClick={promote}
-        className="rounded-lg bg-amber-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-600 disabled:opacity-60"
+        className="min-h-[44px] w-full touch-manipulation rounded-xl bg-amber-700 px-4 py-3 text-sm font-semibold text-white hover:bg-amber-600 active:bg-amber-800 disabled:opacity-60 sm:w-auto"
       >
-        {loading ? "…" : "Move to pending creators"}
+        {loading ? "Moving…" : "Move to pending creators"}
       </button>
-      {error && <span className="text-[10px] text-red-400">{error}</span>}
+      {error && <span className="text-xs text-red-400">{error}</span>}
     </div>
   );
 }

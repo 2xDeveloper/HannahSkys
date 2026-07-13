@@ -65,7 +65,9 @@ export default async function AccountPage({
   const isCreatorIntent =
     profile.role === "creator" ||
     accountType === "creator" ||
-    Boolean(user.user_metadata?.instagram_handle);
+    Boolean(user.user_metadata?.instagram_handle) ||
+    (profile.creator_status === "rejected" &&
+      creatorApplicationComplete(profile as Profile));
 
   const approved = isApprovedCreator(profile as Profile);
   const myContent = approved ? await getMyCreatorContent(user.id) : [];
@@ -131,16 +133,14 @@ export default async function AccountPage({
               <CreatorEarnings sales={creatorSales.sales} summary={creatorSales.summary} />
             </>
           )}
-          {isCreatorIntent &&
-            profile.creator_status !== "approved" &&
-            !creatorApplicationComplete(profile as Profile) && (
-              <div className="mt-4">
-                <CompleteCreatorApplication
-                  profile={profile as Profile}
-                  userId={user.id}
-                />
-              </div>
-            )}
+          {isCreatorIntent && profile.creator_status !== "approved" && (
+            <div className="mt-4">
+              <CompleteCreatorApplication
+                profile={profile as Profile}
+                userId={user.id}
+              />
+            </div>
+          )}
           <div className="mt-4 rounded-2xl border border-bp-border bg-bp-panel p-6 md:p-8">
             <ProfileEditor profile={profile as Profile} email={user.email ?? ""} />
           </div>

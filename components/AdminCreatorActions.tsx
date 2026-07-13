@@ -1,9 +1,21 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
-import type { Profile } from "@/lib/types/database";
+import type { Profile, CreatorStatus } from "@/lib/types/database";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+
+async function setCreatorStatus(userId: string, status: CreatorStatus) {
+  const res = await fetch("/api/admin/creator-status", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, status }),
+  });
+
+  const data = (await res.json().catch(() => ({}))) as { error?: string };
+  if (!res.ok) {
+    throw new Error(data.error ?? "Could not update creator status.");
+  }
+}
 
 type AdminCreatorActionsProps = {
   profile: Profile;
@@ -13,29 +25,22 @@ export function AdminCreatorActions({ profile }: AdminCreatorActionsProps) {
   const router = useRouter();
   const [loading, setLoading] = useState<"approve" | "reject" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   async function updateStatus(status: "approved" | "rejected") {
     setLoading(status === "approved" ? "approve" : "reject");
     setError(null);
+    setSuccess(null);
 
-    const supabase = createClient();
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({
-        creator_status: status,
-        role: status === "rejected" ? "user" : "creator",
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", profile.id);
-
-    setLoading(null);
-
-    if (updateError) {
-      setError(updateError.message);
-      return;
+    try {
+      await setCreatorStatus(profile.id, status);
+      setSuccess(status === "approved" ? "Approved" : "Rejected");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Update failed.");
+    } finally {
+      setLoading(null);
     }
-
-    router.refresh();
   }
 
   if (profile.creator_status !== "pending") {
@@ -43,26 +48,27 @@ export function AdminCreatorActions({ profile }: AdminCreatorActionsProps) {
   }
 
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex gap-2">
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row">
         <button
           type="button"
           disabled={loading !== null}
           onClick={() => updateStatus("approved")}
-          className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-600 disabled:opacity-60"
+          className="min-h-[44px] flex-1 touch-manipulation rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-600 active:bg-emerald-800 disabled:opacity-60"
         >
-          {loading === "approve" ? "…" : "Approve"}
+          {loading === "approve" ? "Approving…" : "Approve creator"}
         </button>
         <button
           type="button"
           disabled={loading !== null}
           onClick={() => updateStatus("rejected")}
-          className="rounded-lg border border-red-900/60 px-3 py-1.5 text-xs font-medium text-red-300 hover:bg-red-950/40 disabled:opacity-60"
+          className="min-h-[44px] flex-1 touch-manipulation rounded-xl border border-red-900/60 px-4 py-3 text-sm font-semibold text-red-300 hover:bg-red-950/40 active:bg-red-950/60 disabled:opacity-60"
         >
-          {loading === "reject" ? "…" : "Reject"}
+          {loading === "reject" ? "Rejecting…" : "Reject"}
         </button>
       </div>
-      {error && <span className="text-[10px] text-red-400">{error}</span>}
+      {success && <span className="text-xs font-medium text-emerald-400">{success}</span>}
+      {error && <span className="text-xs text-red-400">{error}</span>}
     </div>
   );
 }
