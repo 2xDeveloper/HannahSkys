@@ -1,5 +1,6 @@
 "use client";
 
+import { MediaWatermark } from "@/components/MediaWatermark";
 import { VideoUploadInfo } from "@/components/VideoUploadInfo";
 import { deleteCreatorContent, uploadCreatorContent } from "@/lib/content-client";
 import { logDevIssue } from "@/lib/dev-log";
@@ -20,10 +21,10 @@ import {
   mediaTypeFromFile,
   priceToCents,
 } from "@/lib/types/content";
+import { prepareMediaForUpload } from "@/lib/watermark";
 import {
   formatDuration,
   getVideoMetadata,
-  optimizeVideoForUpload,
   type VideoMetadata,
   videoNeedsOptimization,
 } from "@/lib/video-optimize";
@@ -112,20 +113,26 @@ function FileDropZone({
         {preview ? (
           <div className="relative flex min-h-[140px] items-center justify-center p-3">
             {preview.label === "Video" ? (
-              <video
-                src={preview.url}
-                className="max-h-40 max-w-full rounded-lg"
-                muted
-                playsInline
-                preload="metadata"
-              />
+              <>
+                <video
+                  src={preview.url}
+                  className="max-h-40 max-w-full rounded-lg"
+                  muted
+                  playsInline
+                  preload="metadata"
+                />
+                <MediaWatermark compact />
+              </>
             ) : (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={preview.url}
-                alt=""
-                className="max-h-40 rounded-lg object-contain"
-              />
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={preview.url}
+                  alt=""
+                  className="max-h-40 rounded-lg object-contain"
+                />
+                <MediaWatermark compact />
+              </>
             )}
             <span className="absolute bottom-2 right-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] text-white">
               {preview.label}
@@ -280,14 +287,18 @@ export function CreatorUploadForm({
     setError(null);
 
     try {
-      const optimized = await optimizeVideoForUpload(file, kind, (p) => {
+      const prepared = await prepareMediaForUpload(file, kind, {
+        autoOptimize: true,
+        metadata: slot === "full" ? fullSlot.metadata : teaserSlot.metadata,
+        wasOptimized: false,
+      }, (p) => {
         setSlot((s) => ({
           ...s,
           optimizeProgress: p.percent,
           optimizeMessage: p.message,
         }));
       });
-      applyFile(optimized, true);
+      applyFile(prepared, true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Video optimization failed.";
       logDevIssue("Video optimize failed", msg);
@@ -299,35 +310,29 @@ export function CreatorUploadForm({
     }
   }
 
-  async function maybeOptimizeFile(
+  async function prepareUploadFile(
     file: File,
     kind: "full" | "preview",
-    autoOptimize: boolean,
-    metadata: VideoMetadata | null,
-    wasOptimized: boolean,
-    onProgress: (percent: number, message: string) => void,
+    slot: UploadSlotState,
+    setSlot: React.Dispatch<React.SetStateAction<UploadSlotState>>,
   ): Promise<File> {
-    if (wasOptimized || !isVideoFile(file)) {
-      return file;
-    }
-
-    const mustShorten =
-      isOverUploadLimit(file.size) ||
-      videoNeedsOptimization(file, metadata?.durationSeconds, kind);
-
-    if (!autoOptimize && !mustShorten) {
-      return file;
-    }
-
-    if (!autoOptimize && mustShorten) {
-      throw new Error(
-        `Video is ${formatFileSize(file.size)}${
-          metadata ? ` / ${formatDuration(metadata.durationSeconds)}` : ""
-        }. Turn on Shorten & compress or click the button before publishing.`,
-      );
-    }
-
-    return optimizeVideoForUpload(file, kind, (p) => onProgress(p.percent, p.message));
+    return prepareMediaForUpload(
+      file,
+      kind,
+      {
+        autoOptimize: slot.autoOptimize,
+        metadata: slot.metadata,
+        wasOptimized: slot.wasOptimized,
+      },
+      (p) => {
+        setSlot((s) => ({
+          ...s,
+          optimizing: true,
+          optimizeProgress: p.percent,
+          optimizeMessage: p.message,
+        }));
+      },
+    );
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -377,40 +382,15 @@ export function CreatorUploadForm({
       let uploadFull = fullFile;
       let uploadPreview = previewTeaserRef.current;
 
-      if (isVideoFile(uploadFull)) {
-        uploadFull = await maybeOptimizeFile(
-          uploadFull,
-          "full",
-          fullSlot.autoOptimize,
-          fullSlot.metadata,
-          fullSlot.wasOptimized,
-          (percent, message) => {
-            setFullSlot((s) => ({
-              ...s,
-              optimizing: true,
-              optimizeProgress: percent,
-              optimizeMessage: message,
-            }));
-          },
-        );
-        fullFileRef.current = uploadFull;
-      }
+      uploadFull = await prepareUploadFile(uploadFull, "full", fullSlot, setFullSlot);
+      fullFileRef.current = uploadFull;
 
-      if (!isFree && uploadPreview && isVideoFile(uploadPreview)) {
-        uploadPreview = await maybeOptimizeFile(
+      if (!isFree && uploadPreview) {
+        uploadPreview = await prepareUploadFile(
           uploadPreview,
           "preview",
-          teaserSlot.autoOptimize,
-          teaserSlot.metadata,
-          teaserSlot.wasOptimized,
-          (percent, message) => {
-            setTeaserSlot((s) => ({
-              ...s,
-              optimizing: true,
-              optimizeProgress: percent,
-              optimizeMessage: message,
-            }));
-          },
+          teaserSlot,
+          setTeaserSlot,
         );
         previewTeaserRef.current = uploadPreview;
       }
@@ -753,20 +733,26 @@ export function CreatorUploadForm({
                 >
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-bp-chip ring-1 ring-bp-border">
                     {thumbIsVideo ? (
-                      <video
-                        src={item.display_url}
-                        className="h-full w-full object-cover"
-                        muted
-                        playsInline
-                        preload="metadata"
-                      />
+                      <>
+                        <video
+                          src={item.display_url}
+                          className="h-full w-full object-cover"
+                          muted
+                          playsInline
+                          preload="metadata"
+                        />
+                        <MediaWatermark compact />
+                      </>
                     ) : (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={item.display_url}
-                        alt=""
-                        className="h-full w-full object-cover"
-                      />
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={item.display_url}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                        <MediaWatermark compact />
+                      </>
                     )}
                     {paid && (
                       <span className="absolute bottom-0 left-0 right-0 bg-bp-gold/90 py-0.5 text-center text-[8px] font-bold text-white">

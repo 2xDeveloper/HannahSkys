@@ -1,4 +1,5 @@
 import { HoverPreviewVideo } from "@/components/HoverPreviewVideo";
+import { MediaWatermark } from "@/components/MediaWatermark";
 import { PurchaseButton } from "@/components/PurchaseButton";
 import type { CreatorContent } from "@/lib/types/content";
 import {
@@ -77,21 +78,27 @@ export function GalleryDetail({
                 {isVideoDisplay && !unlocked && !lockedBlur ? (
                   <HoverPreviewVideo src={viewUrl} blurClass={blurClass} />
                 ) : isVideoDisplay ? (
-                  <video
-                    src={viewUrl}
-                    controls={unlocked}
-                    muted={!unlocked}
-                    playsInline
-                    preload="metadata"
-                    className={`h-full w-full object-cover ${unlocked ? "" : blurClass}`}
-                  />
+                  <>
+                    <video
+                      src={viewUrl}
+                      controls={unlocked}
+                      muted={!unlocked}
+                      playsInline
+                      preload="metadata"
+                      className={`h-full w-full object-cover ${unlocked ? "" : blurClass}`}
+                    />
+                    <MediaWatermark />
+                  </>
                 ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={viewUrl}
-                    alt={unlocked ? item.title : `Preview: ${item.title}`}
-                    className={`h-full w-full object-cover object-top ${blurClass}`}
-                  />
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={viewUrl}
+                      alt={unlocked ? item.title : `Preview: ${item.title}`}
+                      className={`h-full w-full object-cover object-top ${blurClass}`}
+                    />
+                    <MediaWatermark />
+                  </>
                 )}
                 {!unlocked && (
                   <>

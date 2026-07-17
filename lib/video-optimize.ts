@@ -1,8 +1,15 @@
-import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { fetchFile } from "@ffmpeg/util";
+import {
+  ensureWatermarkFont,
+  extFromName,
+  loadFfmpeg,
+  type ProcessingProgress,
+  videoWatermarkFilter,
+} from "@/lib/ffmpeg-client";
 import { isVideoFile } from "@/lib/types/content";
 import { formatFileSize, isOverUploadLimit } from "@/lib/upload-limits";
 
+export type OptimizeProgress = ProcessingProgress;
 export const MAX_FULL_VIDEO_SECONDS = 10 * 60;
 export const MAX_PREVIEW_SECONDS = 10;
 export const OPTIMIZE_SUGGEST_BYTES = 80 * 1024 * 1024;
@@ -15,18 +22,9 @@ export type VideoMetadata = {
 
 export type OptimizeKind = "full" | "preview";
 
-export type OptimizeProgress = {
-  percent: number;
-  message: string;
-};
-
-let ffmpegLoadPromise: Promise<FFmpeg> | null = null;
-
-function extFromName(name: string): string {
-  const parts = name.split(".");
-  return parts.length > 1 ? parts.pop()!.toLowerCase() : "mp4";
+function extFromNameLocal(name: string): string {
+  return extFromName(name);
 }
-
 export function formatDuration(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds <= 0) return "0:00";
   const total = Math.floor(seconds);
@@ -93,23 +91,6 @@ export function getVideoMetadata(file: File): Promise<VideoMetadata> {
   });
 }
 
-async function loadFfmpeg(onProgress?: (p: OptimizeProgress) => void): Promise<FFmpeg> {
-  if (ffmpegLoadPromise) return ffmpegLoadPromise;
-
-  ffmpegLoadPromise = (async () => {
-    onProgress?.({ percent: 0, message: "Loading video encoder…" });
-    const ffmpeg = new FFmpeg();
-    const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
-    await ffmpeg.load({
-      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-      wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-    });
-    return ffmpeg;
-  })();
-
-  return ffmpegLoadPromise;
-}
-
 export async function optimizeVideoForUpload(
   file: File,
   kind: OptimizeKind,
@@ -126,13 +107,14 @@ export async function optimizeVideoForUpload(
 
   onProgress?.({ percent: 2, message: "Loading video encoder…" });
   const ffmpeg = await loadFfmpeg(onProgress);
+  await ensureWatermarkFont(ffmpeg);
 
   ffmpeg.on("progress", ({ progress }) => {
     const pct = Math.min(95, Math.round(5 + progress * 90));
     onProgress?.({ percent: pct, message: "Compressing video…" });
   });
 
-  const inputName = `input.${extFromName(file.name)}`;
+  const inputName = `input.${extFromNameLocal(file.name)}`;
   const outputName = "output.mp4";
   const maxDuration = maxDurationForKind(kind);
 
@@ -145,7 +127,7 @@ export async function optimizeVideoForUpload(
     "-t",
     String(maxDuration),
     "-vf",
-    "scale=-2:720",
+    videoWatermarkFilter(["scale=-2:720"]),
     "-c:v",
     "libx264",
     "-crf",
