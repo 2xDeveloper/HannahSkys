@@ -83,7 +83,7 @@ export function buildConversations(
       lastMessage: last.body,
       lastAt: last.created_at,
       unreadCount,
-      });
+    });
   }
 
   return conversations.sort(
@@ -120,4 +120,48 @@ export function formatBubbleTime(iso: string): string {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+/** Day chip label like Telegram (Today / Yesterday / date). */
+export function formatDaySeparator(iso: string): string {
+  const date = new Date(iso);
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfMsg = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const diffDays = Math.round(
+    (startOfToday.getTime() - startOfMsg.getTime()) / (1000 * 60 * 60 * 24),
+  );
+
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  return date.toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
+  });
+}
+
+export function isSameCalendarDay(a: string, b: string): boolean {
+  const da = new Date(a);
+  const db = new Date(b);
+  return (
+    da.getFullYear() === db.getFullYear() &&
+    da.getMonth() === db.getMonth() &&
+    da.getDate() === db.getDate()
+  );
+}
+
+export function filterConversations(
+  conversations: Conversation[],
+  query: string,
+): Conversation[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return conversations;
+  return conversations.filter(
+    (c) =>
+      c.partnerName.toLowerCase().includes(q) ||
+      c.lastMessage.toLowerCase().includes(q) ||
+      (c.guestEmail?.toLowerCase().includes(q) ?? false),
+  );
 }

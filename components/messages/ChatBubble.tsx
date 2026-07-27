@@ -4,30 +4,63 @@ import { formatBubbleTime } from "@/lib/message-threads";
 type ChatBubbleProps = {
   message: ChatMessage;
   showTail?: boolean;
+  pending?: boolean;
 };
 
-export function ChatBubble({ message, showTail = true }: ChatBubbleProps) {
+function ReadTicks({ read, pending }: { read: boolean; pending?: boolean }) {
+  if (pending) {
+    return <span className="ml-1 inline-block opacity-70">…</span>;
+  }
+  return (
+    <span
+      className={`ml-1 inline-flex tracking-tighter ${read ? "text-sky-300" : "text-white/55"}`}
+      aria-label={read ? "Read" : "Sent"}
+    >
+      {read ? "✓✓" : "✓"}
+    </span>
+  );
+}
+
+export function ChatBubble({ message, showTail = true, pending = false }: ChatBubbleProps) {
   const mine = message.isMine;
 
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
       <div
-        className={`relative max-w-[min(85%,320px)] px-4 py-2.5 shadow-sm ${
+        className={`relative max-w-[min(88%,420px)] px-3.5 py-2 shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-opacity ${
+          pending ? "opacity-70" : "opacity-100"
+        } ${
           mine
-            ? `bg-bp-gold text-white ${showTail ? "rounded-2xl rounded-br-md" : "rounded-2xl"}`
-            : `bg-bp-panel text-gray-100 ring-1 ring-bp-border ${showTail ? "rounded-2xl rounded-bl-md" : "rounded-2xl"}`
+            ? `bg-gradient-to-br from-bp-gold to-bp-gold-dim text-white ${
+                showTail ? "rounded-[18px] rounded-br-md" : "rounded-[18px]"
+              }`
+            : `bg-[#2a2227] text-gray-100 ring-1 ring-white/5 ${
+                showTail ? "rounded-[18px] rounded-bl-md" : "rounded-[18px]"
+              }`
         }`}
       >
-        <p className="whitespace-pre-wrap break-words text-[15px] leading-relaxed">
+        <p className="whitespace-pre-wrap break-words text-[15px] leading-[1.45]">
           {message.body}
         </p>
-        <p
-          className={`mt-1 text-[10px] ${mine ? "text-right text-white/70" : "text-right text-gray-500"}`}
+        <div
+          className={`mt-1 flex items-center justify-end gap-0.5 text-[10px] leading-none ${
+            mine ? "text-white/70" : "text-gray-500"
+          }`}
         >
-          {formatBubbleTime(message.created_at)}
-          {mine && message.read_at && <span className="ml-1.5">· Read</span>}
-        </p>
+          <span>{formatBubbleTime(message.created_at)}</span>
+          {mine && <ReadTicks read={Boolean(message.read_at)} pending={pending} />}
+        </div>
       </div>
+    </div>
+  );
+}
+
+export function DaySeparator({ label }: { label: string }) {
+  return (
+    <div className="my-4 flex justify-center">
+      <span className="rounded-full bg-black/45 px-3 py-1 text-[11px] font-medium text-gray-300 shadow-sm backdrop-blur-sm">
+        {label}
+      </span>
     </div>
   );
 }

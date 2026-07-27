@@ -5,11 +5,12 @@ import { ChatThread } from "@/components/messages/ChatThread";
 import { logDevIssue } from "@/lib/dev-log";
 import {
   buildConversations,
+  filterConversations,
   partnerKeyForMessage,
   type Conversation,
+  type PartnerProfile,
 } from "@/lib/message-threads";
 import type { Message } from "@/lib/messages";
-import type { PartnerProfile } from "@/lib/message-threads";
 import { createClient } from "@/lib/supabase/client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -39,10 +40,17 @@ export function MessagesApp({
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [pendingIds, setPendingIds] = useState<Set<string>>(() => new Set());
 
   const conversations = useMemo(
     () => buildConversations(messages, userId, profiles),
     [messages, userId, profiles],
+  );
+
+  const filteredConversations = useMemo(
+    () => filterConversations(conversations, search),
+    [conversations, search],
   );
 
   const activeConversation = useMemo(
@@ -50,32 +58,40 @@ export function MessagesApp({
     [conversations, activeId],
   );
 
-  const mergeMessage = useCallback((msg: Message) => {
-    setMessages((prev) => {
-      if (prev.some((m) => m.id === msg.id)) return prev;
-      return [...prev, msg].sort(
-        (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
-      );
-    });
+  const totalUnread = useMemo(
+    () => conversations.reduce((sum, c) => sum + c.unreadCount, 0),
+    [conversations],
+  );
 
-    const partnerId = partnerKeyForMessage(msg, userId);
-    if (!partnerId.startsWith("guest:") && !profiles[partnerId]) {
-      void (async () => {
-        const supabase = createClient();
-        const { data } = await supabase
-          .from("profiles")
-          .select("id, display_name, avatar_url")
-          .eq("id", partnerId)
-          .maybeSingle();
-        if (data) {
-          setProfiles((p) => ({
-            ...p,
-            [data.id]: { display_name: data.display_name, avatar_url: data.avatar_url },
-          }));
-        }
-      })();
-    }
-  }, [profiles, userId]);
+  const mergeMessage = useCallback(
+    (msg: Message) => {
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msg.id)) return prev;
+        return [...prev, msg].sort(
+          (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+        );
+      });
+
+      const partnerId = partnerKeyForMessage(msg, userId);
+      if (!partnerId.startsWith("guest:") && !profiles[partnerId]) {
+        void (async () => {
+          const supabase = createClient();
+          const { data } = await supabase
+            .from("profiles")
+            .select("id, display_name, avatar_url")
+            .eq("id", partnerId)
+            .maybeSingle();
+          if (data) {
+            setProfiles((p) => ({
+              ...p,
+              [data.id]: { display_name: data.display_name, avatar_url: data.avatar_url },
+            }));
+          }
+        })();
+      }
+    },
+    [profiles, userId],
+  );
 
   useEffect(() => {
     const supabase = createClient();
@@ -89,6 +105,15 @@ export function MessagesApp({
           const msg = payload.new as Message;
           if (msg.recipient_id === userId || msg.sender_id === userId) {
             mergeMessage(msg);
+            setPendingIds((prev) => {
+              if (!prev.size) return prev;
+              const next = new Set(prev);
+              // clear any optimistic temps once real message arrives
+              for (const id of prev) {
+                if (id.startsWith("temp:")) next.delete(id);
+              }
+              return next;
+            });
           }
         },
       )
@@ -142,7 +167,10 @@ export function MessagesApp({
 
   useEffect(() => {
     if (!activeId && conversations.length > 0 && !initialThreadId) {
-      setActiveId(conversations[0].id);
+      // Desktop: auto-open first chat. Mobile: stay on list.
+      if (typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches) {
+        setActiveId(conversations[0].id);
+      }
     }
   }, [activeId, conversations, initialThreadId]);
 
@@ -164,6 +192,22 @@ export function MessagesApp({
     setSending(true);
     setSendError(null);
 
+    const tempId = `temp:${crypto.randomUUID()}`;
+    const optimistic: Message = {
+      id: tempId,
+      sender_id: userId,
+      recipient_id: partnerId,
+      sender_name: userName,
+      sender_email: userEmail,
+      body: trimmed,
+      created_at: new Date().toISOString(),
+      read_at: null,
+    };
+
+    setDraft("");
+    setPendingIds((prev) => new Set(prev).add(tempId));
+    mergeMessage(optimistic);
+
     const supabase = createClient();
     const { data, error } = await supabase
       .from("messages")
@@ -181,56 +225,76 @@ export function MessagesApp({
 
     if (error) {
       logDevIssue("Chat send failed", error.message);
-      setSendError("Could not send message. Try again.");
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      setPendingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(tempId);
+        return next;
+      });
+      setDraft(trimmed);
+      setSendError("Could not send. Check your connection and try again.");
       return;
     }
 
     if (data) {
-      mergeMessage(data as Message);
-      setDraft("");
+      setMessages((prev) => {
+        const withoutTemp = prev.filter((m) => m.id !== tempId);
+        if (withoutTemp.some((m) => m.id === data.id)) return withoutTemp;
+        return [...withoutTemp, data as Message].sort(
+          (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+        );
+      });
+      setPendingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(tempId);
+        return next;
+      });
     }
   }
 
   return (
     <div className="flex min-h-0 flex-1">
       <aside
-        className={`flex w-full shrink-0 flex-col border-r border-bp-border bg-bp-black/40 md:w-[320px] lg:w-[360px] ${
+        className={`flex w-full shrink-0 flex-col border-r border-white/6 bg-[#140f12] md:w-[340px] lg:w-[380px] ${
           mobileShowThread ? "hidden md:flex" : "flex"
         }`}
       >
-        <div className="shrink-0 border-b border-bp-border px-4 py-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-            Conversations
-          </p>
-          <p className="mt-0.5 text-sm text-gray-400">
-            {conversations.length === 0
-              ? "Start messaging from a creator profile"
-              : `${conversations.length} active`}
-          </p>
+        <div className="shrink-0 border-b border-white/6 px-4 py-3.5">
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <h2 className="text-lg font-semibold tracking-tight text-white">Chats</h2>
+              <p className="text-xs text-gray-500">
+                {conversations.length === 0
+                  ? "Nothing here yet"
+                  : totalUnread > 0
+                    ? `${totalUnread} unread`
+                    : `${conversations.length} conversation${conversations.length === 1 ? "" : "s"}`}
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          <ConversationList
-            conversations={conversations}
-            activeId={activeId}
-            onSelect={selectConversation}
-            isCreator={isCreator}
-          />
-        </div>
+        <ConversationList
+          conversations={filteredConversations}
+          activeId={activeId}
+          onSelect={selectConversation}
+          isCreator={isCreator}
+          search={search}
+          onSearchChange={setSearch}
+        />
       </aside>
 
       <section
-        className={`flex min-w-0 flex-1 flex-col ${
+        className={`flex min-w-0 flex-1 flex-col bg-[#120e11] ${
           mobileShowThread ? "flex" : "hidden md:flex"
         }`}
       >
         {sendError && (
-          <p className="shrink-0 border-b border-red-900/40 bg-red-950/30 px-4 py-2 text-center text-xs text-red-300">
+          <p className="shrink-0 border-b border-red-900/40 bg-red-950/40 px-4 py-2 text-center text-xs text-red-300">
             {sendError}
           </p>
         )}
         <ChatThread
           conversation={activeConversation}
-          userName={userName}
           isCreator={isCreator}
           draft={draft}
           onDraftChange={setDraft}
@@ -238,6 +302,7 @@ export function MessagesApp({
           sending={sending}
           showBack
           onBack={() => setMobileShowThread(false)}
+          pendingIds={pendingIds}
         />
       </section>
     </div>

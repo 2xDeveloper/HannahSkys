@@ -8,7 +8,6 @@ import { useState } from "react";
 type MessageFormProps = {
   creatorId: string;
   creatorName: string;
-  /** Logged-in visitor */
   userId?: string | null;
   userEmail?: string | null;
   userDisplayName?: string | null;
@@ -31,6 +30,10 @@ export function MessageForm({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  async function openExistingChat() {
+    router.push(`/messages?with=${creatorId}`);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -38,9 +41,9 @@ export function MessageForm({
     setLoading(true);
 
     const trimmedBody = body.trim();
-    if (trimmedBody.length < 3) {
+    if (trimmedBody.length < 1) {
       setLoading(false);
-      setError("Message is too short.");
+      setError("Type a message first.");
       return;
     }
 
@@ -71,100 +74,109 @@ export function MessageForm({
 
     setBody("");
     setSuccess(true);
+
+    if (isLoggedIn) {
+      router.push(`/messages?with=${creatorId}`);
+      return;
+    }
+
     router.refresh();
   }
 
   return (
-    <div className="rounded-2xl border border-bp-border bg-bp-panel p-5 md:p-6">
-      <h2 className="text-lg font-semibold text-rose-50">Message {creatorName}</h2>
-      <p className="mt-1 text-sm text-gray-500">
-        {isLoggedIn
-          ? "Send a direct message as your account."
-          : "Send a message — log in for a faster experience."}
-      </p>
-
-      {!isLoggedIn && (
-        <p className="mt-2 text-xs text-gray-600">
-          <Link href={`/login?next=/creator/${creatorId}`} className="text-bp-yellow hover:text-white">
-            Log in
-          </Link>{" "}
-          or{" "}
-          <Link href={`/signup?next=/creator/${creatorId}`} className="text-bp-yellow hover:text-white">
-            sign up
-          </Link>{" "}
-          to message with your profile.
+    <div className="overflow-hidden rounded-2xl border border-white/8 bg-gradient-to-b from-[#1c1418] to-[#161014] shadow-xl shadow-black/30">
+      <div className="border-b border-white/6 px-5 py-4 md:px-6">
+        <h2 className="text-lg font-semibold text-rose-50">Message {creatorName}</h2>
+        <p className="mt-1 text-sm text-gray-500">
+          {isLoggedIn
+            ? "Opens your chat instantly — like texting."
+            : "Send a note, or log in for full chat."}
         </p>
-      )}
+      </div>
 
-      <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+      <div className="space-y-4 p-5 md:p-6">
+        {isLoggedIn && (
+          <button
+            type="button"
+            onClick={openExistingChat}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-bp-gold/35 bg-bp-gold/10 px-4 py-3 text-sm font-semibold text-bp-yellow transition-colors hover:bg-bp-gold/20"
+          >
+            Open chat with {creatorName}
+          </button>
+        )}
+
         {!isLoggedIn && (
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="senderName" className="mb-1.5 block text-xs font-medium text-gray-400">
-                Your name
-              </label>
+          <p className="text-xs text-gray-600">
+            <Link href={`/login?next=/creator/${creatorId}`} className="text-bp-yellow hover:text-white">
+              Log in
+            </Link>{" "}
+            or{" "}
+            <Link href={`/signup?next=/creator/${creatorId}`} className="text-bp-yellow hover:text-white">
+              sign up
+            </Link>{" "}
+            for the full messaging inbox.
+          </p>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-3">
+          {!isLoggedIn && (
+            <div className="grid gap-3 sm:grid-cols-2">
               <input
-                id="senderName"
                 required
                 value={senderName}
                 onChange={(e) => setSenderName(e.target.value)}
-                className="w-full rounded-lg border border-bp-border bg-bp-main px-3 py-2.5 text-sm text-white focus:border-bp-gold focus:outline-none focus:ring-1 focus:ring-bp-gold"
+                placeholder="Your name"
+                className="w-full rounded-xl border border-white/8 bg-[#120e11] px-3.5 py-3 text-sm text-white placeholder:text-gray-600 focus:border-bp-gold/50 focus:outline-none"
               />
-            </div>
-            <div>
-              <label htmlFor="senderEmail" className="mb-1.5 block text-xs font-medium text-gray-400">
-                Your email
-              </label>
               <input
-                id="senderEmail"
                 type="email"
                 required
                 value={senderEmail}
                 onChange={(e) => setSenderEmail(e.target.value)}
-                className="w-full rounded-lg border border-bp-border bg-bp-main px-3 py-2.5 text-sm text-white focus:border-bp-gold focus:outline-none focus:ring-1 focus:ring-bp-gold"
+                placeholder="Your email"
+                className="w-full rounded-xl border border-white/8 bg-[#120e11] px-3.5 py-3 text-sm text-white placeholder:text-gray-600 focus:border-bp-gold/50 focus:outline-none"
               />
             </div>
+          )}
+
+          <div className="flex items-end gap-2 rounded-[22px] border border-white/8 bg-[#120e11] px-3 py-2 focus-within:border-bp-gold/40">
+            <textarea
+              required
+              rows={2}
+              maxLength={5000}
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder={`Message ${creatorName}…`}
+              className="max-h-32 min-h-[44px] w-full resize-none bg-transparent py-2 text-[15px] text-white placeholder:text-gray-600 focus:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-bp-gold text-white shadow-lg shadow-bp-gold/25 hover:bg-bp-gold-dim disabled:opacity-50"
+              aria-label="Send message"
+            >
+              {loading ? (
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              ) : (
+                <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden>
+                  <path d="M3.4 20.4 20.85 12.9c.7-.3.7-1.3 0-1.6L3.4 3.8c-.8-.35-1.55.4-1.25 1.2L5 11.2c.1.3.1.5 0 .8l-2.85 6.2c-.3.8.45 1.55 1.25 1.2Z" />
+                </svg>
+              )}
+            </button>
           </div>
-        )}
 
-        <div>
-          <label htmlFor="messageBody" className="mb-1.5 block text-xs font-medium text-gray-400">
-            Message
-          </label>
-          <textarea
-            id="messageBody"
-            required
-            rows={5}
-            maxLength={5000}
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder={`Say hi to ${creatorName}…`}
-            className="w-full resize-y rounded-lg border border-bp-border bg-bp-main px-3 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-bp-gold focus:outline-none focus:ring-1 focus:ring-bp-gold"
-          />
-        </div>
-
-        {error && (
-          <p className="rounded-lg border border-red-900/50 bg-red-950/40 px-3 py-2 text-sm text-red-300">
-            {error}
-          </p>
-        )}
-        {success && (
-          <p className="rounded-lg border border-emerald-900/50 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-300">
-            Message sent!{" "}
-            <Link href={`/messages?with=${creatorId}`} className="font-medium text-white underline">
-              Open chat →
-            </Link>
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded-xl bg-bp-gold px-6 py-3 text-sm font-semibold text-white hover:bg-bp-gold-dim disabled:opacity-60"
-        >
-          {loading ? "Sending…" : "Send message"}
-        </button>
-      </form>
+          {error && (
+            <p className="rounded-xl border border-red-900/50 bg-red-950/40 px-3 py-2 text-sm text-red-300">
+              {error}
+            </p>
+          )}
+          {success && !isLoggedIn && (
+            <p className="rounded-xl border border-emerald-900/50 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-300">
+              Message sent! Log in next time to keep chatting in your inbox.
+            </p>
+          )}
+        </form>
+      </div>
     </div>
   );
 }
