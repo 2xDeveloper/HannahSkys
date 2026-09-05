@@ -6,6 +6,7 @@ import { membershipPlans, navLinks, trustBadges } from "@/lib/landing-data";
 import Link from "next/link";
 
 const HERO_IMAGE = "/images/hannah-hero.png";
+const HERO_VIDEO = "/videos/hannah-hero.mp4";
 
 function Sparkle({ className = "" }: { className?: string }) {
   return (
@@ -198,13 +199,16 @@ export function HannahSkysLanding({ content }: { content: LandingContent }) {
               Thank you for supporting my journey!
             </p>
             <div className="landing-hero-photo-wrap">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={HERO_IMAGE}
-                alt="HannahSkys"
+              <video
                 className="landing-hero-photo"
-                width={620}
-                height={800}
+                src={HERO_VIDEO}
+                poster={HERO_IMAGE}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                aria-label="HannahSkys"
               />
             </div>
           </div>
