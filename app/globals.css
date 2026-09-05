@@ -3,6 +3,16 @@
 @source "../components/**/*.{tsx,ts}";
 @source "./**/*.{tsx,ts}";
 
+:root {
+  --pink: #f4699f;
+  --pink-strong: #ef4f8f;
+  --pink-soft: #ffc0d8;
+  --pink-tint: #fff0f5;
+  --pink-tint-2: #ffe6ef;
+  --ink: #4a4550;
+  --ink-soft: #8a8390;
+}
+
 @theme {
   --color-bp-black: #080409;
   --color-bp-sidebar: #12070e;
@@ -1385,6 +1395,36 @@ body {
   border: 1px solid #fecaca;
   background: #fef2f2;
   color: #991b1b;
+}
+
+.age-gate-enter,
+.age-gate-leave {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border-radius: 9999px;
+  padding: 0.85rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.age-gate-enter {
+  border: none;
+  background: #ffd0e4;
+  color: #111;
+  -webkit-text-fill-color: #111;
+}
+
+.age-gate-leave {
+  border: 1.5px solid #fbdce7;
+  background: #fff;
+  color: #111;
+  -webkit-text-fill-color: #111;
 }
 
 /* ── Light app shell (gallery, video/photo detail) ── */

@@ -78,14 +78,10 @@ export function AgeGate() {
         </ul>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <button type="button" onClick={accept} className="landing-btn-primary landing-btn-lg flex-1">
+          <button type="button" onClick={accept} className="age-gate-enter flex-1">
             I am 18 or older — Enter
           </button>
-          <button
-            type="button"
-            onClick={leave}
-            className="landing-btn-outline landing-btn-lg flex-1"
-          >
+          <button type="button" onClick={leave} className="age-gate-leave flex-1">
             I am under 18 — Leave
           </button>
         </div>
