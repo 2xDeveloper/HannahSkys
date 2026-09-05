@@ -19,9 +19,13 @@ import { redirect } from "next/navigation";
 export default async function AccountPage({
   searchParams,
 }: {
-  searchParams: Promise<{ published?: string }>;
+  searchParams: Promise<{
+    published?: string;
+    membership?: string;
+    membership_error?: string;
+  }>;
 }) {
-  const { published } = await searchParams;
+  const { published, membership, membership_error: membershipError } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -92,7 +96,18 @@ export default async function AccountPage({
     <AppShell>
       <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8">
         <div className="mx-auto max-w-2xl">
-          <h1 className="text-2xl font-bold text-rose-50">Your profile</h1>
+          {membership === "1" && (
+            <p className="mb-4 rounded-2xl border border-emerald-900/50 bg-emerald-950/30 px-4 py-3 text-sm text-emerald-300">
+              Membership active — welcome to VIP. Your subscription is live in Stripe.
+            </p>
+          )}
+          {membershipError === "1" && (
+            <p className="mb-4 rounded-2xl border border-amber-900/50 bg-amber-950/30 px-4 py-3 text-sm text-amber-200">
+              Payment went through, but we couldn&apos;t save your membership. Contact support and
+              we&apos;ll sort it out.
+            </p>
+          )}
+          <h1 className="font-display text-2xl font-extrabold text-white">Your profile</h1>
           <p className="mt-1 text-sm text-gray-500">
             Update your display name and profile photo.
           </p>
@@ -101,7 +116,7 @@ export default async function AccountPage({
             <div className="mt-4">
               <Link
                 href="/messages"
-                className="inline-flex rounded-lg bg-bp-gold px-4 py-2 text-sm font-medium text-white hover:bg-bp-gold-dim"
+                className="inline-flex rounded-full bg-bp-gold px-4 py-2 text-sm font-medium text-white shadow-[0_4px_18px_rgba(255,90,154,0.35)] hover:bg-bp-gold-dim"
               >
                 Messages
               </Link>
@@ -112,13 +127,13 @@ export default async function AccountPage({
               <div className="mt-4 flex flex-wrap gap-3">
                 <Link
                   href={`/creator/${user.id}`}
-                  className="rounded-lg border border-bp-border bg-bp-panel px-4 py-2 text-sm text-bp-yellow hover:border-bp-gold-dim hover:text-white"
+                  className="rounded-full border border-bp-border bg-bp-panel px-4 py-2 text-sm text-bp-yellow hover:border-bp-gold-dim hover:text-white"
                 >
                   View public profile
                 </Link>
                 <Link
                   href="/messages"
-                  className="rounded-lg bg-bp-gold px-4 py-2 text-sm font-medium text-white hover:bg-bp-gold-dim"
+                  className="rounded-full bg-bp-gold px-4 py-2 text-sm font-medium text-white shadow-[0_4px_18px_rgba(255,90,154,0.35)] hover:bg-bp-gold-dim"
                 >
                   Messages inbox
                 </Link>
@@ -141,7 +156,7 @@ export default async function AccountPage({
               />
             </div>
           )}
-          <div className="mt-4 rounded-2xl border border-bp-border bg-bp-panel p-6 md:p-8">
+          <div className="mt-4 rounded-3xl border border-bp-border/80 bg-bp-panel/80 p-6 backdrop-blur-sm md:p-8">
             <ProfileEditor profile={profile as Profile} email={user.email ?? ""} />
           </div>
         </div>

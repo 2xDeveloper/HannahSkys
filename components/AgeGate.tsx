@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const STORAGE_KEY = "findomvids-age-verified-v1";
+const STORAGE_KEY = "hannahskys-age-verified-v1";
 
 export function AgeGate() {
   const [visible, setVisible] = useState(false);
@@ -38,36 +38,39 @@ export function AgeGate() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
       aria-labelledby="age-gate-title"
     >
-      <div className="w-full max-w-lg rounded-2xl border border-bp-border bg-bp-panel p-6 shadow-2xl shadow-black/60 md:p-8">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute left-1/2 top-1/3 h-72 w-72 -translate-x-1/2 rounded-full bg-bp-gold/20 blur-3xl" />
+      </div>
+      <div className="page-enter relative w-full max-w-lg rounded-3xl border border-bp-gold/25 bg-bp-panel/90 p-6 shadow-[0_30px_80px_rgba(255,90,154,0.18)] backdrop-blur-xl md:p-8">
         <div className="mb-6 text-center">
-          <span className="inline-block rounded-full bg-bp-gold/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-bp-yellow ring-1 ring-bp-gold/40">
+          <span className="inline-block rounded-full bg-bp-gold/20 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-bp-yellow ring-1 ring-bp-gold/40">
             18+ Adults Only
           </span>
           <h1
             id="age-gate-title"
-            className="mt-4 text-2xl font-bold tracking-tight text-rose-50"
+            className="font-display mt-4 text-3xl font-extrabold text-white"
           >
-            Age verification required
+            Enter HannahSkys
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-gray-400">
-            FindomVids.xyz contains adult-oriented creator content intended exclusively for
-            viewers who are at least 18 years of age (or the age of majority in your jurisdiction,
-            whichever is higher).
+            HannahSkys is a private collection of photos, films, and messages intended exclusively
+            for viewers who are at least 18 years of age (or the age of majority in your
+            jurisdiction, whichever is higher).
           </p>
         </div>
 
-        <ul className="space-y-2 rounded-xl border border-bp-border bg-bp-main/60 px-4 py-3 text-xs leading-relaxed text-gray-400">
+        <ul className="space-y-2 rounded-2xl border border-bp-border/80 bg-bp-main/60 px-4 py-3 text-xs leading-relaxed text-gray-400">
           <li className="flex gap-2">
-            <span className="text-bp-gold">•</span>
+            <span className="text-bp-gold">♡</span>
             By entering, you confirm you are 18+ and legally permitted to view adult content.
           </li>
           <li className="flex gap-2">
-            <span className="text-bp-gold">•</span>
+            <span className="text-bp-gold">♡</span>
             You agree to our{" "}
             <Link href="/terms" className="text-bp-yellow underline hover:text-white">
               Terms of Service
@@ -75,7 +78,7 @@ export function AgeGate() {
             and acceptable use rules.
           </li>
           <li className="flex gap-2">
-            <span className="text-bp-gold">•</span>
+            <span className="text-bp-gold">♡</span>
             If you are under 18, you must leave this site immediately.
           </li>
         </ul>
@@ -84,21 +87,21 @@ export function AgeGate() {
           <button
             type="button"
             onClick={accept}
-            className="flex-1 rounded-xl bg-bp-gold px-5 py-3.5 text-sm font-semibold text-white shadow-[0_4px_24px_rgba(196,30,58,0.45)] transition-all hover:bg-bp-gold-dim"
+            className="btn-glow flex-1 rounded-full bg-bp-gold px-5 py-3.5 text-sm font-semibold text-white hover:bg-bp-gold-dim"
           >
             I am 18 or older — Enter
           </button>
           <button
             type="button"
             onClick={leave}
-            className="flex-1 rounded-xl border border-bp-border bg-bp-chip px-5 py-3.5 text-sm font-medium text-gray-300 transition-colors hover:bg-bp-chip-hover hover:text-white"
+            className="flex-1 rounded-full border border-bp-border bg-bp-chip px-5 py-3.5 text-sm font-medium text-gray-300 transition-colors hover:bg-bp-chip-hover hover:text-white"
           >
             I am under 18 — Leave
           </button>
         </div>
 
         <p className="mt-5 text-center text-[10px] leading-relaxed text-gray-600">
-          FindomVids.xyz does not knowingly collect information from anyone under 18. Misrepresenting
+          HannahSkys does not knowingly collect information from anyone under 18. Misrepresenting
           your age violates our Terms and may result in account termination.
         </p>
       </div>

@@ -1,3 +1,4 @@
+import { recordMembershipFromSession } from "@/lib/memberships";
 import { handleCheckoutCompleted } from "@/lib/purchases";
 import { getStripe } from "@/lib/stripe";
 import { NextResponse } from "next/server";
@@ -31,7 +32,12 @@ export async function POST(request: Request) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    await handleCheckoutCompleted(session);
+
+    if (session.metadata?.kind === "membership") {
+      await recordMembershipFromSession(session);
+    } else {
+      await handleCheckoutCompleted(session);
+    }
   }
 
   return NextResponse.json({ received: true });

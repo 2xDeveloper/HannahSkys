@@ -45,14 +45,14 @@ export function ChatThread({
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
             backgroundImage:
-              "radial-gradient(circle at 20% 20%, rgba(196,30,58,0.18), transparent 40%), radial-gradient(circle at 80% 80%, rgba(196,30,58,0.1), transparent 45%)",
+              "radial-gradient(circle at 20% 20%, rgba(255,90,154,0.22), transparent 40%), radial-gradient(circle at 80% 80%, rgba(192,132,252,0.12), transparent 45%)",
           }}
         />
-        <div className="relative rounded-3xl border border-white/8 bg-[#1c1418]/80 px-8 py-10 shadow-2xl backdrop-blur-md">
+        <div className="relative rounded-3xl border border-bp-gold/20 bg-bp-panel/80 px-8 py-10 shadow-2xl backdrop-blur-md">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-bp-gold/15 text-2xl text-bp-yellow">
             ✉
           </div>
-          <p className="mt-4 text-lg font-semibold text-rose-50">Your messages</p>
+          <p className="mt-4 font-display text-xl font-extrabold text-white">Your messages</p>
           <p className="mt-2 max-w-sm text-sm leading-relaxed text-gray-500">
             Pick a chat on the left to reply instantly — like texting, but built into the site.
           </p>
@@ -95,7 +95,7 @@ export function ChatThread({
               ? conversation.guestEmail ?? "Guest · not on platform"
               : isCreator
                 ? "Fan · tap to keep chatting"
-                : "Creator · online on FindomVids"}
+                : "Creator · online on HannahSkys"}
           </p>
         </div>
         {conversation.partnerId && !conversation.isGuest && !isCreator && (
@@ -113,7 +113,7 @@ export function ChatThread({
         className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5"
         style={{
           backgroundImage:
-            "radial-gradient(ellipse at top, rgba(196,30,58,0.07), transparent 55%), linear-gradient(180deg, #120e11 0%, #161014 100%)",
+            "radial-gradient(ellipse at top, rgba(255,90,154,0.1), transparent 55%), linear-gradient(180deg, rgba(18,9,16,0.4) 0%, rgba(8,4,9,0.7) 100%)",
         }}
       >
         <div className="mx-auto flex max-w-3xl flex-col">

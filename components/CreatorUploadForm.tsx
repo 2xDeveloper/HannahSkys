@@ -698,7 +698,7 @@ export function CreatorUploadForm({
             disabled={
               loading || fullSlot.optimizing || teaserSlot.optimizing
             }
-            className="w-full rounded-xl bg-bp-gold py-3.5 text-sm font-semibold text-white shadow-[0_4px_24px_rgba(196,30,58,0.45)] transition-all hover:bg-bp-gold-dim disabled:opacity-60 sm:w-auto sm:px-10"
+            className="w-full rounded-full bg-bp-gold py-3.5 text-sm font-semibold text-white shadow-[0_4px_24px_rgba(255,90,154,0.45)] transition-all hover:bg-bp-gold-dim disabled:opacity-60 sm:w-auto sm:px-10"
           >
             {fullSlot.optimizing || teaserSlot.optimizing
               ? "Shortening video…"

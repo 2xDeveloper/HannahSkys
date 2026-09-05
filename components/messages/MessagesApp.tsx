@@ -255,14 +255,14 @@ export function MessagesApp({
   return (
     <div className="flex min-h-0 flex-1">
       <aside
-        className={`flex w-full shrink-0 flex-col border-r border-white/6 bg-[#140f12] md:w-[340px] lg:w-[380px] ${
+        className={`flex w-full shrink-0 flex-col border-r border-bp-border/60 bg-bp-sidebar/80 md:w-[340px] lg:w-[380px] ${
           mobileShowThread ? "hidden md:flex" : "flex"
         }`}
       >
         <div className="shrink-0 border-b border-white/6 px-4 py-3.5">
           <div className="flex items-center justify-between gap-2">
             <div>
-              <h2 className="text-lg font-semibold tracking-tight text-white">Chats</h2>
+              <h2 className="font-display text-xl font-extrabold tracking-tight text-white">Chats</h2>
               <p className="text-xs text-gray-500">
                 {conversations.length === 0
                   ? "Nothing here yet"
@@ -284,7 +284,7 @@ export function MessagesApp({
       </aside>
 
       <section
-        className={`flex min-w-0 flex-1 flex-col bg-[#120e11] ${
+        className={`flex min-w-0 flex-1 flex-col bg-bp-main/30 ${
           mobileShowThread ? "flex" : "hidden md:flex"
         }`}
       >

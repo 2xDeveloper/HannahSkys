@@ -1,7 +1,4 @@
-import { Great_Vibes } from "next/font/google";
 import Link from "next/link";
-
-const script = Great_Vibes({ weight: "400", subsets: ["latin"] });
 
 type LogoProps = {
   size?: "sm" | "lg";
@@ -11,14 +8,20 @@ type LogoProps = {
 };
 
 export function Logo({ size = "lg", className = "", linkToHome = false }: LogoProps) {
-  const sizeClass =
-    size === "sm" ? "text-lg leading-tight" : "text-xl leading-tight md:text-3xl";
+  const mark = size === "sm" ? "h-7 w-7 text-[11px]" : "h-8 w-8 text-xs md:h-9 md:w-9 md:text-sm";
+  const word = size === "sm" ? "text-[15px]" : "text-lg md:text-xl";
 
   const label = (
-    <span
-      className={`${script.className} text-bp-gold drop-shadow-[0_0_14px_rgba(196,30,58,0.45)] ${sizeClass}`}
-    >
-      FindomVids.xyz
+    <span className="inline-flex items-center gap-2">
+      <span
+        className={`inline-flex ${mark} items-center justify-center rounded-2xl bg-gradient-to-br from-bp-gold to-pink-400 font-display font-extrabold text-white shadow-[0_6px_16px_rgba(255,90,154,0.35)]`}
+        aria-hidden
+      >
+        H
+      </span>
+      <span className={`font-display ${word} font-extrabold tracking-tight text-white`}>
+        Hannah<span className="text-bp-gold">Skys</span>
+      </span>
     </span>
   );
 
@@ -26,8 +29,8 @@ export function Logo({ size = "lg", className = "", linkToHome = false }: LogoPr
     return (
       <Link
         href="/"
-        className={`inline-block transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-bp-gold/60 ${className}`}
-        aria-label="FindomVids.xyz home"
+        className={`inline-flex items-center transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-bp-gold/60 ${className}`}
+        aria-label="HannahSkys home"
       >
         {label}
       </Link>

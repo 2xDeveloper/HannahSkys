@@ -20,22 +20,23 @@ export default async function LibraryPage() {
 
   return (
     <AppShell>
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-bp-main">
-        <div className="border-b border-bp-border px-4 py-6 md:px-8">
-          <h1 className="text-2xl font-bold text-rose-50">My library</h1>
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-transparent">
+        <div className="border-b border-bp-border/70 px-4 py-6 md:px-8">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-bp-gold">Yours</p>
+          <h1 className="font-display mt-1 text-2xl font-extrabold text-white">My library</h1>
           <p className="mt-1 text-sm text-gray-400">
-            Everything you purchased — full photos and videos unlocked here. Tap any item to watch or download.
+            Everything you unlocked — full photos and films live here.
           </p>
         </div>
 
         {items.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
             <p className="max-w-md text-center text-sm text-gray-500">
-              No purchases yet. Browse the gallery and unlock paid photos or videos.
+              No purchases yet. Browse the collection and unlock paid photos or films.
             </p>
             <Link
               href="/"
-              className="rounded-xl bg-bp-gold px-5 py-2.5 text-sm font-semibold text-white hover:bg-bp-gold-dim"
+              className="btn-glow rounded-full bg-bp-gold px-5 py-2.5 text-sm font-semibold text-white hover:bg-bp-gold-dim"
             >
               Browse gallery
             </Link>

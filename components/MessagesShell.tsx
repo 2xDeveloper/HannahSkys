@@ -13,8 +13,8 @@ type MessagesShellProps = {
 /** Full-height Telegram-style chat shell */
 export function MessagesShell({ children, headerAuth = null }: MessagesShellProps) {
   return (
-    <div className="flex h-[100dvh] flex-col overflow-hidden bg-[#100c0f]">
-      <header className="relative z-30 flex h-14 shrink-0 items-center border-b border-white/6 bg-[#140f12]/95 px-3 shadow-[0_1px_0_0_rgba(196,30,58,0.1)] backdrop-blur-xl sm:px-4">
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-transparent">
+      <header className="relative z-30 flex h-16 shrink-0 items-center border-b border-bp-border/70 bg-bp-black/55 px-3 shadow-[0_1px_0_0_rgba(255,90,154,0.22)] backdrop-blur-xl sm:px-4">
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
           <Link
             href="/"

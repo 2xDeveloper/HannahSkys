@@ -84,7 +84,7 @@ export function MessageForm({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/8 bg-gradient-to-b from-[#1c1418] to-[#161014] shadow-xl shadow-black/30">
+    <div className="overflow-hidden rounded-3xl border border-bp-gold/20 bg-gradient-to-b from-bp-panel to-bp-main/80 shadow-[0_20px_50px_rgba(255,90,154,0.1)]">
       <div className="border-b border-white/6 px-5 py-4 md:px-6">
         <h2 className="text-lg font-semibold text-rose-50">Message {creatorName}</h2>
         <p className="mt-1 text-sm text-gray-500">

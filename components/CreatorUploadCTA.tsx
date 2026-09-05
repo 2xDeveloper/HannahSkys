@@ -41,7 +41,7 @@ export function CreatorUploadCTA() {
   return (
     <Link
       href="/account#upload"
-      className="inline-flex items-center gap-2 rounded-full bg-bp-gold px-4 py-2 text-sm font-semibold text-white shadow-[0_4px_20px_rgba(196,30,58,0.45)] transition-all hover:bg-bp-gold-dim hover:shadow-[0_6px_24px_rgba(196,30,58,0.55)] active:scale-[0.98]"
+      className="inline-flex items-center gap-2 rounded-full bg-bp-gold px-4 py-2 text-sm font-semibold text-white shadow-[0_4px_20px_rgba(255,90,154,0.45)] transition-all hover:bg-bp-gold-dim hover:shadow-[0_6px_24px_rgba(255,90,154,0.55)] active:scale-[0.98]"
     >
       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-base leading-none">
         +

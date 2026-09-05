@@ -2,8 +2,8 @@ import { AppShell } from "@/components/AppShell";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Terms of Service — FindomVids.xyz",
-  description: "Terms of Service and acceptable use for FindomVids.xyz",
+  title: "Terms of Service — HannahSkys",
+  description: "Terms of Service and acceptable use for HannahSkys",
 };
 
 export default function TermsPage() {
@@ -14,16 +14,16 @@ export default function TermsPage() {
           href="/"
           className="text-sm text-bp-yellow hover:text-white"
         >
-          ← Back to gallery
+          ← Back to the collection
         </Link>
 
         <header className="mt-6 border-b border-bp-border pb-6">
           <p className="text-xs font-semibold uppercase tracking-wider text-bp-yellow">
             Legal
           </p>
-          <h1 className="mt-2 text-3xl font-bold text-rose-50">Terms of Service</h1>
+          <h1 className="mt-2 font-display text-3xl font-extrabold text-white">Terms of Service</h1>
           <p className="mt-2 text-sm text-gray-500">
-            Last updated: May 30, 2026 · FindomVids.xyz
+            Last updated: May 30, 2026 · HannahSkys
           </p>
         </header>
 
@@ -31,7 +31,7 @@ export default function TermsPage() {
           <section>
             <h2>1. Acceptance of terms</h2>
             <p>
-              By accessing or using FindomVids.xyz (&quot;the Platform,&quot; &quot;we,&quot;
+              By accessing or using HannahSkys (&quot;the Platform,&quot; &quot;we,&quot;
               &quot;us,&quot; or &quot;our&quot;), you agree to be bound by these Terms of Service
               (&quot;Terms&quot;). If you do not agree, you must not use the Platform.
             </p>
@@ -62,8 +62,8 @@ export default function TermsPage() {
           <section>
             <h2>3. Description of service</h2>
             <p>
-              FindomVids.xyz is a creator marketplace where approved creators may upload and sell
-              digital content (photos, videos, and related media) to registered users. We provide
+              HannahSkys is a private collection where exclusive photos, films, and messages are
+              shared and sold to registered fans. We provide
               hosting, discovery, messaging, and payment processing tools. We are a platform — not
               the publisher of creator-uploaded content.
             </p>
@@ -181,7 +181,7 @@ export default function TermsPage() {
           <section>
             <h2>12. Limitation of liability</h2>
             <p>
-              TO THE MAXIMUM EXTENT PERMITTED BY LAW, FINDOMVIDS.XYZ AND ITS OPERATORS SHALL NOT BE
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, HANNAHSKYS AND ITS OPERATORS SHALL NOT BE
               LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR
               ANY LOSS OF PROFITS, DATA, OR GOODWILL ARISING FROM YOUR USE OF THE PLATFORM. OUR
               TOTAL LIABILITY FOR ANY CLAIM SHALL NOT EXCEED THE GREATER OF (A) AMOUNTS YOU PAID US
@@ -243,7 +243,7 @@ export default function TermsPage() {
         </article>
 
         <footer className="mt-12 border-t border-bp-border pt-6 text-center text-xs text-gray-600">
-          © {new Date().getFullYear()} FindomVids.xyz · Adults only (18+)
+          © {new Date().getFullYear()} HannahSkys · Adults only (18+)
         </footer>
       </div>
     </AppShell>

@@ -15,8 +15,8 @@ import {
   videoNeedsOptimization,
 } from "@/lib/video-optimize";
 
-export const WATERMARK_BRAND = "FindomVids";
-export const WATERMARK_SITE = "findomvids.xyz";
+export const WATERMARK_BRAND = "HannahSkys";
+export const WATERMARK_SITE = "HannahSkys";
 
 function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {

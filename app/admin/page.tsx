@@ -210,7 +210,7 @@ export default async function AdminPage() {
           </section>
 
           <Link href="/" className="inline-block text-sm text-bp-yellow hover:text-white">
-            ← Back to gallery
+            ← Back to the collection
           </Link>
         </div>
       </div>

@@ -304,7 +304,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-xl bg-bp-gold py-3 text-sm font-semibold text-white shadow-[0_4px_24px_rgba(196,30,58,0.4)] transition-colors hover:bg-bp-gold-dim disabled:opacity-60"
+        className="w-full rounded-full bg-bp-gold py-3 text-sm font-semibold text-white shadow-[0_4px_24px_rgba(255,90,154,0.4)] transition-all hover:bg-bp-gold-dim hover:shadow-[0_8px_28px_rgba(255,90,154,0.5)] disabled:opacity-60"
       >
         {loading
           ? "Please wait…"

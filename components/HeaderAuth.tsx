@@ -17,13 +17,13 @@ function GuestLinks() {
     <div className="absolute right-4 flex items-center gap-2">
       <Link
         href="/login"
-        className="rounded-lg px-3 py-1.5 text-sm text-gray-300 hover:bg-bp-chip hover:text-white"
+        className="rounded-full px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-bp-chip hover:text-white"
       >
         Log in
       </Link>
       <Link
         href="/signup"
-        className="rounded-lg bg-bp-gold px-3 py-1.5 text-sm font-medium text-white hover:bg-bp-gold-dim"
+        className="rounded-full bg-bp-gold px-3.5 py-1.5 text-sm font-medium text-white shadow-[0_4px_18px_rgba(255,90,154,0.4)] transition-all hover:bg-bp-gold-dim hover:shadow-[0_6px_22px_rgba(255,90,154,0.5)]"
       >
         Sign up
       </Link>
@@ -50,7 +50,7 @@ function SignedInLinks({ profile }: { profile: Profile | null }) {
         <>
           <Link
             href="/account#upload"
-            className="hidden items-center gap-1.5 rounded-full bg-bp-gold px-3 py-1.5 text-sm font-semibold text-white shadow-[0_2px_12px_rgba(196,30,58,0.4)] hover:bg-bp-gold-dim sm:inline-flex"
+            className="hidden items-center gap-1.5 rounded-full bg-bp-gold px-3 py-1.5 text-sm font-semibold text-white shadow-[0_2px_12px_rgba(255,90,154,0.45)] hover:bg-bp-gold-dim sm:inline-flex"
           >
             <span className="text-base leading-none">+</span>
             Upload
@@ -65,7 +65,7 @@ function SignedInLinks({ profile }: { profile: Profile | null }) {
       )}
       <Link
         href="/library"
-        className="rounded-lg bg-bp-gold px-2 py-1.5 text-xs font-semibold text-white hover:bg-bp-gold-dim sm:px-3 sm:text-sm"
+        className="rounded-full bg-bp-gold px-2.5 py-1.5 text-xs font-semibold text-white shadow-[0_2px_12px_rgba(255,90,154,0.35)] hover:bg-bp-gold-dim sm:px-3 sm:text-sm"
       >
         Library
       </Link>

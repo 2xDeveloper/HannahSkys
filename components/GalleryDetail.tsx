@@ -42,16 +42,16 @@ export function GalleryDetail({
   const blurClass = !unlocked ? publicMediaBlurClass(item) : "";
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-bp-main">
-      <div className="sticky top-0 z-10 border-b border-bp-border bg-bp-main/95 px-4 py-3 backdrop-blur-sm md:px-6">
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-transparent">
+      <div className="sticky top-0 z-10 border-b border-bp-border/70 bg-bp-main/70 px-4 py-3 backdrop-blur-xl md:px-6">
         <Link
-          href="/"
-          className="inline-flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-medium text-bp-yellow transition-colors hover:bg-bp-chip hover:text-white"
+          href="/gallery"
+          className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-bp-yellow transition-colors hover:bg-bp-chip hover:text-white"
         >
           <span aria-hidden className="text-base">
             ←
           </span>
-          Back to gallery
+          Back to the collection
         </Link>
       </div>
 
@@ -73,7 +73,7 @@ export function GalleryDetail({
       <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-8 md:py-8">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,340px)_1fr] lg:gap-10 lg:items-start">
           <div className="mx-auto w-full max-w-[340px] lg:mx-0">
-            <div className="overflow-hidden rounded-2xl border border-bp-border bg-bp-panel shadow-xl shadow-black/40">
+            <div className="overflow-hidden rounded-3xl border border-bp-gold/20 bg-bp-panel shadow-[0_24px_60px_rgba(255,90,154,0.12)]">
               <div className="relative aspect-[3/4] w-full max-h-[460px] bg-bp-chip">
                 {isVideoDisplay && !unlocked && !lockedBlur ? (
                   <HoverPreviewVideo src={viewUrl} blurClass={blurClass} />
@@ -105,7 +105,7 @@ export function GalleryDetail({
                     <div
                       className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/30 ${lockedBlur ? "opacity-90" : ""}`}
                     />
-                    <span className="absolute left-3 top-3 rounded-md bg-bp-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+                    <span className="absolute left-3 top-3 rounded-full bg-bp-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-[0_0_16px_rgba(255,90,154,0.45)]">
                       {lockedBlur ? "Locked" : "Preview only"}
                     </span>
                     <span className="absolute bottom-3 left-3 right-3 text-center text-[11px] font-medium text-white/90">
@@ -125,7 +125,7 @@ export function GalleryDetail({
                 )}
                 {isVideoDisplay && unlocked && (
                   <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-bp-gold/95 text-xl text-white shadow-lg ring-4 ring-black/30">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-bp-gold/95 text-xl text-white shadow-[0_0_30px_rgba(255,90,154,0.55)] ring-4 ring-black/30">
                       ▶
                     </span>
                   </div>
@@ -161,7 +161,7 @@ export function GalleryDetail({
                   </span>
                 )}
               </div>
-              <h1 className="text-2xl font-bold tracking-tight text-rose-50 md:text-3xl">
+              <h1 className="font-display text-2xl font-extrabold text-white md:text-3xl">
                 {item.title}
               </h1>
               <p className="text-sm text-gray-400">
@@ -175,7 +175,7 @@ export function GalleryDetail({
               </p>
             </header>
 
-            <section className="rounded-2xl border border-bp-border bg-bp-panel p-5 md:p-6">
+            <section className="rounded-3xl border border-bp-border/80 bg-bp-panel/80 p-5 backdrop-blur-sm md:p-6">
               <h2 className="text-xs font-semibold uppercase tracking-wider text-rose-300/70">
                 {unlocked ? "What you get" : "After purchase"}
               </h2>
@@ -200,7 +200,7 @@ export function GalleryDetail({
             </section>
 
             {!free && !owned && (
-              <div className="rounded-2xl border border-bp-gold/30 bg-bp-chip/50 p-5">
+              <div className="rounded-3xl border border-bp-gold/30 bg-bp-chip/50 p-5 shadow-[0_0_40px_rgba(255,90,154,0.08)]">
                 <PurchaseButton item={item} />
                 <p className="mt-4 text-center text-[11px] text-gray-500">
                   Secure checkout via Stripe

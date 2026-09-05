@@ -38,9 +38,9 @@ export async function ensureWatermarkFont(ffmpeg: FFmpeg): Promise<void> {
 /** Burned-in video watermark filter chain (requires wm.ttf in ffmpeg FS). */
 export function videoWatermarkFilter(extraFilters: string[] = []): string {
   const watermark = [
-    "drawtext=fontfile=wm.ttf:text='FindomVids':fontsize='min(h\\,w)/14':fontcolor=white@0.38:x=(w-text_w)/2:y=(h-text_h)/2-12:borderw=1:bordercolor=black@0.35",
-    "drawtext=fontfile=wm.ttf:text='findomvids.xyz':fontsize='min(h\\,w)/28':fontcolor=white@0.28:x=(w-text_w)/2:y=(h-text_h)/2+18",
-    "drawtext=fontfile=wm.ttf:text='FindomVids':fontsize='min(h\\,w)/32':fontcolor=white@0.55:x=12:y=h-th-12",
+    "drawtext=fontfile=wm.ttf:text='HannahSkys':fontsize='min(h\\,w)/14':fontcolor=white@0.38:x=(w-text_w)/2:y=(h-text_h)/2-12:borderw=1:bordercolor=black@0.35",
+    "drawtext=fontfile=wm.ttf:text='HannahSkys':fontsize='min(h\\,w)/28':fontcolor=white@0.28:x=(w-text_w)/2:y=(h-text_h)/2+18",
+    "drawtext=fontfile=wm.ttf:text='HannahSkys':fontsize='min(h\\,w)/32':fontcolor=white@0.55:x=12:y=h-th-12",
   ];
   return [...extraFilters, ...watermark].join(",");
 }

@@ -41,18 +41,18 @@ export default async function CreatorProfilePage({ params }: PageProps) {
 
   return (
     <AppShell mainClassName="!overflow-y-auto">
-      <div className="border-b border-bp-border px-4 py-3 md:px-6">
+      <div className="border-b border-bp-border/70 px-4 py-3 md:px-6">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-bp-yellow hover:text-white"
+          className="inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm text-bp-yellow hover:bg-bp-chip hover:text-white"
         >
-          ← Back to gallery
+          ← Back to the collection
         </Link>
       </div>
 
       <div className="mx-auto max-w-6xl space-y-8 p-6 md:p-8">
         <header className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
-          <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full bg-bp-chip ring-2 ring-bp-border">
+          <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full bg-bp-chip ring-2 ring-bp-gold/40 shadow-[0_0_40px_rgba(255,90,154,0.25)]">
             <CreatorAvatar
               src={creator.avatar_url}
               name={creator.display_name ?? "Creator"}
@@ -63,7 +63,7 @@ export default async function CreatorProfilePage({ params }: PageProps) {
             <span className="rounded-full bg-bp-gold/20 px-3 py-0.5 text-xs font-semibold text-bp-yellow">
               Creator
             </span>
-            <h1 className="mt-2 text-2xl font-bold text-rose-50 md:text-3xl">
+            <h1 className="font-display mt-2 text-2xl font-extrabold text-white md:text-3xl">
               {creator.display_name ?? "Creator"}
             </h1>
             <p className="mt-1 text-sm text-gray-500">Member since {joined}</p>
@@ -93,7 +93,7 @@ export default async function CreatorProfilePage({ params }: PageProps) {
         )}
 
         <section>
-          <h2 className="mb-4 text-lg font-semibold text-rose-50">
+          <h2 className="font-display mb-4 text-xl font-extrabold text-white">
             {isOwnProfile ? "Your content" : "Photos & videos"}
           </h2>
           <ContentGrid
