@@ -5,11 +5,18 @@ type LogoProps = {
   className?: string;
   /** Wrap logo in a link to the home page */
   linkToHome?: boolean;
+  tone?: "dark" | "light";
 };
 
-export function Logo({ size = "lg", className = "", linkToHome = false }: LogoProps) {
+export function Logo({
+  size = "lg",
+  className = "",
+  linkToHome = false,
+  tone = "light",
+}: LogoProps) {
   const mark = size === "sm" ? "h-7 w-7 text-[11px]" : "h-8 w-8 text-xs md:h-9 md:w-9 md:text-sm";
   const word = size === "sm" ? "text-[15px]" : "text-lg md:text-xl";
+  const wordColor = tone === "light" ? "text-[#3f3a44]" : "text-white";
 
   const label = (
     <span className="inline-flex items-center gap-2">
@@ -19,7 +26,7 @@ export function Logo({ size = "lg", className = "", linkToHome = false }: LogoPr
       >
         H
       </span>
-      <span className={`font-display ${word} font-extrabold tracking-tight text-white`}>
+      <span className={`font-display ${word} font-extrabold tracking-tight ${wordColor}`}>
         Hannah<span className="text-bp-gold">Skys</span>
       </span>
     </span>

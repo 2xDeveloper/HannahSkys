@@ -7,7 +7,7 @@ type AccountStatusBannerProps = {
 export function AccountStatusBanner({ profile }: AccountStatusBannerProps) {
   if (profile.role === "creator" && profile.creator_status === "pending") {
     return (
-      <div className="mb-6 rounded-xl border border-amber-900/50 bg-amber-950/30 px-4 py-3 text-sm text-amber-200">
+      <div className="app-alert-warn mb-6 rounded-xl px-4 py-3 text-sm">
         <strong>Creator application pending.</strong> An admin will review your account. You can
         update your profile while you wait, but you won&apos;t appear as a creator until approved.
       </div>
@@ -16,7 +16,7 @@ export function AccountStatusBanner({ profile }: AccountStatusBannerProps) {
 
   if (profile.role === "creator" && profile.creator_status === "approved") {
     return (
-      <div className="mb-6 rounded-xl border border-emerald-900/40 bg-emerald-950/20 px-4 py-3 text-sm text-emerald-200">
+      <div className="app-alert-ok mb-6 rounded-xl px-4 py-3 text-sm">
         <strong>Creator account approved.</strong> Use the upload section below to publish photos
         and videos — they appear on the home page and your public profile.
       </div>
@@ -25,7 +25,7 @@ export function AccountStatusBanner({ profile }: AccountStatusBannerProps) {
 
   if (profile.creator_status === "rejected") {
     return (
-      <div className="mb-6 rounded-xl border border-red-900/50 bg-red-950/30 px-4 py-3 text-sm text-red-200">
+      <div className="app-alert-err mb-6 rounded-xl px-4 py-3 text-sm">
         Your creator application was not approved. You can submit again for review below — your
         photos and Wun.app username may still be on file.
       </div>

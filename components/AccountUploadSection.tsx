@@ -11,7 +11,7 @@ const CreatorUploadForm = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-64 animate-pulse rounded-2xl border border-bp-border bg-bp-panel" />
+      <div className="app-card h-64 animate-pulse rounded-2xl" />
     ),
   },
 );
@@ -30,7 +30,7 @@ export function AccountUploadSection({
   return (
     <>
       {showPublishedMessage && (
-        <p className="mb-4 rounded-lg border border-emerald-900/50 bg-emerald-950/30 px-4 py-2.5 text-sm text-emerald-300">
+        <p className="app-alert-ok mb-4 rounded-lg px-4 py-2.5 text-sm">
           Published successfully! Your content is on the home page and your profile.
         </p>
       )}

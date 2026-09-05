@@ -100,7 +100,7 @@ function FileDropZone({
         className={`relative rounded-xl border-2 border-dashed transition-colors ${
           dragOver
             ? "border-bp-gold bg-bp-gold/10"
-            : "border-bp-border bg-bp-main/50 hover:border-bp-gold-dim"
+            : "border-[#fbdce7] bg-[#fff7fa] hover:border-bp-gold-dim"
         }`}
       >
         <input
@@ -450,13 +450,13 @@ export function CreatorUploadForm({
         onSubmit={handleSubmit}
         className="overflow-hidden rounded-2xl border border-bp-gold/25 bg-gradient-to-br from-bp-panel via-bp-panel to-bp-chip/40 shadow-xl shadow-black/30"
       >
-        <div className="border-b border-bp-border/80 bg-bp-gold/10 px-6 py-5">
+        <div className="border-b border-[#fbdce7]/80 bg-bp-gold/10 px-6 py-5">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-bp-yellow">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#f4699f]">
                 Creator studio
               </p>
-              <h2 className="mt-1 text-xl font-bold text-rose-50">Upload photos & videos</h2>
+              <h2 className="app-heading mt-1 text-xl font-bold">Upload photos & videos</h2>
               <p className="mt-1 max-w-lg text-sm text-gray-400">
                 {isFree
                   ? "Collect posts show the full file on the gallery."
@@ -482,7 +482,7 @@ export function CreatorUploadForm({
             </div>
             <Link
               href={`/creator/${userId}`}
-              className="rounded-lg border border-bp-border bg-bp-main/60 px-3 py-1.5 text-xs text-bp-yellow hover:border-bp-gold-dim hover:text-white"
+              className="rounded-lg border border-[#fbdce7] bg-[#fff7fa] px-3 py-1.5 text-xs text-[#f4699f] hover:border-bp-gold-dim hover:text-[#3f3a44]"
             >
               Preview profile →
             </Link>
@@ -500,13 +500,13 @@ export function CreatorUploadForm({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Exclusive set, BTS clip…"
-              className="w-full rounded-xl border border-bp-border bg-bp-main/80 px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:border-bp-gold focus:outline-none focus:ring-1 focus:ring-bp-gold/50"
+              className="w-full rounded-xl border border-[#fbdce7] bg-white px-4 py-3 text-sm text-[#3f3a44] placeholder:text-gray-600 focus:border-bp-gold focus:outline-none focus:ring-1 focus:ring-bp-gold/50"
             />
           </div>
 
           <div>
             <p className="mb-2 text-xs font-medium text-gray-400">Pricing</p>
-            <div className="inline-flex rounded-xl border border-bp-border bg-bp-main/80 p-1">
+            <div className="inline-flex rounded-xl border border-[#fbdce7] bg-white p-1">
               <button
                 type="button"
                 onClick={() => {
@@ -515,8 +515,8 @@ export function CreatorUploadForm({
                 }}
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                   isFree
-                    ? "bg-emerald-800/80 text-white shadow-sm"
-                    : "text-gray-400 hover:text-white"
+                    ? "bg-emerald-800/80 text-[#3f3a44] shadow-sm"
+                    : "text-gray-400 hover:text-[#3f3a44]"
                 }`}
               >
                 {COLLECT_LABEL}
@@ -527,7 +527,7 @@ export function CreatorUploadForm({
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                   !isFree
                     ? "bg-bp-gold text-white shadow-sm"
-                    : "text-gray-400 hover:text-white"
+                    : "text-gray-400 hover:text-[#3f3a44]"
                 }`}
               >
                 Paid
@@ -543,7 +543,7 @@ export function CreatorUploadForm({
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="9.99"
-                  className="w-32 rounded-xl border border-bp-border bg-bp-main px-4 py-2.5 text-sm text-white focus:border-bp-gold focus:outline-none"
+                  className="w-32 rounded-xl border border-[#fbdce7] bg-white px-4 py-2.5 text-sm text-[#3f3a44] focus:border-bp-gold focus:outline-none"
                 />
                 <span className="text-xs text-gray-500">USD</span>
               </div>
@@ -698,7 +698,7 @@ export function CreatorUploadForm({
             disabled={
               loading || fullSlot.optimizing || teaserSlot.optimizing
             }
-            className="w-full rounded-full bg-bp-gold py-3.5 text-sm font-semibold text-white shadow-[0_4px_24px_rgba(255,90,154,0.45)] transition-all hover:bg-bp-gold-dim disabled:opacity-60 sm:w-auto sm:px-10"
+            className="landing-btn-primary landing-btn-lg disabled:opacity-60 sm:w-auto sm:px-10"
           >
             {fullSlot.optimizing || teaserSlot.optimizing
               ? "Shortening video…"
@@ -710,15 +710,15 @@ export function CreatorUploadForm({
       </form>
 
       {existingContent.length > 0 && (
-        <section className="rounded-2xl border border-bp-border bg-bp-panel p-6">
+        <section className="rounded-2xl border border-[#fbdce7] bg-white p-6">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold text-rose-50">
+            <h3 className="app-heading text-sm font-semibold">
               Your library
-              <span className="ml-2 rounded-full bg-bp-chip px-2 py-0.5 text-xs text-gray-400">
+              <span className="ml-2 rounded-full bg-[#ffe6ef] px-2 py-0.5 text-xs text-gray-400">
                 {existingContent.length}
               </span>
             </h3>
-            <Link href="/" className="text-xs text-bp-yellow hover:text-white">
+            <Link href="/" className="text-xs text-[#f4699f] hover:text-[#3f3a44]">
               View on home →
             </Link>
           </div>
@@ -729,9 +729,9 @@ export function CreatorUploadForm({
               return (
                 <li
                   key={item.id}
-                  className="group flex gap-3 rounded-xl border border-bp-border bg-bp-main/60 p-3"
+                  className="group flex gap-3 rounded-xl border border-[#fbdce7] bg-[#fff7fa] p-3"
                 >
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-bp-chip ring-1 ring-bp-border">
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-[#ffe6ef] ring-1 ring-bp-border">
                     {thumbIsVideo ? (
                       <>
                         <video
@@ -761,7 +761,7 @@ export function CreatorUploadForm({
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-white">{item.title}</p>
+                    <p className="truncate text-sm font-medium text-[#3f3a44]">{item.title}</p>
                     <p className="mt-0.5 text-xs text-gray-500">
                       {paid
                         ? `${item.media_type === "video" ? "Video" : "Photo"} · full locked`
@@ -771,7 +771,7 @@ export function CreatorUploadForm({
                     </p>
                     <p
                       className={`mt-1 text-xs font-semibold ${
-                        paid ? "text-bp-yellow" : "text-emerald-400"
+                        paid ? "text-[#f4699f]" : "text-emerald-400"
                       }`}
                     >
                       {formatContentPrice(item.price_cents)}

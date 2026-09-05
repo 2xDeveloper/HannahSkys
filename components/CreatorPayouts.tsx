@@ -48,8 +48,8 @@ export function CreatorPayouts({
 
   return (
     <div className="mt-6 space-y-6">
-      <section className="rounded-2xl border border-bp-border bg-bp-panel p-5 md:p-6">
-        <h2 className="text-lg font-semibold text-rose-50">Payouts (Stripe)</h2>
+      <section className="app-card rounded-2xl p-5 md:p-6">
+        <h2 className="app-heading text-lg font-semibold">Payouts (Stripe)</h2>
         <p className="mt-1 text-sm text-gray-500">
           Connect Stripe to receive your share when fans purchase your content. The platform keeps
           a {getPlatformFeePercent()}% fee; the rest goes to your Stripe account automatically.
@@ -73,7 +73,7 @@ export function CreatorPayouts({
                 ? "bg-emerald-800 text-white"
                 : hasAccount
                   ? "bg-amber-900/60 text-amber-100"
-                  : "bg-bp-chip text-gray-400"
+                  : "bg-[#ffe6ef] text-[#8a8390]"
             }`}
           >
             {ready
@@ -95,7 +95,7 @@ export function CreatorPayouts({
             type="button"
             onClick={startStripeSetup}
             disabled={loading}
-            className="mt-4 rounded-xl bg-bp-gold px-5 py-2.5 text-sm font-semibold text-white hover:bg-bp-gold-dim disabled:opacity-60"
+            className="landing-btn-primary mt-4 disabled:opacity-60"
           >
             {loading
               ? "Redirecting to Stripe…"
@@ -115,8 +115,8 @@ export function CreatorPayouts({
         )}
       </section>
 
-      <section className="rounded-2xl border border-bp-border bg-bp-panel p-5 md:p-6">
-        <h2 className="text-lg font-semibold text-rose-50">Your sales</h2>
+      <section className="app-card rounded-2xl p-5 md:p-6">
+        <h2 className="app-heading text-lg font-semibold">Your sales</h2>
         <p className="mt-1 text-sm text-gray-500">Completed purchases of your content.</p>
 
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -133,10 +133,10 @@ export function CreatorPayouts({
             {sales.map((sale) => (
               <li
                 key={sale.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-bp-border bg-bp-main/50 px-3 py-2 text-xs"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#fbdce7] bg-[#fff7fa] px-3 py-2 text-xs"
               >
                 <div>
-                  <p className="font-medium text-white">{sale.content_title}</p>
+                  <p className="app-heading font-medium">{sale.content_title}</p>
                   <p className="text-gray-500">
                     Buyer: {sale.buyer_name ?? "Fan"} ·{" "}
                     {new Date(sale.created_at).toLocaleString()}
@@ -167,9 +167,9 @@ function Stat({
   highlight?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-bp-border bg-bp-main/50 px-3 py-3">
+    <div className="rounded-xl border border-[#fbdce7] bg-[#fff7fa] px-3 py-3">
       <p className="text-[10px] uppercase tracking-wider text-gray-500">{label}</p>
-      <p className={`mt-1 text-lg font-bold ${highlight ? "text-emerald-400" : "text-white"}`}>
+      <p className={`mt-1 text-lg font-bold ${highlight ? "text-emerald-600" : "text-[#3f3a44]"}`}>
         {value}
       </p>
     </div>

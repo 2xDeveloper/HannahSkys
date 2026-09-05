@@ -18,7 +18,7 @@ export function AdminSalesPanel({ sales, summary, creatorBalances }: AdminSalesP
   return (
     <section className="space-y-8">
       <div>
-        <h2 className="text-lg font-semibold text-rose-50">
+        <h2 className="text-lg font-semibold app-heading">
           Manual creator payouts
           <span className="ml-2 rounded-full bg-emerald-800 px-2 py-0.5 text-xs font-bold text-white">
             {creatorsWithBalance.length}
@@ -30,7 +30,7 @@ export function AdminSalesPanel({ sales, summary, creatorBalances }: AdminSalesP
         </p>
 
         {creatorsWithBalance.length === 0 ? (
-          <p className="mt-4 rounded-xl border border-bp-border bg-bp-panel px-4 py-6 text-sm text-gray-500">
+          <p className="mt-4 rounded-xl border border-[#fbdce7] bg-white px-4 py-6 text-sm text-gray-500">
             No creator earnings yet.
           </p>
         ) : (
@@ -45,13 +45,13 @@ export function AdminSalesPanel({ sales, summary, creatorBalances }: AdminSalesP
                   <th className="px-4 py-3 text-right">Send creator ({creatorShare}%)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-bp-border bg-bp-panel">
+              <tbody className="divide-y divide-[#fdeaf1] bg-white">
                 {creatorsWithBalance.map((creator) => (
                   <tr key={creator.creator_id} className="text-gray-300">
                     <td className="px-4 py-3">
                       <Link
                         href={`/creator/${creator.creator_id}`}
-                        className="font-medium text-bp-yellow hover:text-white"
+                        className="font-medium app-link"
                       >
                         {creator.creator_name ?? "Creator"}
                       </Link>
@@ -66,7 +66,7 @@ export function AdminSalesPanel({ sales, summary, creatorBalances }: AdminSalesP
                             href={profileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-bp-yellow hover:text-white"
+                            className="app-link"
                           >
                             wun.app/{username}
                           </a>
@@ -101,7 +101,7 @@ export function AdminSalesPanel({ sales, summary, creatorBalances }: AdminSalesP
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold text-rose-50">
+        <h2 className="text-lg font-semibold app-heading">
           All sales
           <span className="ml-2 rounded-full bg-bp-gold-dim px-2 py-0.5 text-xs font-bold text-white">
             {summary.saleCount}
@@ -118,13 +118,13 @@ export function AdminSalesPanel({ sales, summary, creatorBalances }: AdminSalesP
         </div>
 
         {sales.length === 0 ? (
-          <p className="mt-4 rounded-xl border border-bp-border bg-bp-panel px-4 py-6 text-sm text-gray-500">
+          <p className="mt-4 rounded-xl border border-[#fbdce7] bg-white px-4 py-6 text-sm text-gray-500">
             No completed purchases yet.
           </p>
         ) : (
           <div className="mt-4 overflow-x-auto rounded-xl border border-bp-border">
             <table className="w-full min-w-[640px] text-left text-sm">
-              <thead className="bg-bp-chip text-xs uppercase text-gray-500">
+              <thead className="bg-[#fff0f5] text-xs uppercase text-[#8a8390]">
                 <tr>
                   <th className="px-4 py-3">Date</th>
                   <th className="px-4 py-3">Content</th>
@@ -135,7 +135,7 @@ export function AdminSalesPanel({ sales, summary, creatorBalances }: AdminSalesP
                   <th className="px-4 py-3 text-right">Creator share</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-bp-border bg-bp-panel">
+              <tbody className="divide-y divide-[#fdeaf1] bg-white">
                 {sales.map((sale) => (
                   <tr key={sale.id} className="text-gray-300">
                     <td className="whitespace-nowrap px-4 py-3 text-gray-500">
@@ -143,8 +143,8 @@ export function AdminSalesPanel({ sales, summary, creatorBalances }: AdminSalesP
                     </td>
                     <td className="max-w-[140px] truncate px-4 py-3">{sale.content_title}</td>
                     <td className="px-4 py-3">{sale.buyer_name ?? "—"}</td>
-                    <td className="px-4 py-3 text-bp-yellow">{sale.creator_name ?? "—"}</td>
-                    <td className="px-4 py-3 text-right font-medium text-white">
+                    <td className="px-4 py-3 text-[#f4699f]">{sale.creator_name ?? "—"}</td>
+                    <td className="px-4 py-3 text-right font-medium text-[#3f3a44]">
                       {formatUsd(sale.amount_cents)}
                     </td>
                     <td className="px-4 py-3 text-right text-gray-400">
@@ -174,9 +174,9 @@ function SummaryCard({
   highlight?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-bp-border bg-bp-panel px-4 py-4">
+    <div className="rounded-xl border border-[#fbdce7] bg-white px-4 py-4">
       <p className="text-xs uppercase tracking-wider text-gray-500">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${highlight ? "text-bp-yellow" : "text-white"}`}>
+      <p className={`mt-1 text-2xl font-bold ${highlight ? "text-[#f4699f]" : "text-[#3f3a44]"}`}>
         {value}
       </p>
     </div>

@@ -84,9 +84,9 @@ export function MessageForm({
   }
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-bp-gold/20 bg-gradient-to-b from-bp-panel to-bp-main/80 shadow-[0_20px_50px_rgba(255,90,154,0.1)]">
-      <div className="border-b border-white/6 px-5 py-4 md:px-6">
-        <h2 className="text-lg font-semibold text-rose-50">Message {creatorName}</h2>
+    <div className="app-card overflow-hidden rounded-3xl">
+      <div className="border-b border-[#fdeaf1] px-5 py-4 md:px-6">
+        <h2 className="app-heading text-lg font-semibold">Message {creatorName}</h2>
         <p className="mt-1 text-sm text-gray-500">
           {isLoggedIn
             ? "Opens your chat instantly — like texting."
@@ -99,7 +99,7 @@ export function MessageForm({
           <button
             type="button"
             onClick={openExistingChat}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-bp-gold/35 bg-bp-gold/10 px-4 py-3 text-sm font-semibold text-bp-yellow transition-colors hover:bg-bp-gold/20"
+            className="landing-btn-primary w-full"
           >
             Open chat with {creatorName}
           </button>
@@ -107,11 +107,11 @@ export function MessageForm({
 
         {!isLoggedIn && (
           <p className="text-xs text-gray-600">
-            <Link href={`/login?next=/creator/${creatorId}`} className="text-bp-yellow hover:text-white">
+            <Link href={`/login?next=/creator/${creatorId}`} className="app-link">
               Log in
             </Link>{" "}
             or{" "}
-            <Link href={`/signup?next=/creator/${creatorId}`} className="text-bp-yellow hover:text-white">
+            <Link href={`/signup?next=/creator/${creatorId}`} className="app-link">
               sign up
             </Link>{" "}
             for the full messaging inbox.
@@ -126,7 +126,7 @@ export function MessageForm({
                 value={senderName}
                 onChange={(e) => setSenderName(e.target.value)}
                 placeholder="Your name"
-                className="w-full rounded-xl border border-white/8 bg-[#120e11] px-3.5 py-3 text-sm text-white placeholder:text-gray-600 focus:border-bp-gold/50 focus:outline-none"
+                className="app-input px-3.5 py-3 text-sm"
               />
               <input
                 type="email"
@@ -134,12 +134,12 @@ export function MessageForm({
                 value={senderEmail}
                 onChange={(e) => setSenderEmail(e.target.value)}
                 placeholder="Your email"
-                className="w-full rounded-xl border border-white/8 bg-[#120e11] px-3.5 py-3 text-sm text-white placeholder:text-gray-600 focus:border-bp-gold/50 focus:outline-none"
+                className="app-input px-3.5 py-3 text-sm"
               />
             </div>
           )}
 
-          <div className="flex items-end gap-2 rounded-[22px] border border-white/8 bg-[#120e11] px-3 py-2 focus-within:border-bp-gold/40">
+          <div className="flex items-end gap-2 rounded-[22px] border border-[#fbdce7] bg-[#fff7fa] px-3 py-2 focus-within:border-[#f4699f]">
             <textarea
               required
               rows={2}
@@ -147,7 +147,7 @@ export function MessageForm({
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder={`Message ${creatorName}…`}
-              className="max-h-32 min-h-[44px] w-full resize-none bg-transparent py-2 text-[15px] text-white placeholder:text-gray-600 focus:outline-none"
+              className="max-h-32 min-h-[44px] w-full resize-none bg-transparent py-2 text-[15px] text-[#4a4550] placeholder:text-[#b6aeba] focus:outline-none"
             />
             <button
               type="submit"
@@ -166,12 +166,12 @@ export function MessageForm({
           </div>
 
           {error && (
-            <p className="rounded-xl border border-red-900/50 bg-red-950/40 px-3 py-2 text-sm text-red-300">
+            <p className="app-alert-err rounded-xl px-3 py-2 text-sm">
               {error}
             </p>
           )}
           {success && !isLoggedIn && (
-            <p className="rounded-xl border border-emerald-900/50 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-300">
+            <p className="app-alert-ok rounded-xl px-3 py-2 text-sm">
               Message sent! Log in next time to keep chatting in your inbox.
             </p>
           )}

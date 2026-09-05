@@ -167,19 +167,19 @@ export function AuthForm({ mode }: AuthFormProps) {
       {mode === "signup" && (
         <>
           <div>
-            <p className="mb-2 text-xs font-medium text-gray-400">I want to join as</p>
+            <p className="app-muted mb-2 text-xs font-medium">I want to join as</p>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setAccountType("user")}
                 className={`rounded-xl border p-4 text-left transition-colors ${
                   accountType === "user"
-                    ? "border-bp-gold bg-bp-gold/10 ring-1 ring-bp-gold/40"
-                    : "border-bp-border bg-bp-panel hover:border-bp-gold-dim"
+                    ? "border-[#f4699f] bg-[#fff0f5] ring-1 ring-[#f4699f]/30"
+                    : "border-[#fbdce7] bg-white hover:border-[#f4699f]"
                 }`}
               >
                 <span className="text-lg">🛒</span>
-                <p className="mt-2 text-sm font-semibold text-white">Buyer / Fan</p>
+                <p className="app-heading mt-2 text-sm font-semibold">Buyer / Fan</p>
                 <p className="mt-1 text-[11px] leading-snug text-gray-500">
                   Browse, purchase photos & videos
                 </p>
@@ -189,12 +189,12 @@ export function AuthForm({ mode }: AuthFormProps) {
                 onClick={() => setAccountType("creator")}
                 className={`rounded-xl border p-4 text-left transition-colors ${
                   accountType === "creator"
-                    ? "border-bp-gold bg-bp-gold/10 ring-1 ring-bp-gold/40"
-                    : "border-bp-border bg-bp-panel hover:border-bp-gold-dim"
+                    ? "border-[#f4699f] bg-[#fff0f5] ring-1 ring-[#f4699f]/30"
+                    : "border-[#fbdce7] bg-white hover:border-[#f4699f]"
                 }`}
               >
                 <span className="text-lg">✨</span>
-                <p className="mt-2 text-sm font-semibold text-white">Creator</p>
+                <p className="app-heading mt-2 text-sm font-semibold">Creator</p>
                 <p className="mt-1 text-[11px] leading-snug text-gray-500">
                   Requires photo, ID & admin approval
                 </p>
@@ -203,7 +203,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           </div>
 
           <div>
-            <label htmlFor="displayName" className="mb-1.5 block text-xs font-medium text-gray-400">
+            <label htmlFor="displayName" className="app-muted mb-1.5 block text-xs font-medium">
               Display name
             </label>
             <input
@@ -211,7 +211,7 @@ export function AuthForm({ mode }: AuthFormProps) {
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full rounded-lg border border-bp-border bg-bp-panel px-3 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-bp-gold focus:outline-none focus:ring-1 focus:ring-bp-gold"
+              className="app-input px-3 py-2.5 text-sm"
               placeholder="Your name"
             />
           </div>
@@ -220,7 +220,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             <>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-400">
+                  <label className="app-muted mb-1.5 block text-xs font-medium">
                     Profile photo
                   </label>
                   <input
@@ -228,11 +228,11 @@ export function AuthForm({ mode }: AuthFormProps) {
                     type="file"
                     accept="image/*"
                     required
-                    className="w-full text-xs text-gray-400 file:mr-2 file:rounded-lg file:border-0 file:bg-bp-chip file:px-3 file:py-2 file:text-xs file:text-white"
+                    className="app-muted w-full text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-[#ffe6ef] file:px-3 file:py-2 file:text-xs file:text-[#ef4f8f]"
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-400">
+                  <label className="app-muted mb-1.5 block text-xs font-medium">
                     Photo of ID
                   </label>
                   <input
@@ -240,7 +240,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                     type="file"
                     accept="image/*"
                     required
-                    className="w-full text-xs text-gray-400 file:mr-2 file:rounded-lg file:border-0 file:bg-bp-chip file:px-3 file:py-2 file:text-xs file:text-white"
+                    className="app-muted w-full text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-[#ffe6ef] file:px-3 file:py-2 file:text-xs file:text-[#ef4f8f]"
                   />
                 </div>
               </div>
@@ -253,7 +253,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       )}
 
       <div>
-        <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-gray-400">
+        <label htmlFor="email" className="app-muted mb-1.5 block text-xs font-medium">
           Email
         </label>
         <input
@@ -263,13 +263,13 @@ export function AuthForm({ mode }: AuthFormProps) {
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-bp-border bg-bp-panel px-3 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-bp-gold focus:outline-none focus:ring-1 focus:ring-bp-gold"
+          className="app-input px-3 py-2.5 text-sm"
           placeholder="you@example.com"
         />
       </div>
 
       <div>
-        <label htmlFor="password" className="mb-1.5 block text-xs font-medium text-gray-400">
+        <label htmlFor="password" className="app-muted mb-1.5 block text-xs font-medium">
           Password
         </label>
         <input
@@ -280,31 +280,27 @@ export function AuthForm({ mode }: AuthFormProps) {
           autoComplete={mode === "login" ? "current-password" : "new-password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-lg border border-bp-border bg-bp-panel px-3 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-bp-gold focus:outline-none focus:ring-1 focus:ring-bp-gold"
+          className="app-input px-3 py-2.5 text-sm"
           placeholder="••••••••"
         />
       </div>
 
       {purchaseComplete && !error && (
-        <p className="rounded-lg border border-emerald-900/50 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-300">
+        <p className="app-alert-ok rounded-lg px-3 py-2 text-sm">
           Payment complete — log in to view your purchase in your library.
         </p>
       )}
       {error && (
-        <p className="rounded-lg border border-red-900/50 bg-red-950/40 px-3 py-2 text-sm text-red-300">
-          {error}
-        </p>
+        <p className="app-alert-err rounded-lg px-3 py-2 text-sm">{error}</p>
       )}
       {message && (
-        <p className="rounded-lg border border-emerald-900/50 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-300">
-          {message}
-        </p>
+        <p className="app-alert-ok rounded-lg px-3 py-2 text-sm">{message}</p>
       )}
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-full bg-bp-gold py-3 text-sm font-semibold text-white shadow-[0_4px_24px_rgba(255,90,154,0.4)] transition-all hover:bg-bp-gold-dim hover:shadow-[0_8px_28px_rgba(255,90,154,0.5)] disabled:opacity-60"
+        className="landing-btn-primary landing-btn-lg landing-btn-block mt-0 disabled:opacity-60"
       >
         {loading
           ? "Please wait…"
@@ -319,14 +315,14 @@ export function AuthForm({ mode }: AuthFormProps) {
         {mode === "login" ? (
           <>
             No account?{" "}
-            <Link href="/signup" className="text-bp-yellow hover:text-white">
+            <Link href="/signup" className="app-link">
               Sign up
             </Link>
           </>
         ) : (
           <>
             Already have an account?{" "}
-            <Link href="/login" className="text-bp-yellow hover:text-white">
+            <Link href="/login" className="app-link">
               Log in
             </Link>
           </>

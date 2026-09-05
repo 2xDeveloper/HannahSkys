@@ -43,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${jakarta.variable} ${nunito.variable} ${playfair.variable} ${caveat.variable} ${jakarta.className} relative min-h-screen bg-bp-black text-gray-100 antialiased`}
+        className={`${jakarta.variable} ${nunito.variable} ${playfair.variable} ${caveat.variable} ${jakarta.className} relative min-h-screen bg-white text-[#4a4550] antialiased`}
       >
         <SiteAtmosphere />
         <AgeGate />

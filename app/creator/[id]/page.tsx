@@ -41,10 +41,10 @@ export default async function CreatorProfilePage({ params }: PageProps) {
 
   return (
     <AppShell mainClassName="!overflow-y-auto">
-      <div className="border-b border-bp-border/70 px-4 py-3 md:px-6">
+      <div className="border-b border-[#fdeaf1] px-4 py-3 md:px-6">
         <Link
-          href="/"
-          className="inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm text-bp-yellow hover:bg-bp-chip hover:text-white"
+          href="/gallery"
+          className="app-detail-back inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm"
         >
           ← Back to the collection
         </Link>
@@ -52,7 +52,7 @@ export default async function CreatorProfilePage({ params }: PageProps) {
 
       <div className="mx-auto max-w-6xl space-y-8 p-6 md:p-8">
         <header className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
-          <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full bg-bp-chip ring-2 ring-bp-gold/40 shadow-[0_0_40px_rgba(255,90,154,0.25)]">
+          <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full bg-[#ffe6ef] ring-2 ring-[#fbdce7] shadow-[0_8px_24px_rgba(244,105,159,0.18)]">
             <CreatorAvatar
               src={creator.avatar_url}
               name={creator.display_name ?? "Creator"}
@@ -60,21 +60,21 @@ export default async function CreatorProfilePage({ params }: PageProps) {
             />
           </div>
           <div className="mt-4 sm:mt-0">
-            <span className="rounded-full bg-bp-gold/20 px-3 py-0.5 text-xs font-semibold text-bp-yellow">
+            <span className="app-chip rounded-full px-3 py-0.5 text-xs font-semibold">
               Creator
             </span>
-            <h1 className="font-display mt-2 text-2xl font-extrabold text-white md:text-3xl">
+            <h1 className="app-heading font-display mt-2 text-2xl font-extrabold md:text-3xl">
               {creator.display_name ?? "Creator"}
             </h1>
-            <p className="mt-1 text-sm text-gray-500">Member since {joined}</p>
+            <p className="app-muted mt-1 text-sm">Member since {joined}</p>
             {isOwnProfile && (
-              <p className="mt-3 text-sm text-bp-yellow">
+              <p className="mt-3 text-sm text-[#f4699f]">
                 This is your public profile.{" "}
-                <Link href="/account" className="underline hover:text-white">
+                <Link href="/account" className="app-link underline">
                   Upload content
                 </Link>
                 {" · "}
-                <Link href="/messages" className="underline hover:text-white">
+                <Link href="/messages" className="app-link underline">
                   Inbox
                 </Link>
               </p>
@@ -93,7 +93,7 @@ export default async function CreatorProfilePage({ params }: PageProps) {
         )}
 
         <section>
-          <h2 className="font-display mb-4 text-xl font-extrabold text-white">
+          <h2 className="app-heading font-display mb-4 text-xl font-extrabold">
             {isOwnProfile ? "Your content" : "Photos & videos"}
           </h2>
           <ContentGrid

@@ -99,7 +99,7 @@ export function ProfileEditor({ profile, email }: ProfileEditorProps) {
   return (
     <div className="space-y-8">
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full bg-bp-chip ring-2 ring-bp-border">
+        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full bg-[#ffe6ef] ring-2 ring-[#fbdce7]">
           {avatarUrl ? (
             <Image src={avatarUrl} alt="" fill className="object-cover" sizes="96px" />
           ) : (
@@ -120,12 +120,12 @@ export function ProfileEditor({ profile, email }: ProfileEditorProps) {
             type="button"
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
-            className="rounded-lg bg-bp-chip px-4 py-2 text-sm text-white hover:bg-bp-chip-hover disabled:opacity-60"
+            className="landing-btn-outline disabled:opacity-60"
           >
             {uploading ? "Uploading…" : "Change photo"}
           </button>
           <p className="mt-2 text-xs text-gray-500">{email}</p>
-          <p className="mt-1 text-xs text-bp-yellow">
+          <p className="mt-1 text-xs text-[#f4699f]">
             {profile.role === "creator"
               ? `Creator · ${creatorStatusLabel(profile.creator_status ?? "pending")}`
               : profile.role === "admin"
@@ -137,14 +137,14 @@ export function ProfileEditor({ profile, email }: ProfileEditorProps) {
 
       <form onSubmit={handleSave} className="space-y-4">
         <div>
-          <label htmlFor="name" className="mb-1.5 block text-xs font-medium text-gray-400">
+          <label htmlFor="name" className="app-muted mb-1.5 block text-xs font-medium">
             Display name
           </label>
           <input
             id="name"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            className="w-full max-w-md rounded-lg border border-bp-border bg-bp-panel px-3 py-2.5 text-sm text-white focus:border-bp-gold focus:outline-none focus:ring-1 focus:ring-bp-gold"
+            className="app-input max-w-md px-3 py-2.5 text-sm"
           />
         </div>
 
@@ -159,7 +159,7 @@ export function ProfileEditor({ profile, email }: ProfileEditorProps) {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-xl bg-bp-gold px-6 py-2.5 text-sm font-semibold text-white hover:bg-bp-gold-dim disabled:opacity-60"
+            className="landing-btn-primary disabled:opacity-60"
           >
             {saving ? "Saving…" : "Save profile"}
           </button>
@@ -167,7 +167,7 @@ export function ProfileEditor({ profile, email }: ProfileEditorProps) {
             type="button"
             onClick={handleSignOut}
             disabled={signingOut}
-            className="rounded-xl border border-bp-border px-6 py-2.5 text-sm text-gray-300 hover:bg-bp-chip disabled:opacity-60"
+            className="landing-btn-outline disabled:opacity-60"
           >
             {signingOut ? "Logging out…" : "Log out"}
           </button>

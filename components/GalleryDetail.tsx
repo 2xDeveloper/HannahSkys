@@ -43,10 +43,10 @@ export function GalleryDetail({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-transparent">
-      <div className="sticky top-0 z-10 border-b border-bp-border/70 bg-bp-main/70 px-4 py-3 backdrop-blur-xl md:px-6">
+      <div className="app-detail-bar sticky top-0 z-10 px-4 py-3 backdrop-blur-xl md:px-6">
         <Link
           href="/gallery"
-          className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-bp-yellow transition-colors hover:bg-bp-chip hover:text-white"
+          className="app-detail-back inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-colors"
         >
           <span aria-hidden className="text-base">
             ←
@@ -56,15 +56,15 @@ export function GalleryDetail({
       </div>
 
       {checkoutError && (
-        <div className="border-b border-amber-900/50 bg-amber-950/40 px-4 py-3 text-center text-sm text-amber-200 md:px-6">
+        <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm text-amber-800 md:px-6">
           {checkoutError}
         </div>
       )}
 
       {justPurchased && (
-        <div className="border-b border-emerald-900/50 bg-emerald-950/40 px-4 py-3 text-center text-sm text-emerald-200 md:px-6">
+        <div className="border-b border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-sm text-emerald-800 md:px-6">
           Purchase complete — full {item.media_type} unlocked.{" "}
-          <Link href="/library" className="font-semibold text-white underline hover:text-emerald-100">
+          <Link href="/library" className="font-semibold text-emerald-900 underline hover:text-emerald-700">
             Open your library →
           </Link>
         </div>
@@ -73,8 +73,8 @@ export function GalleryDetail({
       <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-8 md:py-8">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,340px)_1fr] lg:gap-10 lg:items-start">
           <div className="mx-auto w-full max-w-[340px] lg:mx-0">
-            <div className="overflow-hidden rounded-3xl border border-bp-gold/20 bg-bp-panel shadow-[0_24px_60px_rgba(255,90,154,0.12)]">
-              <div className="relative aspect-[3/4] w-full max-h-[460px] bg-bp-chip">
+            <div className="app-detail-media overflow-hidden rounded-3xl">
+              <div className="relative aspect-[3/4] w-full max-h-[460px] bg-[#ffe6ef]">
                 {isVideoDisplay && !unlocked && !lockedBlur ? (
                   <HoverPreviewVideo src={viewUrl} blurClass={blurClass} />
                 ) : isVideoDisplay ? (
@@ -105,7 +105,7 @@ export function GalleryDetail({
                     <div
                       className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/30 ${lockedBlur ? "opacity-90" : ""}`}
                     />
-                    <span className="absolute left-3 top-3 rounded-full bg-bp-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-[0_0_16px_rgba(255,90,154,0.45)]">
+                    <span className="absolute left-3 top-3 rounded-full bg-[#f4699f] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-[0_4px_14px_rgba(239,79,143,0.35)]">
                       {lockedBlur ? "Locked" : "Preview only"}
                     </span>
                     <span className="absolute bottom-3 left-3 right-3 text-center text-[11px] font-medium text-white/90">
@@ -114,24 +114,24 @@ export function GalleryDetail({
                   </>
                 )}
                 {free && (
-                  <span className="absolute left-3 top-3 rounded-md bg-emerald-800 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+                  <span className="absolute left-3 top-3 rounded-full bg-emerald-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
                     {COLLECT_LABEL}
                   </span>
                 )}
                 {owned && !free && (
-                  <span className="absolute left-3 top-3 rounded-md bg-emerald-800 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+                  <span className="absolute left-3 top-3 rounded-full bg-emerald-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
                     Purchased
                   </span>
                 )}
                 {isVideoDisplay && unlocked && (
                   <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-bp-gold/95 text-xl text-white shadow-[0_0_30px_rgba(255,90,154,0.55)] ring-4 ring-black/30">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#f4699f] text-xl text-white shadow-[0_8px_22px_rgba(239,79,143,0.45)] ring-4 ring-white/70">
                       ▶
                     </span>
                   </div>
                 )}
               </div>
-              <p className="border-t border-bp-border px-4 py-3 text-center text-xs leading-relaxed text-gray-400">
+              <p className="app-detail-caption px-4 py-3 text-center text-xs leading-relaxed">
                 {unlocked
                   ? free
                     ? "Collect this content — full file shown on the gallery."
@@ -142,74 +142,74 @@ export function GalleryDetail({
           </div>
 
           <div className="flex flex-col gap-6">
-            <header className="space-y-3 border-b border-bp-border pb-6">
+            <header className="space-y-3 border-b border-[#fdeaf1] pb-6">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-bp-chip px-3 py-1 text-xs font-semibold text-bp-yellow">
+                <span className="app-detail-chip rounded-full px-3 py-1 text-xs font-semibold">
                   {typeLabel}
                 </span>
                 {free ? (
-                  <span className="rounded-full bg-emerald-800 px-3 py-1 text-xs font-bold text-white">
+                  <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white">
                     {COLLECT_LABEL}
                   </span>
                 ) : owned ? (
-                  <span className="rounded-full bg-emerald-800 px-3 py-1 text-xs font-bold text-white">
+                  <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white">
                     Owned
                   </span>
                 ) : (
-                  <span className="rounded-full bg-bp-gold/30 px-3 py-1 text-xs font-bold text-bp-yellow">
+                  <span className="app-detail-chip rounded-full px-3 py-1 text-xs font-bold">
                     Paid · preview shown
                   </span>
                 )}
               </div>
-              <h1 className="font-display text-2xl font-extrabold text-white md:text-3xl">
+              <h1 className="app-detail-title font-display text-2xl font-extrabold md:text-3xl">
                 {item.title}
               </h1>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-[#8a8390]">
                 by{" "}
                 <Link
                   href={`/creator/${item.creator_id}`}
-                  className="font-medium text-bp-yellow hover:text-white"
+                  className="font-medium text-[#f4699f] hover:text-[#ef4f8f]"
                 >
                   {creatorName}
                 </Link>
               </p>
             </header>
 
-            <section className="rounded-3xl border border-bp-border/80 bg-bp-panel/80 p-5 backdrop-blur-sm md:p-6">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-rose-300/70">
+            <section className="app-detail-panel rounded-3xl p-5 md:p-6">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-[#f4699f]">
                 {unlocked ? "What you get" : "After purchase"}
               </h2>
-              <ul className="mt-4 space-y-2.5 text-sm text-gray-300">
+              <ul className="mt-4 space-y-2.5 text-sm text-[#55505c]">
                 <li className="flex gap-2">
-                  <span className="text-bp-gold">✓</span>
+                  <span className="text-[#f4699f]">✓</span>
                   {unlocked
                     ? `Full ${item.media_type === "video" ? "video" : "photo"} access now`
                     : `Full ${item.media_type === "video" ? "HD video" : "high-resolution photo"} (not shown publicly)`}
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-bp-gold">✓</span>
+                  <span className="text-[#f4699f]">✓</span>
                   {unlocked ? "Saved in your library" : "Instant access after checkout"}
                 </li>
               </ul>
-              <div className="mt-6 flex items-baseline gap-2 border-t border-bp-border pt-5">
-                <span className="text-3xl font-bold text-white">
+              <div className="mt-6 flex items-baseline gap-2 border-t border-[#fdeaf1] pt-5">
+                <span className="text-3xl font-bold text-[#3f3a44]">
                   {formatContentPrice(item.price_cents)}
                 </span>
-                {!free && <span className="text-sm text-gray-500">USD</span>}
+                {!free && <span className="text-sm text-[#8a8390]">USD</span>}
               </div>
             </section>
 
             {!free && !owned && (
-              <div className="rounded-3xl border border-bp-gold/30 bg-bp-chip/50 p-5 shadow-[0_0_40px_rgba(255,90,154,0.08)]">
+              <div className="app-detail-buy rounded-3xl p-5">
                 <PurchaseButton item={item} />
-                <p className="mt-4 text-center text-[11px] text-gray-500">
+                <p className="mt-4 text-center text-[11px] text-[#8a8390]">
                   Secure checkout via Stripe
                 </p>
               </div>
             )}
 
             {owned && (
-              <div className="rounded-2xl border border-emerald-900/40 bg-emerald-950/20 p-5">
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
                 <PurchaseButton item={item} owned />
               </div>
             )}

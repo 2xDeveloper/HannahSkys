@@ -82,7 +82,7 @@ export function MessageReplyForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-3 rounded-lg bg-bp-gold px-3 py-1.5 text-xs font-semibold text-white hover:bg-bp-gold-dim"
+        className="landing-btn-primary mt-3 px-3 py-1.5 text-xs"
       >
         Reply to {fanName}
       </button>
@@ -101,14 +101,14 @@ export function MessageReplyForm({
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder={`Reply to ${fanName}…`}
-        className="w-full resize-y rounded-lg border border-bp-border bg-bp-main px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:border-bp-gold focus:outline-none focus:ring-1 focus:ring-bp-gold"
+        className="app-input resize-y px-3 py-2 text-sm"
       />
       {error && <p className="text-xs text-red-400">{error}</p>}
       <div className="flex gap-2">
         <button
           type="submit"
           disabled={loading}
-          className="rounded-lg bg-bp-gold px-3 py-1.5 text-xs font-semibold text-white hover:bg-bp-gold-dim disabled:opacity-60"
+          className="landing-btn-primary px-3 py-1.5 text-xs disabled:opacity-60"
         >
           {loading ? "Sending…" : "Send reply"}
         </button>

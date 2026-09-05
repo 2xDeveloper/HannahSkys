@@ -11,7 +11,7 @@ export function CreatorAvatar({ src, name, className = "" }: CreatorAvatarProps)
   if (!src) {
     return (
       <span
-        className={`flex h-full w-full items-center justify-center bg-bp-chip font-bold text-gray-500 ${className}`}
+        className={`flex h-full w-full items-center justify-center bg-[#ffe6ef] font-bold text-[#f4699f] ${className}`}
       >
         {initial}
       </span>

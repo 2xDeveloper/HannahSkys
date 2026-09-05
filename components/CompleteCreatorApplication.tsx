@@ -88,14 +88,14 @@ export function CompleteCreatorApplication({
         <label htmlFor="wun-username" className="mb-1.5 block text-xs font-medium text-gray-400">
           Wun.app username
         </label>
-        <div className="flex items-center rounded-lg border border-bp-border bg-bp-main">
+        <div className="flex items-center rounded-lg border border-[#fbdce7] bg-white">
           <span className="pl-3 text-sm text-gray-500">wun.app/</span>
           <input
             id="wun-username"
             required
             value={wunUsername}
             onChange={(e) => setWunUsername(e.target.value)}
-            className="w-full bg-transparent px-2 py-2.5 text-sm text-white focus:outline-none"
+            className="w-full bg-transparent px-2 py-2.5 text-sm text-[#4a4550] focus:outline-none"
             placeholder="yourname"
           />
         </div>
@@ -111,7 +111,7 @@ export function CompleteCreatorApplication({
             type="file"
             accept="image/*"
             required={!profile.avatar_url}
-            className="w-full text-xs text-gray-400 file:mr-3 file:rounded-lg file:border-0 file:bg-bp-chip file:px-3 file:py-2 file:text-sm file:text-white"
+            className="app-muted w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-[#ffe6ef] file:px-3 file:py-2 file:text-sm file:text-[#ef4f8f]"
           />
         </div>
         <div>
@@ -123,7 +123,7 @@ export function CompleteCreatorApplication({
             type="file"
             accept="image/*"
             required={!profile.id_document_path}
-            className="w-full text-xs text-gray-400 file:mr-3 file:rounded-lg file:border-0 file:bg-bp-chip file:px-3 file:py-2 file:text-sm file:text-white"
+            className="app-muted w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-[#ffe6ef] file:px-3 file:py-2 file:text-sm file:text-[#ef4f8f]"
           />
         </div>
       </div>
@@ -137,7 +137,7 @@ export function CompleteCreatorApplication({
       <button
         type="submit"
         disabled={loading}
-        className="rounded-xl bg-bp-gold px-6 py-2.5 text-sm font-semibold text-white hover:bg-bp-gold-dim disabled:opacity-60"
+        className="landing-btn-primary disabled:opacity-60"
       >
         {loading ? "Uploading…" : "Submit application"}
       </button>

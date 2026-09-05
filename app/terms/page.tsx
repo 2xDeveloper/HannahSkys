@@ -10,24 +10,21 @@ export default function TermsPage() {
   return (
     <AppShell mainClassName="!overflow-y-auto">
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-8 md:py-12">
-        <Link
-          href="/"
-          className="text-sm text-bp-yellow hover:text-white"
-        >
+        <Link href="/gallery" className="app-link text-sm">
           ← Back to the collection
         </Link>
 
-        <header className="mt-6 border-b border-bp-border pb-6">
-          <p className="text-xs font-semibold uppercase tracking-wider text-bp-yellow">
+        <header className="mt-6 border-b border-[#fdeaf1] pb-6">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#f4699f]">
             Legal
           </p>
-          <h1 className="mt-2 font-display text-3xl font-extrabold text-white">Terms of Service</h1>
+          <h1 className="app-heading mt-2 font-display text-3xl font-extrabold">Terms of Service</h1>
           <p className="mt-2 text-sm text-gray-500">
             Last updated: May 30, 2026 · HannahSkys
           </p>
         </header>
 
-        <article className="prose prose-invert mt-8 max-w-none space-y-8 text-sm leading-relaxed text-gray-300 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-rose-50 [&_h3]:text-base [&_h3]:font-medium [&_h3]:text-rose-100 [&_li]:text-gray-300 [&_p]:text-gray-300 [&_strong]:text-gray-200">
+        <article className="prose mt-8 max-w-none space-y-8 text-sm leading-relaxed text-[#55505c] [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-[#3f3a44] [&_h3]:text-base [&_h3]:font-medium [&_h3]:text-[#3f3a44] [&_li]:text-[#55505c] [&_p]:text-[#55505c] [&_strong]:text-[#3f3a44]">
           <section>
             <h2>1. Acceptance of terms</h2>
             <p>
@@ -233,7 +230,7 @@ export default function TermsPage() {
                 href="https://t.me/fandomvids"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-bp-yellow underline hover:text-white"
+                className="app-link underline"
               >
                 Telegram community
               </a>

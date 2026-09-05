@@ -11,8 +11,8 @@ export function CreatorEarnings({ sales, summary }: CreatorEarningsProps) {
   const creatorShare = getCreatorSharePercent();
 
   return (
-    <section className="mt-6 rounded-2xl border border-bp-border bg-bp-panel p-5 md:p-6">
-      <h2 className="text-lg font-semibold text-rose-50">Your earnings</h2>
+    <section className="app-card mt-6 rounded-2xl p-5 md:p-6">
+      <h2 className="app-heading text-lg font-semibold">Your earnings</h2>
       <p className="mt-1 text-sm text-gray-500">
         Completed purchases of your content. Payouts are sent manually by the platform.
       </p>
@@ -31,10 +31,10 @@ export function CreatorEarnings({ sales, summary }: CreatorEarningsProps) {
           {sales.map((sale) => (
             <li
               key={sale.id}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-bp-border bg-bp-main/50 px-3 py-2 text-xs"
+              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#fbdce7] bg-[#fff7fa] px-3 py-2 text-xs"
             >
               <div>
-                <p className="font-medium text-white">{sale.content_title}</p>
+                <p className="app-heading font-medium">{sale.content_title}</p>
                 <p className="text-gray-500">
                   Buyer: {sale.buyer_name ?? "Fan"} · {new Date(sale.created_at).toLocaleString()}
                 </p>
@@ -63,9 +63,9 @@ function Stat({
   highlight?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-bp-border bg-bp-main/50 px-3 py-3">
-      <p className="text-[10px] uppercase tracking-wider text-gray-500">{label}</p>
-      <p className={`mt-1 text-lg font-bold ${highlight ? "text-emerald-400" : "text-white"}`}>
+    <div className="rounded-xl border border-[#fbdce7] bg-[#fff7fa] px-3 py-3">
+      <p className="app-muted text-[10px] uppercase tracking-wider">{label}</p>
+      <p className={`mt-1 text-lg font-bold ${highlight ? "text-emerald-600" : "text-[#3f3a44]"}`}>
         {value}
       </p>
     </div>

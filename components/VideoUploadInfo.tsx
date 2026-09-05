@@ -48,7 +48,7 @@ export function VideoUploadInfo({
       className={`mt-2 space-y-2 rounded-lg border px-3 py-2.5 text-xs ${
         needsShorten && !wasOptimized
           ? "border-amber-900/50 bg-amber-950/25"
-          : "border-bp-border bg-bp-main/70"
+          : "border-[#fbdce7] bg-[#fff7fa]"
       }`}
     >
       <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
@@ -57,7 +57,7 @@ export function VideoUploadInfo({
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-gray-400">
         <span>
           Size:{" "}
-          <strong className={overSize ? "text-red-300" : "text-white"}>
+          <strong className={overSize ? "text-red-600" : "text-[#3f3a44]"}>
             {formatFileSize(file.size)}
           </strong>
         </span>
@@ -67,13 +67,13 @@ export function VideoUploadInfo({
           <>
             <span>
               Length:{" "}
-              <strong className={overDuration ? "text-amber-300" : "text-white"}>
+              <strong className={overDuration ? "text-amber-700" : "text-[#3f3a44]"}>
                 {formatDuration(metadata.durationSeconds)}
               </strong>
             </span>
             <span>
               Resolution:{" "}
-              <strong className="text-white">
+              <strong className="text-[#3f3a44]">
                 {metadata.width}×{metadata.height}
               </strong>
             </span>
@@ -113,7 +113,7 @@ export function VideoUploadInfo({
               className="mt-0.5 rounded border-bp-border"
             />
             <span className="text-gray-300">
-              <strong className="text-white">Shorten &amp; compress before upload</strong>
+              <strong className="text-[#3f3a44]">Shorten &amp; compress before upload</strong>
               {needsShorten ? (
                 <>
                   {" "}
@@ -129,7 +129,7 @@ export function VideoUploadInfo({
             type="button"
             disabled={optimizing}
             onClick={onShortenNow}
-            className="rounded-lg bg-bp-gold px-4 py-2 text-xs font-semibold text-white hover:bg-bp-gold-dim disabled:opacity-50"
+            className="landing-btn-primary text-xs disabled:opacity-50"
           >
             {optimizing
               ? optimizeMessage || "Shortening…"
@@ -139,7 +139,7 @@ export function VideoUploadInfo({
           </button>
           {optimizing && (
             <div className="space-y-1">
-              <div className="h-1.5 overflow-hidden rounded-full bg-bp-chip">
+              <div className="h-1.5 overflow-hidden rounded-full bg-[#ffe6ef]">
                 <div
                   className="h-full rounded-full bg-bp-gold transition-all duration-300"
                   style={{ width: `${optimizeProgress}%` }}

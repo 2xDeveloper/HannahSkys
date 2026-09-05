@@ -50,7 +50,7 @@ export function PurchaseButton({ item, owned = false }: PurchaseButtonProps) {
     return (
       <Link
         href="/library"
-        className="block w-full rounded-full bg-emerald-800 px-6 py-4 text-center text-sm font-semibold text-white transition-all hover:bg-emerald-700"
+        className="block w-full rounded-full bg-emerald-600 px-6 py-4 text-center text-sm font-semibold text-white transition-all hover:bg-emerald-500"
       >
         In your library — view full {item.media_type}
       </Link>
@@ -63,11 +63,11 @@ export function PurchaseButton({ item, owned = false }: PurchaseButtonProps) {
         type="button"
         onClick={handlePurchase}
         disabled={loading}
-        className="w-full rounded-full bg-bp-gold px-6 py-4 text-center text-sm font-semibold text-white shadow-[0_4px_24px_rgba(255,90,154,0.45)] transition-all hover:bg-bp-gold-dim hover:shadow-[0_8px_32px_rgba(255,90,154,0.55)] active:scale-[0.99] disabled:cursor-wait disabled:opacity-70"
+        className="landing-btn-primary landing-btn-lg landing-btn-block mt-0 disabled:cursor-wait disabled:opacity-70"
       >
         {loading ? "Redirecting to checkout…" : label}
       </button>
-      {error && <p className="mt-3 text-center text-xs text-red-400">{error}</p>}
+      {error && <p className="mt-3 text-center text-xs text-red-500">{error}</p>}
     </div>
   );
 }

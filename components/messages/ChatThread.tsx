@@ -48,11 +48,11 @@ export function ChatThread({
               "radial-gradient(circle at 20% 20%, rgba(255,90,154,0.22), transparent 40%), radial-gradient(circle at 80% 80%, rgba(192,132,252,0.12), transparent 45%)",
           }}
         />
-        <div className="relative rounded-3xl border border-bp-gold/20 bg-bp-panel/80 px-8 py-10 shadow-2xl backdrop-blur-md">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-bp-gold/15 text-2xl text-bp-yellow">
+        <div className="app-card relative rounded-3xl px-8 py-10">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#ffe6ef] text-2xl text-[#f4699f]">
             ✉
           </div>
-          <p className="mt-4 font-display text-xl font-extrabold text-white">Your messages</p>
+          <p className="app-heading mt-4 font-display text-xl font-extrabold">Your messages</p>
           <p className="mt-2 max-w-sm text-sm leading-relaxed text-gray-500">
             Pick a chat on the left to reply instantly — like texting, but built into the site.
           </p>
@@ -68,18 +68,18 @@ export function ChatThread({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 items-center gap-3 border-b border-white/6 bg-bp-black/75 px-3 py-2.5 backdrop-blur-xl">
+      <div className="flex shrink-0 items-center gap-3 border-b border-[#fdeaf1] bg-white/90 px-3 py-2.5 backdrop-blur-xl">
         {showBack && onBack && (
           <button
             type="button"
             onClick={onBack}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-bp-yellow hover:bg-white/5 md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-[#f4699f] hover:bg-[#fff0f5] md:hidden"
             aria-label="Back to conversations"
           >
             ←
           </button>
         )}
-        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#2a2227] ring-1 ring-white/10">
+        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#ffe6ef] ring-1 ring-[#fbdce7]">
           <CreatorAvatar
             src={conversation.partnerAvatarUrl}
             name={conversation.partnerName}
@@ -87,7 +87,7 @@ export function ChatThread({
           />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-semibold text-white">
+          <p className="app-heading truncate text-[15px] font-semibold">
             {conversation.partnerName}
           </p>
           <p className="truncate text-xs text-gray-500">
@@ -101,7 +101,7 @@ export function ChatThread({
         {conversation.partnerId && !conversation.isGuest && !isCreator && (
           <Link
             href={`/creator/${conversation.partnerId}`}
-            className="rounded-full bg-white/5 px-3 py-1.5 text-xs font-medium text-bp-yellow hover:bg-white/10"
+            className="landing-btn-outline px-3 py-1.5 text-xs"
           >
             Profile
           </Link>
@@ -113,7 +113,7 @@ export function ChatThread({
         className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5"
         style={{
           backgroundImage:
-            "radial-gradient(ellipse at top, rgba(255,90,154,0.1), transparent 55%), linear-gradient(180deg, rgba(18,9,16,0.4) 0%, rgba(8,4,9,0.7) 100%)",
+            "radial-gradient(ellipse at top, rgba(255,192,216,0.35), transparent 55%), linear-gradient(180deg, #fff8fb 0%, #fff 100%)",
         }}
       >
         <div className="mx-auto flex max-w-3xl flex-col">

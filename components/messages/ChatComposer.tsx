@@ -39,12 +39,12 @@ export function ChatComposer({
   }
 
   return (
-    <div className="shrink-0 border-t border-white/5 bg-bp-black/90 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-xl">
+    <div className="shrink-0 border-t border-[#fdeaf1] bg-white/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-xl">
       {disabled && disabledHint && (
         <p className="mb-2 text-center text-xs text-gray-500">{disabledHint}</p>
       )}
       <div className="mx-auto flex max-w-3xl items-end gap-2">
-        <div className="flex min-h-[48px] flex-1 items-end rounded-[24px] border border-white/8 bg-[#1f181c] px-4 py-2.5 shadow-inner focus-within:border-bp-gold/40">
+        <div className="flex min-h-[48px] flex-1 items-end rounded-[24px] border border-[#fbdce7] bg-[#fff7fa] px-4 py-2.5 focus-within:border-[#f4699f]">
           <textarea
             ref={textareaRef}
             rows={1}
@@ -54,7 +54,7 @@ export function ChatComposer({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             maxLength={5000}
-            className="max-h-[140px] min-h-[24px] w-full resize-none bg-transparent text-[15px] leading-6 text-white placeholder:text-gray-600 focus:outline-none disabled:opacity-50"
+            className="max-h-[140px] min-h-[24px] w-full resize-none bg-transparent text-[15px] leading-6 text-[#4a4550] placeholder:text-[#b6aeba] focus:outline-none disabled:opacity-50"
           />
         </div>
         <button
@@ -64,7 +64,7 @@ export function ChatComposer({
           className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white shadow-lg transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-35 ${
             canSend
               ? "bg-bp-gold shadow-bp-gold/30 hover:bg-bp-gold-dim"
-              : "bg-[#2a2227]"
+              : "bg-[#e8e4ea]"
           }`}
           aria-label="Send message"
         >

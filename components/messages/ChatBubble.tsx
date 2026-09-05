@@ -13,7 +13,7 @@ function ReadTicks({ read, pending }: { read: boolean; pending?: boolean }) {
   }
   return (
     <span
-      className={`ml-1 inline-flex tracking-tighter ${read ? "text-sky-300" : "text-white/55"}`}
+      className={`ml-1 inline-flex tracking-tighter ${read ? "text-[#fde8f0]" : "text-white/70"}`}
       aria-label={read ? "Read" : "Sent"}
     >
       {read ? "✓✓" : "✓"}
@@ -34,7 +34,7 @@ export function ChatBubble({ message, showTail = true, pending = false }: ChatBu
             ? `bg-gradient-to-br from-bp-gold to-bp-gold-dim text-white ${
                 showTail ? "rounded-[18px] rounded-br-md" : "rounded-[18px]"
               }`
-            : `bg-[#2a2227] text-gray-100 ring-1 ring-white/5 ${
+            : `bg-white text-[#4a4550] ring-1 ring-[#fbdce7] ${
                 showTail ? "rounded-[18px] rounded-bl-md" : "rounded-[18px]"
               }`
         }`}
@@ -58,7 +58,7 @@ export function ChatBubble({ message, showTail = true, pending = false }: ChatBu
 export function DaySeparator({ label }: { label: string }) {
   return (
     <div className="my-4 flex justify-center">
-      <span className="rounded-full bg-black/45 px-3 py-1 text-[11px] font-medium text-gray-300 shadow-sm backdrop-blur-sm">
+      <span className="rounded-full bg-white px-3 py-1 text-[11px] font-medium text-[#8a8390] shadow-sm ring-1 ring-[#fbdce7]">
         {label}
       </span>
     </div>

@@ -16,9 +16,9 @@ export function PendingCreatorCard({ profile, hideAdminActions }: PendingCreator
   const hasPhoto = Boolean(profile.avatar_url);
 
   return (
-    <article className="rounded-xl border border-bp-border bg-bp-panel p-5">
+    <article className="app-card rounded-xl p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-bp-chip ring-2 ring-bp-border">
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-[#ffe6ef] ring-2 ring-[#fbdce7]">
           <CreatorAvatar
             src={profile.avatar_url}
             name={profile.display_name ?? "Creator"}
@@ -26,7 +26,7 @@ export function PendingCreatorCard({ profile, hideAdminActions }: PendingCreator
         </div>
 
         <div className="min-w-0 flex-1 space-y-2">
-          <h3 className="text-lg font-semibold text-white">
+          <h3 className="app-heading text-lg font-semibold">
             {profile.display_name ?? "Unnamed creator"}
           </h3>
           <p className="text-xs text-gray-500">
@@ -36,13 +36,13 @@ export function PendingCreatorCard({ profile, hideAdminActions }: PendingCreator
           <dl className="grid gap-2 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-xs text-gray-500">Wun.app username</dt>
-              <dd className="text-bp-yellow">
+              <dd className="text-[#f4699f]">
                 {username && profileUrl ? (
                   <a
                     href={profileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-white"
+                    className="hover:text-[#ef4f8f]"
                   >
                     wun.app/{username}
                   </a>
@@ -65,7 +65,7 @@ export function PendingCreatorCard({ profile, hideAdminActions }: PendingCreator
                     href={`/api/admin/id-document?userId=${profile.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-bp-yellow hover:text-white"
+                    className="app-link"
                   >
                     View ID photo →
                   </a>
@@ -79,7 +79,7 @@ export function PendingCreatorCard({ profile, hideAdminActions }: PendingCreator
               <dd>
                 <Link
                   href={`/creator/${profile.id}`}
-                  className="text-bp-yellow hover:text-white"
+                  className="app-link"
                 >
                   Preview →
                 </Link>
@@ -90,7 +90,7 @@ export function PendingCreatorCard({ profile, hideAdminActions }: PendingCreator
       </div>
 
       {!hideAdminActions && (
-        <div className="mt-4 border-t border-bp-border pt-4">
+        <div className="mt-4 border-t border-[#fdeaf1] pt-4">
           <AdminCreatorActions profile={profile} />
         </div>
       )}

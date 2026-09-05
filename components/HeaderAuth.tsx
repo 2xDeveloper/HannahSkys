@@ -17,14 +17,11 @@ function GuestLinks() {
     <div className="absolute right-4 flex items-center gap-2">
       <Link
         href="/login"
-        className="rounded-full px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-bp-chip hover:text-white"
+        className="app-auth-login rounded-full px-3 py-1.5 text-sm transition-colors"
       >
         Log in
       </Link>
-      <Link
-        href="/signup"
-        className="rounded-full bg-bp-gold px-3.5 py-1.5 text-sm font-medium text-white shadow-[0_4px_18px_rgba(255,90,154,0.4)] transition-all hover:bg-bp-gold-dim hover:shadow-[0_6px_22px_rgba(255,90,154,0.5)]"
-      >
+      <Link href="/signup" className="landing-btn-primary">
         Sign up
       </Link>
     </div>
@@ -41,7 +38,7 @@ function SignedInLinks({ profile }: { profile: Profile | null }) {
       {isAdmin && (
         <Link
           href="/admin"
-          className="hidden text-sm text-bp-yellow hover:text-white sm:inline"
+          className="hidden text-sm text-[#f4699f] hover:text-[#ef4f8f] sm:inline"
         >
           Admin panel
         </Link>
@@ -50,14 +47,14 @@ function SignedInLinks({ profile }: { profile: Profile | null }) {
         <>
           <Link
             href="/account#upload"
-            className="hidden items-center gap-1.5 rounded-full bg-bp-gold px-3 py-1.5 text-sm font-semibold text-white shadow-[0_2px_12px_rgba(255,90,154,0.45)] hover:bg-bp-gold-dim sm:inline-flex"
+            className="landing-btn-primary hidden sm:inline-flex"
           >
             <span className="text-base leading-none">+</span>
             Upload
           </Link>
           <Link
             href="/messages"
-            className="hidden text-sm text-bp-yellow hover:text-white sm:inline"
+            className="hidden text-sm text-[#f4699f] hover:text-[#ef4f8f] sm:inline"
           >
             Messages
           </Link>
@@ -65,21 +62,21 @@ function SignedInLinks({ profile }: { profile: Profile | null }) {
       )}
       <Link
         href="/library"
-        className="rounded-full bg-bp-gold px-2.5 py-1.5 text-xs font-semibold text-white shadow-[0_2px_12px_rgba(255,90,154,0.35)] hover:bg-bp-gold-dim sm:px-3 sm:text-sm"
+        className="landing-btn-primary px-2.5 py-1.5 text-xs sm:px-3 sm:text-sm"
       >
         Library
       </Link>
       {!approved && (
         <Link
           href="/messages"
-          className="hidden text-sm text-bp-yellow hover:text-white sm:inline"
+          className="hidden text-sm text-[#f4699f] hover:text-[#ef4f8f] sm:inline"
         >
           Messages
         </Link>
       )}
       <Link
         href="/account"
-        className="max-w-[96px] truncate text-xs font-medium text-bp-yellow hover:text-white sm:max-w-[160px] sm:text-sm"
+        className="max-w-[96px] truncate text-xs font-medium text-[#55505c] hover:text-[#f4699f] sm:max-w-[160px] sm:text-sm"
         title={accountLabel}
       >
         {accountLabel}

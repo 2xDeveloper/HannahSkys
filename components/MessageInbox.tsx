@@ -26,7 +26,7 @@ export function MessageInbox({ messages, mode, creator, sentMessages = [] }: Mes
 
   if (messages.length === 0) {
     return (
-      <div className="rounded-2xl border border-bp-border bg-bp-panel px-6 py-12 text-center">
+      <div className="app-card rounded-2xl px-6 py-12 text-center">
         <p className="text-sm text-gray-400">No messages yet.</p>
         <p className="mt-1 text-xs text-gray-600">
           When fans message you from your creator profile, they&apos;ll show up here.
@@ -54,7 +54,7 @@ function FanInbox({ received, sent }: { received: Message[]; sent: Message[] }) 
 
   if (!hasReceived && !hasSent) {
     return (
-      <div className="rounded-2xl border border-bp-border bg-bp-panel px-6 py-12 text-center">
+      <div className="app-card rounded-2xl px-6 py-12 text-center">
         <p className="text-sm text-gray-400">No messages yet.</p>
         <p className="mt-1 text-xs text-gray-600">
           Message a creator from their profile. Replies will show up here.
@@ -86,7 +86,7 @@ function FanInbox({ received, sent }: { received: Message[]; sent: Message[] }) 
             {sent.map((msg) => (
               <li
                 key={msg.id}
-                className="rounded-xl border border-bp-border bg-bp-panel p-4 md:p-5"
+                className="app-card rounded-xl p-4 md:p-5"
               >
                 <p className="text-xs text-gray-600">
                   {new Date(msg.created_at).toLocaleString()}
@@ -126,13 +126,13 @@ function FanMessageItem({ message }: { message: Message }) {
     <li
       className={`rounded-xl border p-4 md:p-5 ${
         isUnread
-          ? "border-bp-gold/40 bg-bp-gold/5"
-          : "border-bp-border bg-bp-panel"
+          ? "border-[#f4699f]/40 bg-[#fff0f5]"
+          : "border-[#fbdce7] bg-white"
       }`}
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <p className="font-medium text-white">{from}</p>
+          <p className="app-heading font-medium">{from}</p>
           <p className="mt-1 text-xs text-gray-600">{when}</p>
         </div>
         {isUnread && (
@@ -140,7 +140,7 @@ function FanMessageItem({ message }: { message: Message }) {
             type="button"
             onClick={markRead}
             disabled={marking}
-            className="shrink-0 rounded-lg bg-bp-chip px-3 py-1 text-xs text-bp-yellow hover:bg-bp-chip-hover disabled:opacity-60"
+            className="landing-btn-outline shrink-0 px-3 py-1 text-xs disabled:opacity-60"
           >
             {marking ? "…" : "Mark read"}
           </button>
@@ -186,13 +186,13 @@ function CreatorMessageItem({
     <li
       className={`rounded-xl border p-4 md:p-5 ${
         isUnread
-          ? "border-bp-gold/40 bg-bp-gold/5"
-          : "border-bp-border bg-bp-panel"
+          ? "border-[#f4699f]/40 bg-[#fff0f5]"
+          : "border-[#fbdce7] bg-white"
       }`}
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <p className="font-medium text-white">{from}</p>
+          <p className="app-heading font-medium">{from}</p>
           {message.sender_email && (
             <p className="text-xs text-gray-500">{message.sender_email}</p>
           )}
@@ -203,7 +203,7 @@ function CreatorMessageItem({
             type="button"
             onClick={markRead}
             disabled={marking}
-            className="shrink-0 rounded-lg bg-bp-chip px-3 py-1 text-xs text-bp-yellow hover:bg-bp-chip-hover disabled:opacity-60"
+            className="landing-btn-outline shrink-0 px-3 py-1 text-xs disabled:opacity-60"
           >
             {marking ? "…" : "Mark read"}
           </button>

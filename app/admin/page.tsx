@@ -65,21 +65,21 @@ export default async function AdminPage() {
       <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8">
         <div className="mx-auto max-w-5xl space-y-10">
           <div>
-            <h1 className="text-2xl font-bold text-rose-50">Admin panel</h1>
+            <h1 className="app-heading text-2xl font-bold">Admin panel</h1>
             <p className="mt-1 text-sm text-gray-500">Approve creators and manage users</p>
           </div>
 
           {error && (
-            <p className="rounded-lg border border-red-900/50 bg-red-950/40 px-4 py-3 text-sm text-red-300">
+            <p className="app-alert-err rounded-lg px-4 py-3 text-sm">
               Could not load users. Try refreshing the page.
             </p>
           )}
 
           {rejectedCreators.length > 0 && (
             <section>
-              <h2 className="text-lg font-semibold text-red-200">
+              <h2 className="text-lg font-semibold text-red-700">
                 Rejected — can re-review
-                <span className="ml-2 rounded-full bg-red-900/60 px-2 py-0.5 text-xs font-bold text-red-100">
+                <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700">
                   {rejectedCreators.length}
                 </span>
               </h2>
@@ -91,10 +91,10 @@ export default async function AdminPage() {
                 {rejectedCreators.map((p) => (
                   <article
                     key={p.id}
-                    className="rounded-xl border border-red-900/50 bg-red-950/20 p-5"
+                    className="rounded-xl border border-red-200 bg-red-50 p-5"
                   >
                     <PendingCreatorCard profile={p} hideAdminActions />
-                    <div className="mt-2 border-t border-red-900/40 pt-3">
+                    <div className="mt-2 border-t border-red-200 pt-3">
                       <AdminPromoteCreator profile={p} />
                     </div>
                   </article>
@@ -105,9 +105,9 @@ export default async function AdminPage() {
 
           {misclassified.length > 0 && (
             <section>
-              <h2 className="text-lg font-semibold text-amber-200">
+              <h2 className="text-lg font-semibold text-amber-800">
                 Applications needing fix
-                <span className="ml-2 rounded-full bg-amber-900/60 px-2 py-0.5 text-xs font-bold text-amber-100">
+                <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-800">
                   {misclassified.length}
                 </span>
               </h2>
@@ -119,10 +119,10 @@ export default async function AdminPage() {
                 {misclassified.map((p) => (
                   <article
                     key={p.id}
-                    className="rounded-xl border border-amber-900/50 bg-amber-950/20 p-5"
+                    className="rounded-xl border border-amber-200 bg-amber-50 p-5"
                   >
                     <PendingCreatorCard profile={p} hideAdminActions />
-                    <div className="mt-2 border-t border-amber-900/40 pt-3">
+                    <div className="mt-2 border-t border-amber-200 pt-3">
                       <AdminPromoteCreator profile={p} />
                     </div>
                   </article>
@@ -134,9 +134,9 @@ export default async function AdminPage() {
           <AdminSalesPanel sales={sales} summary={summary} creatorBalances={creatorBalances} />
 
           <section>
-            <h2 className="text-lg font-semibold text-rose-50">
+            <h2 className="app-heading text-lg font-semibold">
               Pending creators
-              <span className="ml-2 rounded-full bg-bp-gold-dim px-2 py-0.5 text-xs font-bold text-white">
+              <span className="ml-2 rounded-full bg-[#f4699f] px-2 py-0.5 text-xs font-bold text-white">
                 {pendingCreators.length}
               </span>
             </h2>
@@ -145,7 +145,7 @@ export default async function AdminPage() {
             </p>
 
             {pendingCreators.length === 0 ? (
-              <p className="mt-4 rounded-xl border border-bp-border bg-bp-panel px-4 py-6 text-sm text-gray-500">
+              <p className="app-card app-muted mt-4 rounded-xl px-4 py-6 text-sm">
                 No pending creator applications.
               </p>
             ) : (
@@ -158,10 +158,10 @@ export default async function AdminPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-rose-50">All users</h2>
-            <div className="mt-4 overflow-hidden rounded-xl border border-bp-border">
+            <h2 className="app-heading text-lg font-semibold">All users</h2>
+            <div className="app-card mt-4 overflow-hidden rounded-xl">
               <table className="w-full text-left text-sm">
-                <thead className="bg-bp-chip text-xs uppercase text-gray-500">
+                <thead className="bg-[#fff0f5] text-xs uppercase text-[#8a8390]">
                   <tr>
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">Type</th>
@@ -170,11 +170,11 @@ export default async function AdminPage() {
                     <th className="px-4 py-3">Joined</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-bp-border bg-bp-panel">
+                <tbody className="divide-y divide-[#fdeaf1] bg-white">
                   {all.map((p) => (
-                    <tr key={p.id} className="text-gray-300">
+                    <tr key={p.id} className="text-[#55505c]">
                       <td className="px-4 py-3">{p.display_name ?? "—"}</td>
-                      <td className="px-4 py-3 capitalize text-bp-yellow">{p.role}</td>
+                      <td className="px-4 py-3 capitalize text-[#f4699f]">{p.role}</td>
                       <td className="px-4 py-3 text-gray-400">
                         {p.role === "creator"
                           ? creatorStatusLabel(p.creator_status)
@@ -192,7 +192,7 @@ export default async function AdminPage() {
                               href={profileUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-bp-yellow hover:text-white"
+                              className="app-link"
                             >
                               wun.app/{username}
                             </a>
@@ -209,7 +209,7 @@ export default async function AdminPage() {
             </div>
           </section>
 
-          <Link href="/" className="inline-block text-sm text-bp-yellow hover:text-white">
+          <Link href="/gallery" className="app-link inline-block text-sm">
             ← Back to the collection
           </Link>
         </div>
