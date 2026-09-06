@@ -3,6 +3,7 @@
 import { HeaderAuth } from "@/components/HeaderAuth";
 import { Logo } from "@/components/Logo";
 import type { HeaderAuthState } from "@/lib/auth/header-user";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -47,6 +48,26 @@ export function ShellLayout({ sidebar, children, mainClassName, headerAuth = nul
         >
           <span className="text-xl leading-none">{sidebarOpen ? "✕" : "☰"}</span>
         </button>
+        <nav className="absolute left-14 flex items-center gap-2 md:left-4 md:pl-[230px] lg:gap-4">
+          <Link
+            href="/videos"
+            className={`rounded-full px-2.5 py-1 text-xs font-semibold transition-colors md:text-sm ${
+              pathname.startsWith("/videos")
+                ? "bg-[#f4699f] text-white"
+                : "bg-[#fff0f5] text-[#f4699f] hover:bg-[#f4699f] hover:text-white"
+            }`}
+          >
+            Categories
+          </Link>
+          <Link
+            href="/gallery"
+            className={`hidden text-sm font-medium transition-colors sm:inline ${
+              pathname.startsWith("/gallery") ? "text-[#f4699f]" : "text-[#55505c] hover:text-[#f4699f]"
+            }`}
+          >
+            Photos
+          </Link>
+        </nav>
         <Logo tone="light" linkToHome className="max-w-[calc(100%-8rem)] truncate text-center" />
         <HeaderAuth initialAuth={headerAuth} />
       </header>

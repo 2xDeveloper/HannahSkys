@@ -75,17 +75,16 @@ export function GalleryDetail({
           <div className="mx-auto w-full max-w-[340px] lg:mx-0">
             <div className="app-detail-media overflow-hidden rounded-3xl">
               <div className="relative aspect-[3/4] w-full max-h-[460px] bg-[#ffe6ef]">
-                {isVideoDisplay && !unlocked && !lockedBlur ? (
+                {isVideoDisplay && !unlocked ? (
                   <HoverPreviewVideo src={viewUrl} blurClass={blurClass} />
                 ) : isVideoDisplay ? (
                   <>
                     <video
                       src={viewUrl}
-                      controls={unlocked}
-                      muted={!unlocked}
+                      controls
                       playsInline
                       preload="metadata"
-                      className={`h-full w-full object-cover ${unlocked ? "" : blurClass}`}
+                      className="h-full w-full object-cover"
                     />
                     <MediaWatermark />
                   </>
@@ -102,11 +101,9 @@ export function GalleryDetail({
                 )}
                 {!unlocked && (
                   <>
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/30 ${lockedBlur ? "opacity-90" : ""}`}
-                    />
-                    <span className="absolute left-3 top-3 rounded-full bg-[#f4699f] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-[0_4px_14px_rgba(239,79,143,0.35)]">
-                      {lockedBlur ? "Locked" : "Preview only"}
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/55 to-transparent" />
+                    <span className="absolute left-3 top-3 rounded-full bg-[#f4699f] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+                      {lockedBlur ? "Sneak peek" : "Preview only"}
                     </span>
                     <span className="absolute bottom-3 left-3 right-3 text-center text-[11px] font-medium text-white/90">
                       Full {item.media_type} unlocks after purchase
@@ -122,13 +119,6 @@ export function GalleryDetail({
                   <span className="absolute left-3 top-3 rounded-full bg-emerald-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
                     Purchased
                   </span>
-                )}
-                {isVideoDisplay && unlocked && (
-                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#f4699f] text-xl text-white shadow-[0_8px_22px_rgba(239,79,143,0.45)] ring-4 ring-white/70">
-                      ▶
-                    </span>
-                  </div>
                 )}
               </div>
               <p className="app-detail-caption px-4 py-3 text-center text-xs leading-relaxed">

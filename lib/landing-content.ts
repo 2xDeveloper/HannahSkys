@@ -1,5 +1,6 @@
 import { getContentPublicUrl } from "@/lib/content";
 import { logDevIssue } from "@/lib/dev-log";
+import { isPubliclyListedCreator } from "@/lib/public-creators";
 import { createClient } from "@/lib/supabase/server";
 import type { CreatorContent } from "@/lib/types/content";
 import {
@@ -81,7 +82,9 @@ export async function getLandingContent(): Promise<LandingContent> {
     return EMPTY;
   }
 
-  const creators = creatorRows ?? [];
+  const creators = (creatorRows ?? []).filter((row) =>
+    isPubliclyListedCreator(row.display_name),
+  );
 
   if (creators.length === 0) {
     return { ...EMPTY, connected: true };

@@ -310,14 +310,22 @@ body {
 }
 
 .landing-nav {
-  display: none;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1.75rem;
+  justify-content: center;
+  gap: 0.55rem 1rem;
+  width: 100%;
+  order: 3;
 }
 
 @media (min-width: 1024px) {
   .landing-nav {
-    display: flex;
+    width: auto;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 1.5rem;
+    order: 0;
   }
 }
 
@@ -845,10 +853,24 @@ body {
   transform: scale(1.06);
 }
 
-/* Paid media with no creator-uploaded teaser stays obscured on public surfaces. */
+/* Paid media with no creator-uploaded teaser: slight sneak peek, not blacked out. */
 .landing-media-locked {
-  transform: scale(1.15);
-  filter: blur(18px) brightness(0.8) saturate(0.6);
+  transform: scale(1.08);
+  filter: blur(5px) brightness(0.98);
+}
+
+.preview-autoplay::-webkit-media-controls,
+.preview-autoplay::-webkit-media-controls-enclosure,
+.preview-autoplay::-webkit-media-controls-panel,
+.preview-autoplay::-webkit-media-controls-start-playback-button,
+.preview-autoplay::-webkit-media-controls-overlay-play-button,
+.preview-autoplay::-webkit-media-controls-overlay-enclosure {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .landing-media-card:hover .landing-media-locked {
@@ -899,28 +921,6 @@ body {
   font-weight: 500;
   color: rgba(255, 255, 255, 0.85);
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-.landing-play-badge {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  display: flex;
-  height: 1.85rem;
-  width: 1.85rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.85);
-  color: var(--pink);
-  transform: translate(-50%, -50%);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  transition: transform 0.25s ease, background 0.25s ease;
-}
-
-.landing-media-card:hover .landing-play-badge {
-  background: #fff;
-  transform: translate(-50%, -50%) scale(1.12);
 }
 
 /* ── Membership plans ── */

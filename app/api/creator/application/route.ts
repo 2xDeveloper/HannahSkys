@@ -37,15 +37,11 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!(avatar instanceof File && avatar.size > 0 && idDoc instanceof File && idDoc.size > 0)) {
-    return NextResponse.json(
-      { error: "Profile photo and ID photo are both required." },
-      { status: 400 },
-    );
-  }
+  const avatarFile = avatar instanceof File && avatar.size > 0 ? avatar : null;
+  const idFile = idDoc instanceof File && idDoc.size > 0 ? idDoc : null;
 
   try {
-    await uploadCreatorApplicationFiles(supabase, user.id, avatar, idDoc, username);
+    await uploadCreatorApplicationFiles(supabase, user.id, avatarFile, idFile, username);
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Upload failed." },

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { isPubliclyListedCreator } from "@/lib/public-creators";
 import type { CreatorContent } from "@/lib/types/content";
 import { getPublicDisplayPath } from "@/lib/types/content";
 
@@ -26,6 +27,7 @@ async function approvedCreatorMap(supabase: SupabaseClient) {
 
   const map = new Map<string, string | null>();
   for (const row of data ?? []) {
+    if (!isPubliclyListedCreator(row.display_name)) continue;
     map.set(row.id, row.display_name);
   }
   return map;

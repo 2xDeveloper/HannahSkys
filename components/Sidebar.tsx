@@ -16,6 +16,17 @@ export async function Sidebar() {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col px-3 py-4">
+        <div className="mb-4 space-y-1 md:hidden">
+          <Link href="/" className="app-sidebar-link block rounded-full px-3 py-2 text-sm font-medium">
+            Home
+          </Link>
+          <Link href="/gallery" className="app-sidebar-link block rounded-full px-3 py-2 text-sm font-medium">
+            Photos
+          </Link>
+          <Link href="/videos" className="app-sidebar-link block rounded-full px-3 py-2 text-sm font-medium">
+            Categories
+          </Link>
+        </div>
         <h2 className="app-sidebar-kicker mb-3 px-1 text-[10px] font-semibold uppercase tracking-[0.22em]">
           Featured
         </h2>

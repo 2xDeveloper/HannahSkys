@@ -1,4 +1,5 @@
 import { MEMBERSHIP_PLANS } from "@/lib/memberships";
+import { HIDE_OTHER_MODELS } from "@/lib/public-creators";
 
 /** Displayed plans come from the Stripe-authoritative membership list. */
 export const membershipPlans = MEMBERSHIP_PLANS;
@@ -6,9 +7,10 @@ export const membershipPlans = MEMBERSHIP_PLANS;
 export const navLinks = [
   { label: "Home", href: "#top" },
   { label: "Photos", href: "#photos" },
-  { label: "Videos", href: "#videos" },
+  { label: "Premade Videos", href: "/videos" },
+  { label: "Categories", href: "/videos" },
   { label: "Membership", href: "#membership" },
-  { label: "Models", href: "#models" },
+  ...(!HIDE_OTHER_MODELS ? [{ label: "Models", href: "#models" }] : []),
   { label: "Contact", href: "#contact" },
 ];
 

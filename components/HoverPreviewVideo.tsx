@@ -1,66 +1,80 @@
 "use client";
 
 import { MediaWatermark } from "@/components/MediaWatermark";
-import { useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 type HoverPreviewVideoProps = {
   src: string;
   className?: string;
   blurClass?: string;
+  poster?: string;
+  watermark?: boolean;
 };
 
-/** Gallery preview: show first frame, play on hover with play button overlay. */
-export function HoverPreviewVideo({ src, className = "", blurClass = "" }: HoverPreviewVideoProps) {
+/** Public video teaser — always autoplays, muted, no play button. */
+export function HoverPreviewVideo({
+  src,
+  className = "",
+  blurClass = "",
+  poster,
+  watermark = true,
+}: HoverPreviewVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [hovering, setHovering] = useState(false);
-  const [playing, setPlaying] = useState(false);
 
-  function handleEnter() {
-    setHovering(true);
+  useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
-    void el.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
-  }
 
-  function handleLeave() {
-    setHovering(false);
-    setPlaying(false);
-    const el = videoRef.current;
-    if (!el) return;
-    el.pause();
-    el.currentTime = 0;
-  }
+    el.muted = true;
+    el.defaultMuted = true;
+    el.volume = 0;
+    el.playsInline = true;
+    el.setAttribute("playsinline", "");
+    el.setAttribute("webkit-playsinline", "");
+    el.setAttribute("muted", "");
+
+    const play = () => {
+      el.muted = true;
+      void el.play().catch(() => {
+        /* iOS may block until the next user gesture; retry after load / tap. */
+      });
+    };
+
+    play();
+    const timers = [80, 300, 900].map((ms) => window.setTimeout(play, ms));
+    el.addEventListener("loadeddata", play);
+    el.addEventListener("canplay", play);
+    el.addEventListener("canplaythrough", play);
+    document.addEventListener("touchstart", play, { passive: true });
+    document.addEventListener("click", play);
+
+    return () => {
+      timers.forEach((id) => window.clearTimeout(id));
+      el.removeEventListener("loadeddata", play);
+      el.removeEventListener("canplay", play);
+      el.removeEventListener("canplaythrough", play);
+      document.removeEventListener("touchstart", play);
+      document.removeEventListener("click", play);
+    };
+  }, [src]);
 
   return (
-    <div
-      className="relative h-full w-full"
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
-    >
+    <div className="absolute inset-0">
       <video
         ref={videoRef}
         src={src}
+        poster={poster}
         muted
-        playsInline
+        autoPlay
         loop
-        preload="metadata"
-        className={`h-full w-full object-cover ${className} ${blurClass}`}
-        onLoadedData={() => {
-          const el = videoRef.current;
-          if (el && !hovering) el.currentTime = 0.1;
-        }}
+        playsInline
+        preload="auto"
+        controls={false}
+        disablePictureInPicture
+        disableRemotePlayback
+        className={`preview-autoplay h-full w-full object-cover ${className} ${blurClass}`}
       />
-      <MediaWatermark />
-      {(!hovering || !playing) && (
-        <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/25">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/70 text-sm text-white shadow-lg ring-2 ring-white/30">
-            ▶
-          </span>
-        </span>
-      )}
-      <span className="pointer-events-none absolute left-2 top-2 rounded bg-black/75 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
-        Video
-      </span>
+      {watermark ? <MediaWatermark /> : null}
     </div>
   );
 }

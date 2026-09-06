@@ -57,10 +57,10 @@ export function PendingCreatorCard({ profile, hideAdminActions }: PendingCreator
                 {hasPhoto ? "Uploaded" : "Missing"}
               </dd>
             </div>
-            <div>
-              <dt className="text-xs text-gray-500">ID verification</dt>
-              <dd>
-                {hasId ? (
+            {hasId && (
+              <div>
+                <dt className="text-xs text-gray-500">ID verification</dt>
+                <dd>
                   <a
                     href={`/api/admin/id-document?userId=${profile.id}`}
                     target="_blank"
@@ -69,11 +69,9 @@ export function PendingCreatorCard({ profile, hideAdminActions }: PendingCreator
                   >
                     View ID photo →
                   </a>
-                ) : (
-                  <span className="text-red-400">Missing</span>
-                )}
-              </dd>
-            </div>
+                </dd>
+              </div>
+            )}
             <div>
               <dt className="text-xs text-gray-500">Public profile</dt>
               <dd>

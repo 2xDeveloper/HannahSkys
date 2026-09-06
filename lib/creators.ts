@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { isPubliclyListedCreator } from "@/lib/public-creators";
 
 export type FeaturedCreator = {
   id: string;
@@ -30,10 +31,12 @@ export async function getApprovedCreators(): Promise<FeaturedCreator[]> {
     return [];
   }
 
-  return data.map((row) => ({
-    id: row.id,
-    name: row.display_name?.trim() || "Creator",
-    avatarUrl: row.avatar_url,
-    isNew: isRecentlyJoined(row.created_at),
-  }));
+  return data
+    .filter((row) => isPubliclyListedCreator(row.display_name))
+    .map((row) => ({
+      id: row.id,
+      name: row.display_name?.trim() || "Creator",
+      avatarUrl: row.avatar_url,
+      isNew: isRecentlyJoined(row.created_at),
+    }));
 }

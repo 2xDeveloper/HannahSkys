@@ -17,11 +17,9 @@ type CompleteCreatorApplicationProps = {
 
 export function CompleteCreatorApplication({
   profile,
-  userId,
 }: CompleteCreatorApplicationProps) {
   const router = useRouter();
   const avatarRef = useRef<HTMLInputElement>(null);
-  const idRef = useRef<HTMLInputElement>(null);
 
   const [wunUsername, setWunUsername] = useState(profile.instagram_handle ?? "");
   const [loading, setLoading] = useState(false);
@@ -44,26 +42,21 @@ export function CompleteCreatorApplication({
     setError(null);
 
     const avatarFile = avatarRef.current?.files?.[0];
-    const idFile = idRef.current?.files?.[0];
     const username = normalizeWunUsername(wunUsername);
 
     if (!username) {
       setError("Wun.app username is required.");
       return;
     }
-    if (!avatarFile) {
+    if (!avatarFile && !profile.avatar_url) {
       setError("Profile photo is required.");
-      return;
-    }
-    if (!idFile) {
-      setError("ID photo is required.");
       return;
     }
 
     setLoading(true);
 
     try {
-      await submitCreatorApplication(username, avatarFile, idFile);
+      await submitCreatorApplication(username, avatarFile ?? null, null);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed.");
@@ -80,7 +73,7 @@ export function CompleteCreatorApplication({
       <div>
         <h2 className="text-lg font-semibold text-amber-100">Complete creator application</h2>
         <p className="mt-1 text-sm text-gray-400">
-          Upload your profile photo, ID, and Wun.app username so an admin can review your account.
+          Upload your profile photo and Wun.app username so an admin can review your account.
         </p>
       </div>
 
@@ -101,36 +94,18 @@ export function CompleteCreatorApplication({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-400">
-            Profile photo
-          </label>
-          <input
-            ref={avatarRef}
-            type="file"
-            accept="image/*"
-            required={!profile.avatar_url}
-            className="app-muted w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-[#ffe6ef] file:px-3 file:py-2 file:text-sm file:text-[#ef4f8f]"
-          />
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-400">
-            Photo of ID (for verification)
-          </label>
-          <input
-            ref={idRef}
-            type="file"
-            accept="image/*"
-            required={!profile.id_document_path}
-            className="app-muted w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-[#ffe6ef] file:px-3 file:py-2 file:text-sm file:text-[#ef4f8f]"
-          />
-        </div>
+      <div>
+        <label className="mb-1.5 block text-xs font-medium text-gray-400">
+          Profile photo
+        </label>
+        <input
+          ref={avatarRef}
+          type="file"
+          accept="image/*"
+          required={!profile.avatar_url}
+          className="app-muted w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-[#ffe6ef] file:px-3 file:py-2 file:text-sm file:text-[#ef4f8f]"
+        />
       </div>
-
-      <p className="text-[11px] text-gray-600">
-        ID photos are private — only admins can view them for verification.
-      </p>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 

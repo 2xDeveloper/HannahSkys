@@ -34,7 +34,6 @@ export function ContentMediaThumb({
   const fullMediaType = item.media_type;
   const showAsVideo =
     (free || owned ? fullMediaType : publicMediaType) === "video";
-  const isPreviewVideo = showAsVideo && !free && !owned && !lockedBlur;
   const videoControls = (free || owned) && showAsVideo;
   const linkHref = href ?? `/gallery/${item.id}`;
   const blurClass = publicMediaBlurClass(item, { owned });
@@ -43,7 +42,7 @@ export function ContentMediaThumb({
     <article className="app-thumb group overflow-hidden rounded-2xl ring-1 ring-[#fbdce7] transition-all duration-500 hover:-translate-y-1 hover:ring-[#f4699f]/40 hover:shadow-[0_16px_36px_rgba(244,105,159,0.16)]">
       <Link href={linkHref} className="block">
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#ffe6ef]">
-          {isPreviewVideo ? (
+          {showAsVideo && !videoControls ? (
             <HoverPreviewVideo src={displayUrl} blurClass={blurClass} />
           ) : showAsVideo ? (
             <>
@@ -52,7 +51,7 @@ export function ContentMediaThumb({
                 muted
                 playsInline
                 preload="metadata"
-                controls={videoControls}
+                controls
                 className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${blurClass}`}
               />
               <MediaWatermark compact />
@@ -73,17 +72,10 @@ export function ContentMediaThumb({
           )}
           {!free && !owned && (
             <>
-              <div className={`absolute inset-0 pointer-events-none ${lockedBlur ? "bg-black/40" : "bg-black/20"}`} />
-              <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-bp-gold px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-[0_0_12px_rgba(255,90,154,0.5)]">
-                Paid
+              <div className="pointer-events-none absolute inset-0 bg-black/10" />
+              <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-bp-gold px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
+                {lockedBlur ? "Sneak peek" : "Preview"}
               </span>
-              {!isPreviewVideo && (
-                <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                  <span className="rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-md ring-1 ring-white/10">
-                    {lockedBlur ? "Locked" : publicMediaType === "video" ? "Video preview" : "Preview"}
-                  </span>
-                </span>
-              )}
             </>
           )}
           <span className="pointer-events-none absolute bottom-2 right-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
@@ -93,9 +85,7 @@ export function ContentMediaThumb({
                 ? "Video"
                 : free || owned
                   ? "Photo"
-                  : lockedBlur
-                    ? "Unlock"
-                    : "Photo"}
+                  : "Photo"}
           </span>
           {owned && (
             <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-emerald-700 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">

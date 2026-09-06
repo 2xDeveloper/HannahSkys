@@ -25,7 +25,6 @@ export function AuthForm({ mode }: AuthFormProps) {
   const purchaseComplete = searchParams.get("purchase") === "1";
 
   const avatarRef = useRef<HTMLInputElement>(null);
-  const idRef = useRef<HTMLInputElement>(null);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,17 +45,11 @@ export function AuthForm({ mode }: AuthFormProps) {
 
     if (mode === "signup") {
       const avatarFile = avatarRef.current?.files?.[0];
-      const idFile = idRef.current?.files?.[0];
 
       if (accountType === "creator") {
         if (!avatarFile) {
           setLoading(false);
           setError("Profile photo is required for creators.");
-          return;
-        }
-        if (!idFile) {
-          setLoading(false);
-          setError("Photo of your ID is required for verification.");
           return;
         }
       }
@@ -79,7 +72,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         return;
       }
 
-      if (data.user && accountType === "creator" && avatarFile && idFile) {
+      if (data.user && accountType === "creator" && avatarFile) {
         let session = data.session;
 
         // signUp may return a user without a session cookie yet — sign in to establish one
@@ -96,7 +89,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
         if (session) {
           try {
-            await submitCreatorApplication("", avatarFile, idFile, {
+            await submitCreatorApplication("", avatarFile, null, {
               userId: data.user.id,
               session,
             });
@@ -196,7 +189,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                 <span className="text-lg">✨</span>
                 <p className="app-heading mt-2 text-sm font-semibold">Creator</p>
                 <p className="mt-1 text-[11px] leading-snug text-gray-500">
-                  Requires photo, ID & admin approval
+                  Requires photo & admin approval
                 </p>
               </button>
             </div>
@@ -217,37 +210,18 @@ export function AuthForm({ mode }: AuthFormProps) {
           </div>
 
           {isCreatorSignup && (
-            <>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="app-muted mb-1.5 block text-xs font-medium">
-                    Profile photo
-                  </label>
-                  <input
-                    ref={avatarRef}
-                    type="file"
-                    accept="image/*"
-                    required
-                    className="app-muted w-full text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-[#ffe6ef] file:px-3 file:py-2 file:text-xs file:text-[#ef4f8f]"
-                  />
-                </div>
-                <div>
-                  <label className="app-muted mb-1.5 block text-xs font-medium">
-                    Photo of ID
-                  </label>
-                  <input
-                    ref={idRef}
-                    type="file"
-                    accept="image/*"
-                    required
-                    className="app-muted w-full text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-[#ffe6ef] file:px-3 file:py-2 file:text-xs file:text-[#ef4f8f]"
-                  />
-                </div>
-              </div>
-              <p className="text-[11px] leading-relaxed text-gray-600">
-                ID photos are stored privately and only visible to admins for verification.
-              </p>
-            </>
+            <div>
+              <label className="app-muted mb-1.5 block text-xs font-medium">
+                Profile photo
+              </label>
+              <input
+                ref={avatarRef}
+                type="file"
+                accept="image/*"
+                required
+                className="app-muted w-full text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-[#ffe6ef] file:px-3 file:py-2 file:text-xs file:text-[#ef4f8f]"
+              />
+            </div>
           )}
         </>
       )}

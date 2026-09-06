@@ -1,8 +1,10 @@
 import { CreatorAvatar } from "@/components/CreatorAvatar";
 import { JoinMembershipButton } from "@/components/landing/JoinMembershipButton";
+import { HoverPreviewVideo } from "@/components/HoverPreviewVideo";
 import { MediaWatermark } from "@/components/MediaWatermark";
 import type { LandingContent, LandingMediaItem } from "@/lib/landing-content";
 import { membershipPlans, navLinks, trustBadges } from "@/lib/landing-data";
+import { HIDE_OTHER_MODELS } from "@/lib/public-creators";
 import Link from "next/link";
 
 const HERO_IMAGE = "/images/hannah-hero.png";
@@ -57,17 +59,14 @@ function ChevronIcon({ dir }: { dir: "left" | "right" }) {
   );
 }
 
-function MediaCard({ item, showPlayBadge }: { item: LandingMediaItem; showPlayBadge?: boolean }) {
+function MediaCard({ item }: { item: LandingMediaItem }) {
   return (
     <Link href={item.href} className="landing-media-card">
       <div className="landing-media-thumb">
         {item.renderAsVideo ? (
-          <video
+          <HoverPreviewVideo
             src={item.displayUrl}
             className={`landing-media-img ${item.locked ? "landing-media-locked" : ""}`}
-            muted
-            playsInline
-            preload="metadata"
           />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
@@ -78,14 +77,9 @@ function MediaCard({ item, showPlayBadge }: { item: LandingMediaItem; showPlayBa
             loading="lazy"
           />
         )}
-        <MediaWatermark compact />
+        {!item.renderAsVideo && <MediaWatermark compact />}
         <span className="landing-media-scrim" aria-hidden />
-        {showPlayBadge && (
-          <span className="landing-play-badge">
-            <PlayIcon className="h-3.5 w-3.5" />
-          </span>
-        )}
-        {item.locked && <span className="landing-media-lock">Locked</span>}
+        {item.locked && <span className="landing-media-lock">Sneak peek</span>}
         <span className="landing-media-label">
           <span className="landing-media-title">{item.title}</span>
           <span className="landing-media-meta">
@@ -120,19 +114,21 @@ export function HannahSkysLanding({ content }: { content: LandingContent }) {
         </Link>
 
         <nav className="landing-nav" aria-label="Main">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className={
-                link.href === "#top"
-                  ? "landing-nav-link landing-nav-link-active"
-                  : "landing-nav-link"
-              }
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) => {
+            const className =
+              link.href === "#top"
+                ? "landing-nav-link landing-nav-link-active"
+                : "landing-nav-link";
+            return link.href.startsWith("/") ? (
+              <Link key={`${link.label}-${link.href}`} href={link.href} className={className}>
+                {link.label}
+              </Link>
+            ) : (
+              <a key={`${link.label}-${link.href}`} href={link.href} className={className}>
+                {link.label}
+              </a>
+            );
+          })}
         </nav>
 
         <div className="landing-header-actions">
@@ -199,16 +195,11 @@ export function HannahSkysLanding({ content }: { content: LandingContent }) {
               Thank you for supporting my journey!
             </p>
             <div className="landing-hero-photo-wrap">
-              <video
-                className="landing-hero-photo"
+              <HoverPreviewVideo
                 src={HERO_VIDEO}
                 poster={HERO_IMAGE}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                aria-label="HannahSkys"
+                className="landing-hero-photo"
+                watermark={false}
               />
             </div>
           </div>
@@ -258,11 +249,11 @@ export function HannahSkysLanding({ content }: { content: LandingContent }) {
           <div id="videos" className="landing-panel">
             <div className="landing-panel-head">
               <h3 className="landing-panel-title">
-                Premium Videos
+                <Link href="/videos">Premade Videos</Link>
                 {videoCount > 0 && <span className="landing-panel-count">{videoCount}</span>}
               </h3>
-              <Link href="/gallery" className="landing-panel-link">
-                View All Videos →
+              <Link href="/videos" className="landing-panel-link">
+                Browse Categories →
               </Link>
             </div>
             <div className="landing-panel-body">
@@ -270,7 +261,7 @@ export function HannahSkysLanding({ content }: { content: LandingContent }) {
                 <>
                   <div className="landing-card-grid">
                     {videos.map((item) => (
-                      <MediaCard key={item.id} item={item} showPlayBadge />
+                      <MediaCard key={item.id} item={item} />
                     ))}
                   </div>
                   <span className="landing-arrow landing-arrow-right" aria-hidden>
@@ -318,7 +309,7 @@ export function HannahSkysLanding({ content }: { content: LandingContent }) {
             </div>
           </div>
 
-          <div id="models" className="landing-panel">
+          {!HIDE_OTHER_MODELS && <div id="models" className="landing-panel">
             <div className="landing-panel-head">
               <div className="landing-panel-head-center landing-panel-head-grow">
                 <Sparkle className="landing-sparkle-sm" />
@@ -351,7 +342,7 @@ export function HannahSkysLanding({ content }: { content: LandingContent }) {
             ) : (
               <EmptyPanel message="Models are being approved right now — they'll appear here shortly." />
             )}
-          </div>
+          </div>}
         </div>
       </section>
 

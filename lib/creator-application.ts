@@ -26,51 +26,55 @@ export function wunAppProfileUrl(handle: string | null | undefined): string | nu
 export async function uploadCreatorApplicationFiles(
   supabase: SupabaseClient,
   userId: string,
-  avatarFile: File,
-  idFile: File,
+  avatarFile: File | null,
+  idFile: File | null,
   instagramHandle: string,
 ) {
-  const avatarExt = extFromFile(avatarFile);
-  const idExt = extFromFile(idFile);
-  const avatarPath = `${userId}/avatar.${avatarExt}`;
-  const idPath = `${userId}/id.${idExt}`;
+  const update: {
+    instagram_handle: string | null;
+    updated_at: string;
+    avatar_url?: string;
+    id_document_path?: string;
+  } = {
+    instagram_handle: normalizeInstagram(instagramHandle) || null,
+    updated_at: new Date().toISOString(),
+  };
 
-  const { error: avatarError } = await supabase.storage
-    .from("avatars")
-    .upload(avatarPath, avatarFile, { upsert: true, contentType: avatarFile.type });
+  if (avatarFile?.size) {
+    const avatarPath = `${userId}/avatar.${extFromFile(avatarFile)}`;
+    const { error: avatarError } = await supabase.storage
+      .from("avatars")
+      .upload(avatarPath, avatarFile, { upsert: true, contentType: avatarFile.type });
 
-  if (avatarError) throw new Error(`Profile photo: ${avatarError.message}`);
+    if (avatarError) throw new Error(`Profile photo: ${avatarError.message}`);
 
-  const { error: idError } = await supabase.storage
-    .from("id-documents")
-    .upload(idPath, idFile, { upsert: true, contentType: idFile.type });
+    const { data: avatarUrlData } = supabase.storage.from("avatars").getPublicUrl(avatarPath);
+    update.avatar_url = `${avatarUrlData.publicUrl}?t=${Date.now()}`;
+  }
 
-  if (idError) throw new Error(`ID photo: ${idError.message}`);
+  if (idFile?.size) {
+    const idPath = `${userId}/id.${extFromFile(idFile)}`;
+    const { error: idError } = await supabase.storage
+      .from("id-documents")
+      .upload(idPath, idFile, { upsert: true, contentType: idFile.type });
 
-  const { data: avatarUrlData } = supabase.storage.from("avatars").getPublicUrl(avatarPath);
-  const avatarUrl = `${avatarUrlData.publicUrl}?t=${Date.now()}`;
+    if (idError) throw new Error(`ID photo: ${idError.message}`);
+    update.id_document_path = idPath;
+  }
 
   const { error: profileError } = await supabase
     .from("profiles")
-    .update({
-      avatar_url: avatarUrl,
-      id_document_path: idPath,
-      instagram_handle: normalizeInstagram(instagramHandle) || null,
-      updated_at: new Date().toISOString(),
-    })
+    .update(update)
     .eq("id", userId);
 
   if (profileError) throw new Error(profileError.message);
 
-  return { avatarUrl, idPath };
+  return { avatarUrl: update.avatar_url ?? null, idPath: update.id_document_path ?? null };
 }
 
 export function creatorApplicationComplete(profile: {
   avatar_url: string | null;
-  id_document_path: string | null;
   instagram_handle: string | null;
 }) {
-  return Boolean(
-    profile.avatar_url && profile.id_document_path && profile.instagram_handle,
-  );
+  return Boolean(profile.avatar_url && profile.instagram_handle);
 }

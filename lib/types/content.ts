@@ -8,6 +8,7 @@ export type CreatorContent = {
   storage_path: string;
   preview_storage_path: string | null;
   price_cents: number | null;
+  category?: string | null;
   created_at: string;
   updated_at: string;
   creator_name?: string | null;
@@ -71,7 +72,7 @@ export function publicMediaBlurClass(
   options?: { owned?: boolean },
 ): string {
   return shouldBlurPublicMedia(item, options)
-    ? "scale-110 blur-2xl brightness-75 saturate-50"
+    ? "scale-110 blur-sm brightness-[0.97]"
     : "";
 }
 

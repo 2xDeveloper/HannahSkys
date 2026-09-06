@@ -21,6 +21,7 @@ import {
   mediaTypeFromFile,
   priceToCents,
 } from "@/lib/types/content";
+import { VIDEO_CATEGORIES, isVideoCategorySlug, videoCategoryLabel } from "@/lib/video-categories";
 import { prepareMediaForUpload } from "@/lib/watermark";
 import {
   formatDuration,
@@ -161,6 +162,7 @@ export function CreatorUploadForm({
   const previewTeaserRef = useRef<File | null>(null);
 
   const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [isFree, setIsFree] = useState(true);
   const [fullPreview, setFullPreview] = useState<FilePreview | null>(null);
@@ -355,6 +357,11 @@ export function CreatorUploadForm({
       return;
     }
 
+    if (mediaType === "video" && !isVideoCategorySlug(category)) {
+      setError("Pick a category for premade videos.");
+      return;
+    }
+
     if (!isVideoFile(fullFile) && isOverUploadLimit(fullFile.size)) {
       setError(
         `File is ${formatFileSize(fullFile.size)} — max ${maxUploadLabel()}. Use a smaller image.`,
@@ -410,6 +417,7 @@ export function CreatorUploadForm({
         mediaType,
         priceCents,
         isFree ? null : uploadPreview,
+        mediaType === "video" ? category : null,
       );
       router.push("/account?published=1#upload");
       router.refresh();
@@ -503,6 +511,28 @@ export function CreatorUploadForm({
               className="w-full rounded-xl border border-[#fbdce7] bg-white px-4 py-3 text-sm text-[#3f3a44] placeholder:text-gray-600 focus:border-bp-gold focus:outline-none focus:ring-1 focus:ring-bp-gold/50"
             />
           </div>
+
+          {fullPreview?.isVideo && (
+            <div>
+              <label htmlFor="content-category" className="mb-2 block text-xs font-medium text-gray-400">
+                Category
+              </label>
+              <select
+                id="content-category"
+                required
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full rounded-xl border border-[#fbdce7] bg-white px-4 py-3 text-sm text-[#3f3a44] focus:border-bp-gold focus:outline-none focus:ring-1 focus:ring-bp-gold/50"
+              >
+                <option value="">Choose a category</option>
+                {VIDEO_CATEGORIES.map((option) => (
+                  <option key={option.slug} value={option.slug}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div>
             <p className="mb-2 text-xs font-medium text-gray-400">Pricing</p>
@@ -768,6 +798,9 @@ export function CreatorUploadForm({
                         : item.media_type === "video"
                           ? `Video · ${COLLECT_LABEL.toLowerCase()}`
                           : `Photo · ${COLLECT_LABEL.toLowerCase()}`}
+                      {item.media_type === "video" && item.category
+                        ? ` · ${videoCategoryLabel(item.category)}`
+                        : ""}
                     </p>
                     <p
                       className={`mt-1 text-xs font-semibold ${

@@ -17,6 +17,7 @@ export async function uploadCreatorContent(
   mediaType: MediaType,
   priceCents: number | null,
   previewFile?: File | null,
+  category?: string | null,
 ) {
   const isPaid = priceCents != null && priceCents > 0;
 
@@ -54,19 +55,33 @@ export async function uploadCreatorContent(
     }
   }
 
-  const { data, error: insertError } = await supabase
+  const payload: Record<string, unknown> = {
+    id: contentId,
+    creator_id: userId,
+    title: title.trim(),
+    media_type: mediaType,
+    storage_path: fullPath,
+    preview_storage_path: previewPath,
+    price_cents: priceCents,
+  };
+
+  if (mediaType === "video" && category) {
+    payload.category = category;
+  }
+
+  let { data, error: insertError } = await supabase
     .from("creator_content")
-    .insert({
-      id: contentId,
-      creator_id: userId,
-      title: title.trim(),
-      media_type: mediaType,
-      storage_path: fullPath,
-      preview_storage_path: previewPath,
-      price_cents: priceCents,
-    })
+    .insert(payload)
     .select()
     .single();
+
+  if (insertError && payload.category && /category/i.test(insertError.message)) {
+    const withoutCategory = { ...payload };
+    delete withoutCategory.category;
+    const retry = await supabase.from("creator_content").insert(withoutCategory).select().single();
+    data = retry.data;
+    insertError = retry.error;
+  }
 
   if (insertError) {
     await supabase.storage.from(BUCKET).remove(pathsToUpload.map((p) => p.path));

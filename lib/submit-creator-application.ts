@@ -41,8 +41,8 @@ export async function submitCreatorApplication(
 
   const ig = normalizeInstagram(instagram);
 
-  if (!avatarFile?.size || !idFile?.size) {
-    throw new Error("Profile photo and ID photo are both required.");
+  if (!avatarFile?.size && !ig) {
+    throw new Error("Profile photo is required.");
   }
 
   const { error: finalizeError } = await supabase.rpc("finalize_creator_signup", {
@@ -60,7 +60,7 @@ export async function submitCreatorApplication(
     }
   }
 
-  await uploadCreatorApplicationFiles(supabase, userId, avatarFile, idFile, ig);
+  await uploadCreatorApplicationFiles(supabase, userId, avatarFile ?? null, idFile ?? null, ig);
 
   const { error: reapplyError } = await supabase.rpc("reapply_creator_review");
   if (reapplyError) {

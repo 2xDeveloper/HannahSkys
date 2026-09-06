@@ -4,6 +4,7 @@ import { ContentGrid } from "@/components/ContentGrid";
 import { MessageForm } from "@/components/MessageForm";
 import { getCreatorContent } from "@/lib/content";
 import { getCreatorProfile } from "@/lib/messages";
+import { isPubliclyListedCreator } from "@/lib/public-creators";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -34,6 +35,9 @@ export default async function CreatorProfilePage({ params }: PageProps) {
   }
 
   const isOwnProfile = user?.id === creator.id;
+  if (!isOwnProfile && !isPubliclyListedCreator(creator.display_name)) {
+    notFound();
+  }
   const joined = new Date(creator.created_at).toLocaleDateString(undefined, {
     month: "long",
     year: "numeric",
